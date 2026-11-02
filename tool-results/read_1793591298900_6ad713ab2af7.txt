@@ -1,0 +1,699 @@
+     1→<!DOCTYPE html>
+     2→<html lang="fa" dir="rtl">
+     3→<head>
+     4→<meta charset="UTF-8">
+     5→<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+     6→<title>دروازه‌ها</title>
+     7→<link rel="preconnect" href="https://fonts.googleapis.com">
+     8→<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     9→<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+    10→<style>
+    11→:root{
+    12→  --bg-0:#05081f; --bg-1:#0b1038; --bg-2:#1c0f42;
+    13→  --neon-a:#7c5cff; --neon-b:#38c6ff; --neon-c:#b16cea;
+    14→  --glass-bg:rgba(255,255,255,.055);
+    15→  --glass-stroke:rgba(255,255,255,.13);
+    16→  --text:#eef0ff; --muted:#9aa3c7;
+    17→  --radius:22px;
+    18→}
+    19→*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    20→html{scroll-behavior:smooth}
+    21→body{
+    22→  font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
+    23→  color:var(--text);
+    24→  background:linear-gradient(160deg,var(--bg-0) 0%,var(--bg-1) 48%,var(--bg-2) 100%) fixed;
+    25→  min-height:100vh; overflow-x:hidden;
+    26→}
+    27→/* ---------- ambient background ---------- */
+    28→.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.32;pointer-events:none;z-index:0}
+    29→.blob-1{width:46vmax;height:46vmax;background:#3b2a8f;top:-18vmax;inset-inline-start:-12vmax;animation:drift 26s ease-in-out infinite alternate}
+    30→.blob-2{width:38vmax;height:38vmax;background:#0e5e8a;bottom:-16vmax;inset-inline-end:-10vmax;animation:drift 32s ease-in-out infinite alternate-reverse}
+    31→.blob-3{width:26vmax;height:26vmax;background:#5a2a8f;top:38%;inset-inline-end:22%;opacity:.2;animation:drift 40s ease-in-out infinite alternate}
+    32→@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(6vmax,4vmax) scale(1.12)}}
+    33→/* ---------- glass system ---------- */
+    34→.glass{
+    35→  background:var(--glass-bg);
+    36→  -webkit-backdrop-filter:blur(20px) saturate(150%);
+    37→  backdrop-filter:blur(20px) saturate(150%);
+    38→  border:1px solid var(--glass-stroke);
+    39→  border-radius:var(--radius);
+    40→  box-shadow:0 10px 40px rgba(2,4,18,.5), inset 0 1px 0 rgba(255,255,255,.12);
+    41→}
+    42→/* ---------- topbar ---------- */
+    43→.topbar{
+    44→  position:sticky;top:12px;z-index:50;
+    45→  width:min(1040px,calc(100% - 24px));margin:12px auto 0;
+    46→  display:flex;align-items:center;gap:14px;padding:10px 16px;
+    47→}
+    48→.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;white-space:nowrap}
+    49→.brand .logo{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    50→  background:linear-gradient(135deg,var(--neon-a),var(--neon-b));
+    51→  box-shadow:0 4px 18px rgba(124,92,255,.5), inset 0 1px 0 rgba(255,255,255,.35)}
+    52→.brand .logo svg{width:20px;height:20px}
+    53→.navbtns{display:flex;gap:6px;margin-inline-start:auto;flex-wrap:wrap}
+    54→.navbtn{
+    55→  border:none;cursor:pointer;font-family:inherit;font-size:.92rem;font-weight:600;
+    56→  color:var(--muted);background:transparent;padding:9px 16px;border-radius:14px;
+    57→  transition:.25s;display:flex;align-items:center;gap:7px;
+    58→}
+    59→.navbtn svg{width:17px;height:17px}
+    60→.navbtn:hover{color:var(--text);background:rgba(255,255,255,.07)}
+    61→.navbtn.active{
+    62→  color:#fff;background:linear-gradient(135deg,rgba(124,92,255,.32),rgba(56,198,255,.22));
+    63→  border:1px solid rgba(140,120,255,.4);
+    64→  box-shadow:0 0 18px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.2);
+    65→}
+    66→.progress-chip{font-size:.8rem;color:var(--muted);white-space:nowrap;padding:6px 12px;border-radius:999px;
+    67→  border:1px solid var(--glass-stroke);background:rgba(255,255,255,.04)}
+    68→/* ---------- views ---------- */
+    69→main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px auto 80px}
+    70→.view{display:none;animation:fadeUp .45s ease both}
+    71→.view.active{display:block}
+    72→@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    73→.view-title{display:flex;align-items:baseline;gap:12px;margin:8px 4px 18px}
+    74→.view-title h1{font-size:1.5rem;font-weight:800}
+    75→.view-title p{color:var(--muted);font-size:.88rem}
+    76→/* ---------- gates grid ---------- */
+    77→.gates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px}
+    78→.gate{
+    79→  position:relative;cursor:pointer;padding:18px 14px 14px;overflow:hidden;
+    80→  display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+    81→  transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    82→  animation:fadeUp .5s ease both;
+    83→}
+    84→.gate:hover{transform:translateY(-6px);border-color:rgba(140,120,255,.5);
+    85→  box-shadow:0 16px 46px rgba(30,20,90,.6), 0 0 24px var(--glow,rgba(124,92,255,.35)), inset 0 1px 0 rgba(255,255,255,.15)}
+    86→.gate .num{
+    87→  width:44px;height:44px;border-radius:15px;display:grid;place-items:center;
+    88→  font-weight:800;font-size:1.05rem;color:#fff;
+    89→  background:linear-gradient(135deg,var(--gc1,#7c5cff),var(--gc2,#38c6ff));
+    90→  box-shadow:0 6px 20px var(--glow,rgba(124,92,255,.4)), inset 0 1px 0 rgba(255,255,255,.4);
+    91→}
+    92→.gate .gname{font-weight:700;font-size:.98rem;line-height:1.5}
+    93→.gate .gstatus{font-size:.74rem;color:var(--muted)}
+    94→.gate.locked{filter:saturate(.35);opacity:.75}
+    95→.gate.locked:hover{transform:translateY(-3px)}
+    96→.gate .lock{
+    97→  position:absolute;top:10px;inset-inline-start:10px;width:26px;height:26px;border-radius:9px;
+    98→  display:grid;place-items:center;background:rgba(10,12,30,.55);border:1px solid var(--glass-stroke);
+    99→}
+   100→.gate .lock svg{width:13px;height:13px;stroke:var(--muted)}
+   101→.gate.done .gstatus{color:#7be3a0}
+   102→/* ---------- world map ---------- */
+   103→.map-wrap{padding:18px;overflow-x:auto}
+   104→.map-svg{min-width:880px;width:100%;height:auto;display:block}
+   105→.map-node{cursor:pointer}
+   106→.map-node circle.node-c{transition:.3s}
+   107→.map-node:hover circle.node-c{filter:brightness(1.25)}
+   108→.map-legend{display:flex;gap:18px;justify-content:center;padding:12px 4px 4px;color:var(--muted);font-size:.8rem;flex-wrap:wrap}
+   109→.map-legend span{display:flex;align-items:center;gap:6px}
+   110→.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+   111→/* ---------- profile ---------- */
+   112→.profile-card{max-width:520px;margin:0 auto;padding:30px 26px;text-align:center}
+   113→.avatar{
+   114→  width:108px;height:108px;margin:0 auto 6px;border-radius:50%;
+   115→  background:linear-gradient(135deg,rgba(124,92,255,.35),rgba(56,198,255,.25));
+   116→  border:1px solid rgba(160,140,255,.4);display:grid;place-items:center;
+   117→  box-shadow:0 0 34px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.25);
+   118→}
+   119→.avatar svg{width:62px;height:88px}
+   120→.pname{font-size:1.25rem;font-weight:800;margin-top:10px}
+   121→.pid{color:var(--muted);font-size:.82rem;margin-top:2px}
+   122→.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}
+   123→.stat{padding:14px 8px;border-radius:16px;border:1px solid var(--glass-stroke);background:rgba(255,255,255,.045)}
+   124→.stat b{display:block;font-size:1.3rem;font-weight:800;
+   125→  background:linear-gradient(135deg,#a78bff,#5fd7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+   126→.stat span{font-size:.74rem;color:var(--muted)}
+   127→.progress-line{height:12px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid var(--glass-stroke)}
+   128→.progress-fill{height:100%;border-radius:999px;width:0;
+   129→  background:linear-gradient(90deg,var(--neon-a),var(--neon-b));
+   130→  box-shadow:0 0 14px rgba(124,92,255,.6);transition:width 1s ease}
+   131→.progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin:8px 2px 20px}
+   132→.btn{
+   133→  border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem;color:#fff;
+   134→  padding:13px 26px;border-radius:16px;
+   135→  background:linear-gradient(135deg,var(--neon-a),#5a7bff);
+   136→  box-shadow:0 8px 26px rgba(124,92,255,.45), inset 0 1px 0 rgba(255,255,255,.3);
+   137→  transition:.25s;display:inline-flex;align-items:center;gap:9px;
+   138→}
+   139→.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,92,255,.6), inset 0 1px 0 rgba(255,255,255,.3)}
+   140→.btn.ghost{background:rgba(255,255,255,.07);border:1px solid var(--glass-stroke);box-shadow:none}
+   141→.btn svg{width:18px;height:18px}
+   142→/* ---------- modals ---------- */
+   143→.modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:20px;
+   144→  background:rgba(4,6,20,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+   145→.modal.open{display:grid;animation:fadeIn .3s ease}
+   146→@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+   147→.modal-panel{width:min(480px,100%);padding:26px 24px;position:relative;animation:fadeUp .35s ease}
+   148→.modal-close{position:absolute;top:14px;inset-inline-start:14px;width:34px;height:34px;border-radius:12px;border:none;cursor:pointer;
+   149→  background:rgba(255,255,255,.08);color:var(--muted);display:grid;place-items:center;transition:.2s}
+   150→.modal-close:hover{color:#fff;background:rgba(255,90,120,.25)}
+   151→.modal-close svg{width:15px;height:15px}
+   152→.tabs{display:flex;gap:6px;margin:16px 0 14px;background:rgba(255,255,255,.05);padding:5px;border-radius:14px}
+   153→.tab{flex:1;border:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;color:var(--muted);
+   154→  padding:9px;border-radius:10px;background:transparent;transition:.25s}
+   155→.tab.active{color:#fff;background:linear-gradient(135deg,rgba(124,92,255,.4),rgba(56,198,255,.3));
+   156→  box-shadow:0 2px 12px rgba(124,92,255,.35)}
+   157→.tab-body{font-size:.92rem;line-height:2;color:#dfe3ff;min-height:120px}
+   158→.tab-body ol,.tab-body ul{padding-inline-start:22px;margin:8px 0}
+   159→.tab-body li{margin:6px 0}
+   160→.hint{font-size:.78rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px dashed var(--glass-stroke);
+   161→  border-radius:12px;padding:9px 12px;margin-top:14px;line-height:1.9}
+   162→/* ---------- QR ---------- */
+   163→#qr-canvas{width:230px;height:230px;margin:14px auto;display:block;border-radius:14px;
+   164→  background:#fff;padding:10px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+   165→.qr-caption{text-align:center;color:var(--muted);font-size:.8rem;line-height:1.9}
+   166→/* ---------- exploration scene ---------- */
+   167→.scene{position:fixed;inset:0;z-index:80;display:none;overflow:hidden;
+   168→  background:linear-gradient(180deg,#050d2e 0%,#082a56 34%,#0b4a7e 66%,#0d6396 100%)}
+   169→.scene.active{display:block;animation:fadeIn .5s ease}
+   170→.rays{position:absolute;inset:-20%;pointer-events:none;opacity:.5;
+   171→  background:repeating-linear-gradient(112deg,transparent 0 70px,rgba(170,215,255,.055) 70px 105px,transparent 105px 175px);
+   172→  filter:blur(7px);animation:sway 14s ease-in-out infinite alternate}
+   173→@keyframes sway{from{transform:translateX(-2.5%)}to{transform:translateX(2.5%)}}
+   174→.wave{position:absolute;left:0;bottom:-8px;width:200%;pointer-events:none}
+   175→.wave svg{display:block;width:100%;height:auto}
+   176→.wave-1{opacity:.35;animation:waveMove 22s linear infinite}
+   177→.wave-2{opacity:.3;animation:waveMove 15s linear infinite reverse;bottom:-20px}
+   178→.wave-3{opacity:.5;animation:waveMove 10s linear infinite;bottom:-30px}
+   179→@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(50%)}}
+   180→.bubble{position:absolute;bottom:-30px;border-radius:50%;pointer-events:none;
+   181→  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.75),rgba(190,225,255,.14) 58%,rgba(190,225,255,.04));
+   182→  border:1px solid rgba(220,240,255,.22);
+   183→  animation:rise linear infinite}
+   184→@keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0}
+   185→  8%{opacity:.8}88%{opacity:.5}
+   186→  100%{transform:translateY(-108vh) translateX(4vw);opacity:0}}
+   187→.vignette{position:absolute;inset:0;pointer-events:none;
+   188→  background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(2,6,24,.55) 100%)}
+   189→.light-shaft{position:absolute;top:-10%;width:170px;height:70%;pointer-events:none;opacity:.5;filter:blur(14px);
+   190→  background:linear-gradient(180deg,rgba(190,225,255,.2),transparent 78%);
+   191→  transform:skewX(-12deg);animation:shaft 9s ease-in-out infinite alternate}
+   192→.light-shaft.s2{animation-duration:12s;animation-delay:-4s;opacity:.35}
+   193→@keyframes shaft{from{transform:skewX(-12deg) translateX(-30px);opacity:.3}to{transform:skewX(-8deg) translateX(40px);opacity:.6}}
+   194→.scene-topbar{position:absolute;top:14px;inset-inline:14px;display:flex;align-items:center;gap:12px;z-index:5}
+   195→.scene-title{padding:10px 18px;font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:10px}
+   196→.scene-title .dot{background:linear-gradient(135deg,#5fd7ff,#7c5cff);box-shadow:0 0 12px rgba(95,215,255,.8)}
+   197→/* capsule characters */
+   198→.capsule{position:absolute;width:52px;height:82px;border-radius:26px;z-index:4;
+   199→  transition:filter .3s;
+   200→  background:linear-gradient(160deg,#8ee6ff 0%,#5f8bff 48%,#7c5cff 100%);
+   201→  border:1px solid rgba(255,255,255,.4);
+   202→  box-shadow:0 10px 26px rgba(2,10,40,.5), inset 0 2px 6px rgba(255,255,255,.55), inset 0 -8px 14px rgba(20,40,120,.35);
+   203→  animation:bob 3.6s ease-in-out infinite}
+   204→.capsule::before{content:'';position:absolute;top:12px;inset-inline:11px;height:22px;border-radius:12px;
+   205→  background:linear-gradient(135deg,rgba(8,14,40,.85),rgba(30,50,110,.75));
+   206→  border:1px solid rgba(160,220,255,.35);box-shadow:inset 0 1px 3px rgba(0,0,0,.5), 0 0 10px rgba(95,215,255,.25)}
+   207→.capsule::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);
+   208→  width:66px;height:12px;border-radius:50%;background:rgba(2,8,26,.42);filter:blur(4px);
+   209→  animation:shadowPulse 3.6s ease-in-out infinite}
+   210→.capsule .tail{position:absolute;bottom:-7px;inset-inline-end:9px;width:12px;height:16px;border-radius:0 0 9px 9px;
+   211→  background:linear-gradient(180deg,#5f8bff,#7c5cff);opacity:.9}
+   212→@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-9px) rotate(1.2deg)}}
+   213→@keyframes shadowPulse{0%,100%{transform:translateX(-50%) scaleX(1);opacity:.4}50%{transform:translateX(-50%) scaleX(.72);opacity:.25}}
+   214→.capsule.npc-1{background:linear-gradient(160deg,#ffd28e 0%,#ff8e5f 48%,#e05fff 100%)}
+   215→.capsule.npc-2{background:linear-gradient(160deg,#a7ffce 0%,#4fe0a0 48%,#3aa0ff 100%)}
+   216→.capsule.npc-3{background:linear-gradient(160deg,#f0a7ff 0%,#b16cea 48%,#5c5cff 100%)}
+   217→.capsule-label{position:absolute;top:-30px;inset-inline:0;text-align:center;font-size:.68rem;color:#dceaff;
+   218→  background:rgba(6,12,34,.5);border:1px solid rgba(150,200,255,.22);border-radius:9px;padding:2px 6px;
+   219→  backdrop-filter:blur(6px);white-space:nowrap;z-index:5}
+   220→/* joystick */
+   221→#joy{position:absolute;bottom:22px;inset-inline-start:22px;width:126px;height:126px;border-radius:50%;z-index:6;
+   222→  background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.12),rgba(255,255,255,.04) 70%);
+   223→  border:1px solid rgba(180,220,255,.3);box-shadow:0 8px 30px rgba(2,8,30,.5), inset 0 0 26px rgba(120,180,255,.12);
+   224→  touch-action:none;cursor:grab}
+   225→#joy-thumb{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;
+   226→  transform:translate(-50%,-50%);
+   227→  background:linear-gradient(145deg,rgba(160,200,255,.85),rgba(90,120,255,.7));
+   228→  border:1px solid rgba(255,255,255,.5);
+   229→  box-shadow:0 6px 18px rgba(40,80,200,.55), inset 0 2px 5px rgba(255,255,255,.6);
+   230→  transition:box-shadow .2s}
+   231→#joy.active #joy-thumb{box-shadow:0 6px 26px rgba(120,180,255,.8), 0 0 22px rgba(95,215,255,.5), inset 0 2px 5px rgba(255,255,255,.65)}
+   232→.joy-hint{position:absolute;bottom:158px;inset-inline-start:30px;z-index:6;font-size:.72rem;color:rgba(210,232,255,.75);
+   233→  background:rgba(6,12,34,.45);padding:5px 12px;border-radius:999px;border:1px solid rgba(150,200,255,.18);
+   234→  backdrop-filter:blur(6px)}
+   235→.scene-tip{position:absolute;top:70px;inset-inline-end:14px;z-index:5;max-width:240px;padding:12px 15px;
+   236→  font-size:.78rem;color:#cfe2ff;line-height:2}
+   237→.scene-tip b{color:#fff}
+   238→/* footer note */
+   239→.foot{position:relative;z-index:1;text-align:center;color:var(--muted);font-size:.75rem;margin:-56px auto 26px}
+   240→@media (max-width:640px){
+   241→  .topbar{flex-wrap:wrap;padding:10px 12px}
+   242→  .brand{width:100%}
+   243→  .progress-chip{display:none}
+   244→  .scene-tip{display:none}
+   245→}
+   246→@media (prefers-reduced-motion:reduce){
+   247→  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+   248→}
+   249→</style>
+   250→</head>
+   251→<body>
+   252→
+   253→<div class="blob blob-1"></div>
+   254→<div class="blob blob-2"></div>
+   255→<div class="blob blob-3"></div>
+   256→
+   257→<header class="topbar glass">
+   258→  <div class="brand">
+   259→    <span class="logo">
+   260→      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+   261→        <path d="M6 21V11a6 6 0 0 1 12 0v10"/><path d="M3 21h18"/><path d="M12 3v2"/>
+   262→      </svg>
+   263→    </span>
+   264→    دروازه‌ها
+   265→  </div>
+   266→  <div class="navbtns">
+   267→    <button class="navbtn active" data-view="gates">
+   268→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/></svg>
+   269→      دروازه‌ها</button>
+   270→    <button class="navbtn" data-view="map">
+   271→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+   272→      نقشهٔ جهان</button>
+   273→    <button class="navbtn" data-view="profile">
+   274→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+   275→      پروفایل</button>
+   276→  </div>
+   277→  <span class="progress-chip" id="chip-progress"></span>
+   278→</header>
+   279→
+   280→<main>
+   281→  <!-- ================= GATES ================= -->
+   282→  <section class="view active" id="view-gates">
+   283→    <div class="view-title">
+   284→      <h1>دروازه‌ها</h1>
+   285→      <p>هر دروازه یک سرزمین تازه است — برای گشودن، به سفر ادامه بده</p>
+   286→    </div>
+   287→    <div class="gates-grid" id="gates-grid"></div>
+   288→  </section>
+   289→
+   290→  <!-- ================= MAP ================= -->
+   291→  <section class="view" id="view-map">
+   292→    <div class="view-title">
+   293→      <h1>نقشهٔ جهان</h1>
+   294→      <p>مسیر سفر تو میان ۱۳ سرزمین</p>
+   295→    </div>
+   296→    <div class="glass map-wrap">
+   297→      <svg class="map-svg" id="map-svg" viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg"></svg>
+   298→      <div class="map-legend">
+   299→        <span><i class="dot" style="background:#7be3a0"></i> گذرانده‌شده</span>
+   300→        <span><i class="dot" style="background:linear-gradient(135deg,#7c5cff,#38c6ff)"></i> گشوده‌شده</span>
+   301→        <span><i class="dot" style="background:#3a3f63"></i> قفل</span>
+   302→      </div>
+   303→    </div>
+   304→  </section>
+   305→
+   306→  <!-- ================= PROFILE ================= -->
+   307→  <section class="view" id="view-profile">
+   308→    <div class="view-title">
+   309→      <h1>پروفایل</h1>
+   310→      <p>وضعیت سفر تو</p>
+   311→    </div>
+   312→    <div class="glass profile-card">
+   313→      <div class="avatar">
+   314→        <svg viewBox="0 0 62 88" xmlns="http://www.w3.org/2000/svg">
+   315→          <defs><linearGradient id="capg" x1="0" y1="0" x2="1" y2="1">
+   316→            <stop offset="0" stop-color="#8ee6ff"/><stop offset=".5" stop-color="#5f8bff"/><stop offset="1" stop-color="#7c5cff"/>
+   317→          </linearGradient></defs>
+   318→          <rect x="4" y="2" width="54" height="84" rx="27" fill="url(#capg)" stroke="rgba(255,255,255,.5)"/>
+   319→          <rect x="15" y="14" width="32" height="20" rx="10" fill="#0a1440" stroke="rgba(160,220,255,.4)"/>
+   320→          <rect x="20" y="19" width="9" height="5" rx="2.5" fill="#9fdcff" opacity=".9"/>
+   321→        </svg>
+   322→      </div>
+   323→      <div class="pname">مسافر</div>
+   324→      <div class="pid">کد مسافر: DZ-0001</div>
+   325→      <div class="stats">
+   326→        <div class="stat"><b id="st-gates">۰</b><span>دروازه گشوده‌شده</span></div>
+   327→        <div class="stat"><b id="st-missions">۰</b><span>مأموریت</span></div>
+   328→        <div class="stat"><b id="st-stars">۰</b><span>ستاره</span></div>
+   329→      </div>
+   330→      <div class="progress-line"><div class="progress-fill" id="profile-fill"></div></div>
+   331→      <div class="progress-label"><span id="profile-pct">۰٪</span><span>پیشرفت سفر</span></div>
+   332→      <button class="btn ghost" id="btn-qr">
+   333→        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h1M18 18h3v3h-3z"/></svg>
+   334→        کد QR من (تستی)</button>
+   335→    </div>
+   336→  </section>
+   337→</main>
+   338→
+   339→<p class="foot">نسخهٔ ساختاری v1 — همهٔ جلوه‌های بصری مطابق سیستم گلس‌مورفیسم تاریک</p>
+   340→
+   341→<!-- ================= GATE DETAIL MODAL ================= -->
+   342→<div class="modal" id="gate-modal">
+   343→  <div class="glass modal-panel">
+   344→    <button class="modal-close" data-close="gate-modal" aria-label="بستن">
+   345→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+   346→    </button>
+   347→    <h2 id="gm-title" style="font-size:1.15rem;font-weight:800"></h2>
+   348→    <p id="gm-sub" style="color:var(--muted);font-size:.82rem;margin-top:4px"></p>
+   349→    <div class="tabs" id="gm-tabs">
+   350→      <button class="tab active" data-tab="mission">مأموریت</button>
+   351→      <button class="tab" data-tab="minigame">مینی‌گیم</button>
+   352→      <button class="tab" data-tab="predict">پیش‌بینی</button>
+   353→    </div>
+   354→    <div class="tab-body" id="gm-body"></div>
+   355→    <div id="gm-actions" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"></div>
+   356→  </div>
+   357→</div>
+   358→
+   359→<!-- ================= QR MODAL ================= -->
+   360→<div class="modal" id="qr-modal">
+   361→  <div class="glass modal-panel" style="text-align:center">
+   362→    <button class="modal-close" data-close="qr-modal" aria-label="بستن">
+   363→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+   364→    </button>
+   365→    <h2 style="font-size:1.1rem;font-weight:800">کد QR مسافر</h2>
+   366→    <canvas id="qr-canvas" width="230" height="230"></canvas>
+   367→    <p class="qr-caption">این یک <b>کد تستی</b> است و هنوز به سیستم اصلی متصل نشده —<br>در نسخهٔ بعدی به شناسهٔ واقعی مسافر پیوند می‌خورد.</p>
+   368→  </div>
+   369→</div>
+   370→
+   371→<!-- ================= EXPLORATION SCENE — دریای شیشه‌ای ================= -->
+   372→<div class="scene" id="scene">
+   373→  <div class="rays"></div>
+   374→  <div class="light-shaft" style="inset-inline-start:14%"></div>
+   375→  <div class="light-shaft s2" style="inset-inline-start:52%"></div>
+   376→  <div class="light-shaft" style="inset-inline-start:80%"></div>
+   377→
+   378→  <div class="scene-topbar">
+   379→    <button class="btn ghost" id="btn-exit-scene" style="padding:10px 18px">
+   380→      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l-7 7 7 7M2 12h20" transform="rotate(180 12 12)"/></svg>
+   381→      بازگشت به دروازه‌ها</button>
+   382→    <span class="glass scene-title"><i class="dot"></i> دریای شیشه‌ای — اکتشاف</span>
+   383→  </div>
+   384→
+   385→  <div class="glass scene-tip">
+   386→    <b>راهنما:</b> با دستهٔ حرکت یا کلیدهای جهت، کپسول را در دریا جابه‌جا کن و
+   387→    کپسول‌های دیگر را پیدا کن.
+   388→  </div>
+   389→
+   390→  <div class="capsule" id="player" style="left:20%;top:52%">
+   391→    <span class="tail"></span>
+   392→    <span class="capsule-label">تو</span>
+   393→  </div>
+   394→  <div class="capsule npc-1" style="left:58%;top:38%">
+   395→    <span class="tail"></span><span class="capsule-label">نگهبان مرجان</span>
+   396→  </div>
+   397→  <div class="capsule npc-2" style="left:76%;top:60%">
+   398→    <span class="tail"></span><span class="capsule-label">دوست شیشه‌ای</span>
+   399→  </div>
+   400→  <div class="capsule npc-3" style="left:40%;top:70%">
+   401→    <span class="tail"></span><span class="capsule-label">پیر دریا</span>
+   402→  </div>
+   403→
+   404→  <div class="wave wave-1">
+   405→    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path fill="#3d8fd6" d="M0,45 C100,20 200,70 300,45 C400,20 500,70 600,45 C700,20 800,70 900,45 C1000,20 1100,70 1200,45 L1200,90 L0,90 Z"/></svg>
+   406→  </div>
+   407→  <div class="wave wave-2">
+   408→    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path fill="#5fb2e8" d="M0,50 C150,25 250,75 400,50 C550,25 650,75 800,50 C950,25 1050,75 1200,50 L1200,90 L0,90 Z"/></svg>
+   409→  </div>
+   410→  <div class="wave wave-3">
+   411→    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path fill="#8ed0f5" d="M0,55 C120,35 220,80 360,55 C500,30 600,80 760,55 C900,32 1020,78 1200,55 L1200,90 L0,90 Z"/></svg>
+   412→  </div>
+   413→
+   414→  <div class="vignette"></div>
+   415→
+   416→  <div class="joy-hint">دستهٔ حرکت / کلیدهای جهت</div>
+   417→  <div id="joy"><div id="joy-thumb"></div></div>
+   418→</div>
+   419→
+   420→<script>
+   421→'use strict';
+   422→/* ============================================================
+   423→   داده‌های بازی — نام دروازهٔ ۱ تأییدشده است؛ نام ۱۲ مورد دیگر
+   424→   «پیشنهادی» است و پس از تأیید کاربر جایگزین می‌شود.
+   425→   ============================================================ */
+   426→const GATES = [
+   427→  {id:1,  name:'دریای شیشه‌ای',   c1:'#38c6ff', c2:'#7c5cff', unlocked:true,  done:false, scene:true},
+   428→  {id:2,  name:'جنگل نقره‌ای',    c1:'#9be15d', c2:'#00e3ae', unlocked:false, done:false},
+   429→  {id:3,  name:'کوه بلورین',      c1:'#89f7fe', c2:'#66a6ff', unlocked:false, done:false},
+   430→  {id:4,  name:'کویر آینه‌ها',    c1:'#f6d365', c2:'#fda085', unlocked:false, done:false},
+   431→  {id:5,  name:'غار ستاره‌ها',    c1:'#a18cd1', c2:'#fbc2eb', unlocked:false, done:false},
+   432→  {id:6,  name:'شهر ابرها',       c1:'#c2e9fb', c2:'#a1c4fd', unlocked:false, done:false},
+   433→  {id:7,  name:'جزیرهٔ مه',       c1:'#d4fc79', c2:'#96e6a1', unlocked:false, done:false},
+   434→  {id:8,  name:'درهٔ فانوس‌ها',   c1:'#ffd86f', c2:'#fc6262', unlocked:false, done:false},
+   435→  {id:9,  name:'باغ روشنایی',     c1:'#84fab0', c2:'#8fd3f4', unlocked:false, done:false},
+   436→  {id:10, name:'برج بادها',       c1:'#e0c3fc', c2:'#8ec5fc', unlocked:false, done:false},
+   437→  {id:11, name:'چشمهٔ زمان',      c1:'#5ee7df', c2:'#b490ca', unlocked:false, done:false},
+   438→  {id:12, name:'صخرهٔ آواز',      c1:'#f78ca0', c2:'#f9748f', unlocked:false, done:false},
+   439→  {id:13, name:'دروازهٔ سپیده',   c1:'#ffecd2', c2:'#fcb69f', unlocked:false, done:false},
+   440→];
+   441→const SAMPLE = {
+   442→  missionTitle:'مأموریتِ دریای شیشه‌ای',
+   443→  mission:['سه سنگ‌مرجان گمشده را در تالار شیشه‌ای پیدا کن.',
+   444→           'با «پیر دریا» گفت‌وگو کن و نقشهٔ نیمه‌کاره را بگیر.',
+   445→           'با دستهٔ حرکت تا انتهای صحنه پیش برو.'],
+   446→  minigame:'اکتشاف آزادِ کف دریا — با دستهٔ حرکت (یا کلیدهای جهت) کپسولت را حرکت بده و کپسول‌های دیگر را پیدا کن.',
+   447→  predict:'آب، آینهٔ دل توست؛ آنچه در جست‌وجویشی، خودت را می‌یابی. سه دروازهٔ پیشِ رو با صدای آرام آب به تو اشاره می‌کنند — گوش بسپار.',
+   448→};
+   449→const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+   450→
+   451→/* ---------- state ---------- */
+   452→const KEY = 'darvazeha_progress_v1';
+   453→let state = {unlocked:1, visited:[1], missions:0, stars:0};
+   454→try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.unlocked) state = s; }catch(e){}
+   455→const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+   456→
+   457→/* ---------- navigation ---------- */
+   458→const views = document.querySelectorAll('.view');
+   459→document.querySelectorAll('.navbtn').forEach(b => b.addEventListener('click', () => {
+   460→  document.querySelectorAll('.navbtn').forEach(x => x.classList.remove('active'));
+   461→  b.classList.add('active');
+   462→  views.forEach(v => v.classList.remove('active'));
+   463→  document.getElementById('view-' + b.dataset.view).classList.add('active');
+   464→  if(b.dataset.view === 'map') renderMap();
+   465→  if(b.dataset.view === 'profile') renderProfile();
+   466→}));
+   467→
+   468→/* ---------- gates grid ---------- */
+   469→function renderGates(){
+   470→  const grid = document.getElementById('gates-grid');
+   471→  grid.innerHTML = '';
+   472→  GATES.forEach((g, i) => {
+   473→    const isOpen = g.id <= state.unlocked;
+   474→    const el = document.createElement('div');
+   475→    el.className = 'glass gate' + (isOpen ? '' : ' locked') + (g.done ? ' done' : '');
+   476→    el.style.setProperty('--gc1', g.c1); el.style.setProperty('--gc2', g.c2);
+   477→    el.style.setProperty('--glow', g.c1 + '66');
+   478→    el.style.animationDelay = (i * 45) + 'ms';
+   479→    el.innerHTML = `
+   480→      ${isOpen ? '' : `<span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>`}
+   481→      <span class="num">${fa(g.id)}</span>
+   482→      <span class="gname">${g.name}</span>
+   483→      <span class="gstatus">${g.done ? 'گذرانده شد' : isOpen ? 'گشوده شد — آمادهٔ سفر' : 'قفل — هنوز بسته است'}</span>`;
+   484→    el.addEventListener('click', () => openGate(g));
+   485→    grid.appendChild(el);
+   486→  });
+   487→  document.getElementById('chip-progress').textContent =
+   488→    `دروازهٔ ${fa(state.unlocked)} از ${fa(13)}`;
+   489→}
+   490→function openGate(g){
+   491→  const isOpen = g.id <= state.unlocked;
+   492→  const modal = document.getElementById('gate-modal');
+   493→  document.getElementById('gm-title').textContent = 'دروازهٔ ' + fa(g.id) + ' — ' + g.name;
+   494→  const actions = document.getElementById('gm-actions');
+   495→  actions.innerHTML = '';
+   496→  if(!isOpen){
+   497→    document.getElementById('gm-sub').textContent = 'این دروازه هنوز بسته است';
+   498→    document.getElementById('gm-body').innerHTML =
+   499→      '<p>برای گشودن این دروازه، ابتدا سفر در سرزمین‌های پیشین را کامل کن. کلید هر دروازه در دل سرزمین قبلی پنهان است.</p>';
+   500→    modal.classList.add('open');
+   501→    return;
+   502→  }
+   503→  document.getElementById('gm-sub').textContent = g.done ? 'گذرانده شد' : 'آمادهٔ سفر';
+   504→  if(g.scene && g.id === 1){
+   505→    document.getElementById('gm-body').innerHTML = `
+   506→      <p><b>${SAMPLE.missionTitle}</b></p>
+   507→      <ol>${SAMPLE.mission.map(m => '<li>' + m + '</li>').join('')}</ol>`;
+   508→    const enter = document.createElement('button');
+   509→    enter.className = 'btn';
+   510→    enter.innerHTML = 'ورود به صحنهٔ اکتشاف';
+   511→    enter.addEventListener('click', () => { modal.classList.remove('open'); enterScene(); });
+   512→    actions.appendChild(enter);
+   513→  } else {
+   514→    document.getElementById('gm-body').innerHTML =
+   515→      '<p>محتوای این سرزمین در نسخهٔ بعدی اضافه می‌شود — ساختار همانند «دریای شیشه‌ای» خواهد بود: مأموریت، مینی‌گیم و پیش‌بینی کامل.</p>';
+   516→  }
+   517→  modal.classList.add('open');
+   518→}
+   519→/* tabs */
+   520→document.querySelectorAll('#gm-tabs .tab').forEach(t => t.addEventListener('click', () => {
+   521→  document.querySelectorAll('#gm-tabs .tab').forEach(x => x.classList.remove('active'));
+   522→  t.classList.add('active');
+   523→  const body = document.getElementById('gm-body');
+   524→  if(t.dataset.tab === 'mission'){
+   525→    body.innerHTML = '<p><b>' + SAMPLE.missionTitle + '</b></p><ol>' +
+   526→      SAMPLE.mission.map(m => '<li>' + m + '</li>').join('') + '</ol>';
+   527→  } else if(t.dataset.tab === 'minigame'){
+   528→    body.innerHTML = '<p>' + SAMPLE.minigame + '</p>';
+   529→  } else {
+   530→    body.innerHTML = '<p style="font-style:italic;line-height:2.2">«' + SAMPLE.predict + '»</p>';
+   531→  }
+   532→}));
+   533→/* modal close */
+   534→document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () =>
+   535→  document.getElementById(b.dataset.close).classList.remove('open')));
+   536→document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
+   537→  if(e.target === m) m.classList.remove('open');
+   538→}));
+   539→
+   540→/* ---------- world map ---------- */
+   541→function renderMap(){
+   542→  const svg = document.getElementById('map-svg');
+   543→  const W = 960, H = 560, n = GATES.length;
+   544→  const pts = GATES.map((g, i) => {
+   545→    const row = Math.floor(i / 5), col = i % 5;
+   546→    const x = row % 2 === 0 ? 120 + col * 180 : 840 - col * 180;
+   547→    const y = 90 + row * 190;
+   548→    return {x: Math.min(x, 900), y: Math.min(y, 500)};
+   549→  });
+   550→  let d = 'M ' + pts.map(p => p.x + ' ' + p.y).join(' L ');
+   551→  svg.innerHTML = `
+   552→    <defs>
+   553→      <linearGradient id="pathg" x1="0" y1="0" x2="1" y2="1">
+   554→        <stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#38c6ff"/>
+   555→      </linearGradient>
+   556→      <radialGradient id="nodeg" cx=".35" cy=".3" r="1">
+   557→        <stop offset="0" stop-color="#a78bff"/><stop offset="1" stop-color="#5a7bff"/>
+   558→      </radialGradient>
+   559→    </defs>
+   560→    <path d="${d}" fill="none" stroke="url(#pathg)" stroke-width="3.5"
+   561→      stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 14" opacity=".85"/>`;
+   562→  pts.forEach((p, i) => {
+   563→    const g = GATES[i], isOpen = g.id <= state.unlocked, done = g.done;
+   564→    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+   565→    node.classList.add('map-node');
+   566→    const fill = done ? '#7be3a0' : isOpen ? 'url(#nodeg)' : '#3a3f63';
+   567→    const glow = isOpen && !done ? '<circle cx="' + p.x + '" cy="' + p.y + '" r="26" fill="' + g.c1 + '" opacity=".22"/>' : '';
+   568→    node.innerHTML = glow +
+   569→      '<circle class="node-c" cx="' + p.x + '" cy="' + p.y + '" r="19" fill="' + fill + '"' +
+   570→      (isOpen ? ' stroke="rgba(255,255,255,.55)" stroke-width="2"' : ' stroke="rgba(255,255,255,.15)"') + '/>' +
+   571→      '<text x="' + p.x + '" y="' + (p.y + 5) + '" text-anchor="middle" font-size="14" font-weight="700" fill="' +
+   572→      (isOpen ? '#fff' : '#8a90b5') + '">' + fa(g.id) + '</text>' +
+   573→      '<text x="' + p.x + '" y="' + (p.y + 42) + '" text-anchor="middle" font-size="12.5" fill="' +
+   574→      (isOpen ? '#dfe6ff' : '#7d84ab') + '" font-family="Vazirmatn,Tahoma">' + g.name + '</text>';
+   575→    node.addEventListener('click', () => { openGate(g); });
+   576→    svg.appendChild(node);
+   577→  });
+   578→}
+   579→
+   580→/* ---------- profile ---------- */
+   581→function renderProfile(){
+   582→  const pct = Math.round((state.unlocked - 1) / (GATES.length - 1) * 100);
+   583→  document.getElementById('st-gates').textContent = fa(state.unlocked);
+   584→  document.getElementById('st-missions').textContent = fa(state.missions);
+   585→  document.getElementById('st-stars').textContent = fa(state.stars);
+   586→  document.getElementById('profile-fill').style.width = Math.max(pct, 4) + '%';
+   587→  document.getElementById('profile-pct').textContent = fa(pct) + '٪';
+   588→}
+   589→
+   590→/* ---------- QR (تستی) ---------- */
+   591→document.getElementById('btn-qr').addEventListener('click', () => {
+   592→  document.getElementById('qr-modal').classList.add('open');
+   593→  drawPseudoQR('DZ-0001|darvazeha-test');
+   594→});
+   595→function drawPseudoQR(seed){
+   596→  const cv = document.getElementById('qr-canvas'), ctx = cv.getContext('2d');
+   597→  const N = 25, cell = Math.floor(cv.width / (N + 1)), off = cell;
+   598→  let h = 2166136261;
+   599→  for(const ch of seed){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+   600→  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) / 4294967296); };
+   601→  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+   602→  ctx.fillStyle = '#10132b';
+   603→  for(let y = 0; y < N; y++) for(let x = 0; x < N; x++){
+   604→    const inFinder = (x < 8 && y < 8) || (x >= N - 8 && y < 8) || (x < 8 && y >= N - 8);
+   605→    if(inFinder) continue;
+   606→    if(rnd() > .52) ctx.fillRect(off + x * cell, off + y * cell, cell - .8, cell - .8);
+   607→  }
+   608→  const finder = (fx, fy) => {
+   609→    ctx.fillStyle = '#10132b';
+   610→    ctx.fillRect(off + fx * cell, off + fy * cell, 7 * cell, 7 * cell);
+   611→    ctx.fillStyle = '#fff';
+   612→    ctx.fillRect(off + (fx + 1) * cell, off + (fy + 1) * cell, 5 * cell, 5 * cell);
+   613→    ctx.fillStyle = '#10132b';
+   614→    ctx.fillRect(off + (fx + 2) * cell, off + (fy + 2) * cell, 3 * cell, 3 * cell);
+   615→  };
+   616→  finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+   617→}
+   618→
+   619→/* ---------- exploration scene ---------- */
+   620→const scene = document.getElementById('scene');
+   621→const player = document.getElementById('player');
+   622→let px = 20, py = 52; // percent
+   623→function enterScene(){
+   624→  scene.classList.add('active');
+   625→  document.querySelector('.topbar').style.display = 'none';
+   626→  px = 20; py = 52; place();
+   627→  spawnBubbles();
+   628→}
+   629→document.getElementById('btn-exit-scene').addEventListener('click', () => {
+   630→  scene.classList.remove('active');
+   631→  document.querySelector('.topbar').style.display = '';
+   632→});
+   633→function place(){ player.style.left = px + '%'; player.style.top = py + '%'; }
+   634→
+   635→/* joystick */
+   636→const joy = document.getElementById('joy'), thumb = document.getElementById('joy-thumb');
+   637→let joyVec = {x:0, y:0}, joyId = null;
+   638→function joyMove(e){
+   639→  const r = joy.getBoundingClientRect();
+   640→  let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+   641→  const dist = Math.hypot(dx, dy), max = r.width / 2 - 18;
+   642→  if(dist > max){ dx *= max / dist; dy *= max / dist; }
+   643→  thumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+   644→  joyVec = {x: dx / max, y: dy / max};
+   645→}
+   646→joy.addEventListener('pointerdown', e => {
+   647→  joyId = e.pointerId; joy.classList.add('active'); joy.setPointerCapture(joyId); joyMove(e);
+   648→});
+   649→joy.addEventListener('pointermove', e => { if(e.pointerId === joyId) joyMove(e); });
+   650→['pointerup', 'pointercancel'].forEach(ev => joy.addEventListener(ev, e => {
+   651→  if(e.pointerId !== joyId) return;
+   652→  joyId = null; joy.classList.remove('active');
+   653→  joyVec = {x:0, y:0}; thumb.style.transform = 'translate(-50%,-50%)';
+   654→}));
+   655→/* keyboard */
+   656→const keys = {};
+   657→addEventListener('keydown', e => {
+   658→  if(!scene.classList.contains('active')) return;
+   659→  keys[e.key.toLowerCase()] = true;
+   660→  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+   661→});
+   662→addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+   663→
+   664→(function loop(){
+   665→  let dx = joyVec.x, dy = joyVec.y;
+   666→  if(keys['arrowleft'] || keys['a']) dx -= 1;
+   667→  if(keys['arrowright'] || keys['d']) dx += 1;
+   668→  if(keys['arrowup'] || keys['w']) dy -= 1;
+   669→  if(keys['arrowdown'] || keys['s']) dy += 1;
+   670→  if(dx || dy){
+   671→    px = Math.min(94, Math.max(6, px + dx * .35));
+   672→    py = Math.min(76, Math.max(26, py + dy * .35));
+   673→    place();
+   674→  }
+   675→  requestAnimationFrame(loop);
+   676→})();
+   677→
+   678→/* bubbles */
+   679→function spawnBubbles(){
+   680→  if(scene.querySelector('.bubble')) return;
+   681→  for(let i = 0; i < 16; i++){
+   682→    const b = document.createElement('span');
+   683→    b.className = 'bubble';
+   684→    const s = 5 + Math.random() * 16;
+   685→    b.style.width = b.style.height = s + 'px';
+   686→    b.style.left = (Math.random() * 98) + '%';
+   687→    b.style.animationDuration = (9 + Math.random() * 12) + 's';
+   688→    b.style.animationDelay = (-Math.random() * 14) + 's';
+   689→    scene.appendChild(b);
+   690→  }
+   691→}
+   692→
+   693→/* ---------- init ---------- */
+   694→renderGates();
+   695→renderProfile();
+   696→</script>
+   697→</body>
+   698→</html>
+   699→

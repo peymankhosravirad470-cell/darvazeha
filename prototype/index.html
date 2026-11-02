@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05081f">
+<title>هفتاد و هفت سرزمین — نمونهٔ اولیه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#05081f; --bg-1:#0b1038; --bg-2:#1c0f42;
+  --neon-a:#7c5cff; --neon-b:#38c6ff; --neon-c:#b16cea;
+  --gold:#ffd86f;
+  --glass-bg:rgba(255,255,255,.055);
+  --glass-stroke:rgba(255,255,255,.13);
+  --text:#eef0ff; --muted:#9aa3c7;
+  --radius:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
+  color:var(--text);
+  background:linear-gradient(160deg,var(--bg-0) 0%,var(--bg-1) 48%,var(--bg-2) 100%) fixed;
+  min-height:100vh; overflow:hidden;
+  overscroll-behavior:none;
+  -webkit-user-select:none; user-select:none;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+/* ---------- views ---------- */
+.view{display:none;min-height:100vh;min-height:100dvh}
+.view.active{display:flex;flex-direction:column}
+/* ---------- glass system ---------- */
+.glass{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-stroke);
+  border-radius:var(--radius);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);font-size:.82rem}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--neon-b);box-shadow:0 0 10px var(--neon-b)}
+/* ---------- boot ---------- */
+#screen-boot{align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px;position:relative;overflow:hidden}
+.logo-gate{width:96px;height:96px;border-radius:28px;position:relative;
+  background:linear-gradient(135deg,rgba(56,198,255,.25),rgba(124,92,255,.25));
+  border:1px solid rgba(124,198,255,.45);box-shadow:0 0 46px rgba(124,92,255,.35);
+  display:flex;align-items:center;justify-content:center;font-size:2.6rem}
+#screen-boot h1{font-size:1.7rem;font-weight:800;line-height:1.7;margin-top:6px}
+#screen-boot h1 b{background:linear-gradient(90deg,var(--neon-b),var(--neon-a));-webkit-background-clip:text;background-clip:text;color:transparent}
+#screen-boot .sub{color:var(--muted);font-size:.9rem;max-width:34ch;line-height:2}
+.ver-chip{font-size:.72rem;color:var(--gold);border-color:rgba(255,216,111,.4)}
+#btn-enter{margin-top:10px;padding:16px 46px;border-radius:18px;font-size:1.05rem;font-weight:800;color:#fff;
+  background:linear-gradient(90deg,var(--neon-a),var(--neon-b));
+  box-shadow:0 10px 34px rgba(124,92,255,.4)}
+#btn-enter:active{transform:scale(.97)}
+.boot-note{position:absolute;bottom:16px;inset-inline:0;color:var(--muted);font-size:.7rem;padding:0 20px;line-height:1.9}
+/* ---------- map ---------- */
+#screen-map{padding:0}
+.topbar{display:flex;align-items:center;gap:8px;padding:14px 16px;position:sticky;top:0;z-index:5;
+  background:linear-gradient(180deg,rgba(5,8,31,.92),rgba(5,8,31,.55) 80%,transparent)}
+.topbar .title{font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:8px}
+.topbar .spacer{flex:1}
+.map-wrap{flex:1;overflow-y:auto;padding:6px 16px 40px}
+.map-hint{color:var(--muted);font-size:.8rem;margin:4px 2px 14px;line-height:2}
+#gate-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:720px){#gate-grid{grid-template-columns:repeat(4,1fr)}}
+.gate-card{position:relative;padding:16px 14px;border-radius:20px;overflow:hidden;text-align:start;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);min-height:118px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.gate-card .g-name{font-weight:800;font-size:.95rem}
+.gate-card .g-idx{position:absolute;top:10px;inset-inline-start:12px;font-size:.68rem;color:var(--muted)}
+.gate-card .g-status{font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.gate-card.open{border-color:rgba(56,198,255,.55);box-shadow:0 8px 30px rgba(56,198,255,.18)}
+.gate-card.open .g-glow{position:absolute;inset:auto -20px -30px auto;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,198,255,.4),transparent 70%);filter:blur(6px)}
+.gate-card.locked{opacity:.55}
+.gate-card .g-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+/* ---------- realm ---------- */
+#screen-realm{position:relative;overflow:hidden;background:#071228}
+#iso{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.hud{position:absolute;inset:0;pointer-events:none;z-index:3}
+.hud > *{pointer-events:auto}
+#hud-top{position:absolute;top:0;inset-inline:0;display:flex;gap:8px;align-items:center;padding:12px 14px}
+#realm-title{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw}
+.hud-col{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));inset-inline-end:12px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.tool-btn{width:52px;height:52px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:1.05rem;line-height:1;background:var(--glass-bg);border:1px solid var(--glass-stroke);backdrop-filter:blur(10px)}
+.tool-btn small{font-size:.52rem;color:var(--muted)}
+#btn-action{width:86px;height:86px;border-radius:50%;font-weight:800;font-size:.95rem;color:#04101c;
+  background:linear-gradient(160deg,#8ff0ff,#38c6ff);box-shadow:0 12px 34px rgba(56,198,255,.45);
+  border:2px solid rgba(255,255,255,.5);display:none;line-height:1.5;padding:6px}
+#btn-action.show{display:block}
+#btn-action:active{transform:scale(.94)}
+#hint{position:absolute;bottom:calc(120px + env(safe-area-inset-bottom));inset-inline:12px;text-align:center;
+  font-size:.78rem;color:var(--muted);text-shadow:0 1px 8px rgba(0,0,0,.7);pointer-events:none}
+/* joystick */
+#joy{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));inset-inline-start:14px;width:128px;height:128px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  border:1px solid var(--glass-stroke);backdrop-filter:blur(8px);touch-action:none}
+#joy-thumb{position:absolute;top:50%;left:50%;width:56px;height:56px;border-radius:50%;
+  transform:translate(-50%,-50%);background:linear-gradient(160deg,rgba(124,92,255,.85),rgba(56,198,255,.85));
+  border:2px solid rgba(255,255,255,.55);box-shadow:0 6px 20px rgba(56,198,255,.4)}
+/* toasts */
+#toasts{position:absolute;top:64px;inset-inline:0;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:9}
+.toast{padding:9px 18px;border-radius:999px;font-size:.8rem;background:rgba(10,16,50,.85);
+  border:1px solid rgba(124,198,255,.4);backdrop-filter:blur(10px);animation:toastIn .25s ease, toastOut .3s ease 2.5s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-6px)}}
+/* ---------- sheets ---------- */
+.sheet{position:fixed;inset-inline:0;bottom:0;z-index:20;max-height:80vh;display:none;
+  transform:translateY(24px);opacity:0;transition:.22s ease;
+  background:rgba(9,13,40,.92);border:1px solid var(--glass-stroke);border-bottom:none;
+  border-radius:26px 26px 0 0;backdrop-filter:blur(18px);padding-bottom:env(safe-area-inset-bottom)}
+.sheet.show{display:block;transform:none;opacity:1}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:16px 18px 8px}
+.sheet-head h2{font-size:1rem;font-weight:800;flex:1}
+.sheet-close{width:38px;height:38px;border-radius:14px;background:var(--glass-bg);border:1px solid var(--glass-stroke);font-size:1rem}
+.sheet-body{padding:8px 18px 22px;overflow-y:auto;max-height:calc(80vh - 64px);line-height:2}
+.dim{position:fixed;inset:0;background:rgba(3,5,18,.6);z-index:15;display:none}
+.dim.show{display:block}
+.empty-state{text-align:center;color:var(--muted);font-size:.82rem;padding:26px 12px;line-height:2.2}
+.empty-state .es-ico{font-size:2rem;display:block;margin-bottom:6px}
+/* inventory */
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.inv-slot{padding:12px 8px;border-radius:16px;background:var(--glass-bg);border:1px solid var(--glass-stroke);text-align:center}
+.inv-slot .i-ico{font-size:1.5rem}
+.inv-slot .i-name{font-size:.7rem;margin-top:4px}
+.inv-slot .i-count{font-size:.8rem;font-weight:800;color:var(--neon-b)}
+/* lists & rows */
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--glass-bg);
+  border:1px solid var(--glass-stroke);margin-bottom:10px;font-size:.85rem}
+.row .r-ico{font-size:1.3rem}
+.row .r-main{flex:1;line-height:1.9}
+.row .r-main small{color:var(--muted);display:block;font-size:.7rem}
+.tag{font-size:.62rem;padding:3px 9px;border-radius:999px;border:1px solid var(--glass-stroke);color:var(--muted);white-space:nowrap}
+.tag.ok{color:#7dfcb4;border-color:rgba(125,252,180,.4)}
+.tag.warn{color:var(--gold);border-color:rgba(255,216,111,.4)}
+.tag.test{color:var(--neon-c);border-color:rgba(177,108,234,.5)}
+.btn{padding:12px 22px;border-radius:15px;font-weight:800;font-size:.85rem;
+  background:linear-gradient(90deg,var(--neon-a),var(--neon-b));color:#fff;box-shadow:0 8px 22px rgba(124,92,255,.3)}
+.btn:disabled{opacity:.35;box-shadow:none}
+.btn.ghost{background:var(--glass-bg);border:1px solid var(--glass-stroke);color:var(--text);box-shadow:none}
+.btn.block{display:block;width:100%}
+.btn:active{transform:scale(.97)}
+/* progress bars */
+.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid var(--glass-stroke)}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--neon-a),var(--neon-b));transition:width .3s}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{padding:13px;border-radius:16px;background:var(--glass-bg);border:1px solid var(--glass-stroke)}
+.stat-card b{font-size:1.05rem;display:block}
+.stat-card span{font-size:.68rem;color:var(--muted)}
+/* dialogue */
+.dlg-name{font-weight:800;color:var(--neon-b)}
+.dlg-text{font-size:.88rem;line-height:2.2;padding:6px 2px 12px;color:#dfe3ff}
+.choices{display:flex;flex-direction:column;gap:10px}
+/* puzzle */
+.ped-row{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.pedestal{flex:1;max-width:110px;padding:14px 6px;border-radius:16px;text-align:center;
+  background:var(--glass-bg);border:1px dashed rgba(255,216,111,.5);min-height:86px;font-size:.75rem}
+.pedestal .p-size{display:block;font-size:1.2rem;margin-bottom:4px}
+.pedestal.filled{border-style:solid;border-color:rgba(125,252,180,.6);background:rgba(125,252,180,.08)}
+.coral-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.coral-btn{padding:10px 16px;border-radius:14px;background:var(--glass-bg);border:1px solid rgba(247,140,160,.5);font-size:.78rem}
+.coral-btn.sel{outline:2px solid var(--gold)}
+/* notes */
+.notes-sec{margin-bottom:16px}
+.notes-sec h3{font-size:.85rem;color:var(--neon-b);margin-bottom:6px}
+.notes-sec ul{padding-inline-start:18px;font-size:.78rem;color:#cfd4f5;line-height:2.1}
+.notes-sec p{font-size:.78rem;color:#cfd4f5;line-height:2.1}
+/* timing minigame */
+#timing{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(3,5,18,.72);backdrop-filter:blur(6px)}
+#timing.show{display:flex}
+.timing-card{width:min(320px,86vw);padding:22px;text-align:center;border-radius:24px;background:rgba(9,13,40,.95);border:1px solid var(--glass-stroke)}
+.timing-card h3{font-size:1rem;margin-bottom:4px}
+.timing-card .t-sub{font-size:.75rem;color:var(--muted);margin-bottom:16px}
+#t-track{position:relative;width:64px;height:190px;margin:0 auto 16px;border-radius:18px;
+  background:rgba(255,255,255,.06);border:1px solid var(--glass-stroke);overflow:hidden}
+#t-zone{position:absolute;left:0;right:0;background:linear-gradient(180deg,rgba(125,252,180,.35),rgba(125,252,180,.55));
+  border-block:2px solid rgba(125,252,180,.8)}
+#t-marker{position:absolute;left:6px;right:6px;height:14px;border-radius:8px;background:linear-gradient(90deg,#fff,#8ff0ff);
+  box-shadow:0 0 14px rgba(143,240,255,.8)}
+#btn-hit{width:100%;padding:15px;font-size:1.05rem}
+#craft-prog{display:none;margin-top:12px}
+/* confirm */
+#confirm{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(3,5,18,.7)}
+#confirm.show{display:flex}
+.confirm-card{width:min(320px,86vw);padding:22px;border-radius:22px;background:rgba(9,13,40,.96);border:1px solid rgba(255,216,111,.35);text-align:center}
+.confirm-card p{font-size:.85rem;line-height:2.1;margin-bottom:14px}
+.confirm-card .cc-row{display:flex;gap:10px}
+.confirm-card .btn{flex:1}
+.btn.danger{background:linear-gradient(90deg,#ff6b6b,#f9748f)}
+/* kbd hint desktop */
+.kbd-hint{display:none}
+@media(min-width:900px){.kbd-hint{display:block}}
+</style>
+</head>
+<body>
+<!-- ═══════════ صفحهٔ ورود ═══════════ -->
+<div id="screen-boot" class="view active">
+  <div class="logo-gate">🚪</div>
+  <h1><b>هفتاد و هفت سرزمین</b></h1>
+  <div class="chip ver-chip">نمونهٔ اولیه ۰٫۱ — دارایی‌های موقت</div>
+  <p class="sub">سفر از دهکدهٔ ساحل شیشه‌ای آغاز می‌شود؛ سرزمینِ نخست از ۱۳ دروازهٔ ابتدایی جهانِ هفت‌وهفت‌سرزمین.</p>
+  <button id="btn-enter">ورود به جهان</button>
+  <p class="boot-note">نمونهٔ اولیهٔ قابل‌بازی — ساختار نهایی، مدل شخصیت و اعداد اقتصادی در انتظار تصویب کارفرماست.<br>همهٔ اعداد در این نمونه «آزمایشی» هستند.</p>
+</div>
+
+<!-- ═══════════ نقشهٔ جهان ═══════════ -->
+<div id="screen-map" class="view">
+  <div class="topbar">
+    <span class="chip title"><i class="dot"></i> نقشهٔ جهان — ۱۳ دروازه</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-progress-map"></span>
+  </div>
+  <div class="map-wrap">
+    <p class="map-hint">۱۳ دروازهٔ فعلی بخش ابتدایی جهان ۷۷ سرزمین است (معادل کل جهان نیستند). سرزمین ۱ «دریای شیشه‌ای» در این نمونهٔ اولیه قابل بازی است؛ نام‌گذاری نهایی دروازه‌ها در انتظار تصمیم کارفرما (موضوع A1).</p>
+    <div id="gate-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════ صحنهٔ سرزمین ═══════════ -->
+<div id="screen-realm" class="view">
+  <canvas id="iso"></canvas>
+  <div class="hud">
+    <div id="hud-top">
+      <button class="chip" id="btn-back-map">↩ نقشه</button>
+      <span class="chip title" id="realm-title"><i class="dot"></i> سرزمین ۱ — دهکدهٔ ساحل شیشه‌ای</span>
+      <span class="spacer"></span>
+      <button class="tool-btn" id="btn-notes" style="width:44px;height:44px" title="یادداشت‌های نمونه">ℹ</button>
+    </div>
+    <div id="toasts"></div>
+    <div id="hint"></div>
+    <div id="joy"><div id="joy-thumb"></div></div>
+    <div class="hud-col">
+      <button class="tool-btn" id="btn-status">🏝️<small>سرزمین</small></button>
+      <button class="tool-btn" id="btn-profile">🧭<small>کارنامه</small></button>
+      <button class="tool-btn" id="btn-missions">📜<small>مأموریت</small></button>
+      <button class="tool-btn" id="btn-inv">🎒<small>موجودی</small></button>
+      <button id="btn-action"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ پنل‌ها ═══════════ -->
+<div class="dim" id="dim"></div>
+
+<div class="sheet" id="sheet-inv">
+  <div class="sheet-head"><h2>🎒 موجودی مسافر</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="inv-body"></div>
+</div>
+
+<div class="sheet" id="sheet-craft">
+  <div class="sheet-head"><h2>⚒️ کارگاه دهکده</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="craft-body"></div>
+</div>
+
+<div class="sheet" id="sheet-missions">
+  <div class="sheet-head"><h2>📜 مأموریت‌ها</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="missions-body"></div>
+</div>
+
+<div class="sheet" id="sheet-profile">
+  <div class="sheet-head"><h2>🧭 کارنامهٔ مسافر</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="profile-body"></div>
+</div>
+
+<div class="sheet" id="sheet-status">
+  <div class="sheet-head"><h2>🏝️ وضعیت سرزمین</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="status-body"></div>
+</div>
+
+<div class="sheet" id="sheet-house">
+  <div class="sheet-head"><h2>🏠 خانهٔ مسافر — صندوق شخصی</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="house-body"></div>
+</div>
+
+<div class="sheet" id="sheet-dialogue">
+  <div class="sheet-head"><h2 id="dlg-title">گفت‌وگو</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="dialogue-body"></div>
+</div>
+
+<div class="sheet" id="sheet-puzzle">
+  <div class="sheet-head"><h2>🚪 دروازهٔ مرجانی</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="puzzle-body"></div>
+</div>
+
+<div class="sheet" id="sheet-notes">
+  <div class="sheet-head"><h2>ℹ️ یادداشت‌های نمونهٔ اولیه</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="notes-body"></div>
+</div>
+
+<!-- ═══════════ مینی‌گیم ضربه به‌موقع ═══════════ -->
+<div id="timing">
+  <div class="timing-card">
+    <h3 id="t-title">کوه‌کاوی</h3>
+    <p class="t-sub" id="t-sub">مکانیک M4 «ضربه به‌موقع» — وقتی نشانگر به نوار سبز رسید بزن.</p>
+    <div id="t-track"><div id="t-zone"></div><div id="t-marker"></div></div>
+    <button class="btn" id="btn-hit">کوبش!</button>
+    <button class="btn ghost block" id="btn-timing-cancel" style="margin-top:10px">انصراف</button>
+  </div>
+</div>
+
+<!-- ═══════════ تأیید حساس ═══════════ -->
+<div id="confirm">
+  <div class="confirm-card">
+    <p id="confirm-text"></p>
+    <div class="cc-row">
+      <button class="btn ghost" id="btn-confirm-no">انصراف</button>
+      <button class="btn danger" id="btn-confirm-yes">بله، انجام بده</button>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════
+   هفتاد و هفت سرزمین — نمونهٔ اولیهٔ ۰٫۱
+   معماری موقت: تک‌فایل، بدون کتابخانه، Canvas ایزومتریک، localStorage
+   ⚠ همهٔ اعداد [عدد آزمایشی] — بدون شبیه‌سازی قطعی نمی‌شوند (D12)
+   ⚠ هیچ تصمیم بازِ اسناد طراحی قطعی نشده است
+   ═══════════════════════════════════════════════════════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const SAVE_KEY = 'hs77_nemune_v1';
+
+/* ---------- ۱۳ دروازه — نام‌ها از کد فعلی v1 (موضوع A1 در انتظار تصمیم) ---------- */
+const GATES = [
+  {id:1,  name:'دریای شیشه‌ای', c1:'#38c6ff', c2:'#7c5cff', open:true},
+  {id:2,  name:'جنگل نقره‌ای',  c1:'#9be15d', c2:'#00e3ae'},
+  {id:3,  name:'کوه بلورین',    c1:'#89f7fe', c2:'#66a6ff'},
+  {id:4,  name:'کویر آینه‌ها',  c1:'#f6d365', c2:'#fda085'},
+  {id:5,  name:'غار ستاره‌ها',  c1:'#a18cd1', c2:'#fbc2eb'},
+  {id:6,  name:'شهر ابرها',     c1:'#c2e9fb', c2:'#a1c4fd'},
+  {id:7,  name:'جزیرهٔ مه',     c1:'#d4fc79', c2:'#96e6a1'},
+  {id:8,  name:'درهٔ فانوس‌ها', c1:'#ffd86f', c2:'#fc6262'},
+  {id:9,  name:'باغ روشنایی',   c1:'#84fab0', c2:'#8fd3f4'},
+  {id:10, name:'برج بادها',     c1:'#e0c3fc', c2:'#8ec5fc'},
+  {id:11, name:'چشمهٔ زمان',    c1:'#5ee7df', c2:'#b490ca'},
+  {id:12, name:'صخرهٔ آواز',    c1:'#f78ca0', c2:'#f9748f'},
+  {id:13, name:'دروازهٔ سپیده', c1:'#ffecd2', c2:'#fcb69f'},
+];
+
+/* ---------- کالاها — آیکون‌ها ایموجی موقت‌اند ---------- */
+const ITEMS = {
+  sang:   {name:'سنگ صخره‌ای',  ico:'🪨', desc:'از صخره‌های ساحلی — سرِ زنجیرهٔ نمونهٔ مصوب: معدن‌کار ← آهنگر ← نجار ← کشاورز'},
+  choob:  {name:'چوب شناور',    ico:'🪵', desc:'از درخت‌های ساحلی — دستهٔ ابزار'},
+  abzar:  {name:'ابزار سنگی',   ico:'🔨', desc:'محصول کارگاه دهکده — سفارش ناخدا'},
+  marjan: {name:'سنگ‌مرجان',    ico:'🪸', desc:'سه سنگ مرجانیِ دروازهٔ کهن — درشت، میانه، ریز'},
+  bolur:  {name:'بلور شیشه‌ای', ico:'💎', desc:'یادگاری دروازهٔ مرجانی'},
+  neshan: {name:'نشانِ دریای شیشه‌ای', ico:'🌀', desc:'نشان اکتشاف — آیتم نشانک (پیش‌نمایش اقلام کمیاب بازار عمومی)'},
+};
+
+/* ---------- وضعیت بازی (آزمایشی) ---------- */
+function defaultState(){
+  return {
+    v:1,
+    coins:0, xp:0,
+    prof:{lv:1, xp:0, registered:false},      // حرفهٔ معدن‌کاری
+    inv:{},                                    // موجودی شخصی
+    chest:{},                                  // صندوق خانه
+    mission:{accepted:false, done:false},      // ابزار برای ناخدا
+    caravan:{count:0},                         // سفارش کاروان (پیش‌نمایش بازار محلی)
+    puzzle:{picked:[], placed:[], solved:false},
+    chestOpen:false,
+    discovered:[],                             // POIهای کشف‌شده
+    stats:{mined:0, chopped:0, crafted:0, delivered:0, sold:0, mineHits:0},
+    ledger:[],                                 // دفترکل ضمیمه‌تنها (نمونهٔ محلی)
+    seq:0,
+  };
+}
+let S = defaultState();
+try{
+  const raw = localStorage.getItem(SAVE_KEY);
+  if(raw){ const p = JSON.parse(raw); if(p && p.v === 1) S = Object.assign(defaultState(), p); }
+}catch(e){ /* ذخیرهٔ خراب → شروع تازه */ }
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }, 250);
+}
+addEventListener('pagehide', ()=>{ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} });
+
+/* ---------- دفترکل ضمیمه‌تنها (نمونهٔ محلیِ الگوی سند ۱۴) ----------
+   قانون نمونه: فقط افزودن؛ هیچ ویرایش/حذفی. شناسهٔ یکتا برای هر رویداد
+   → مبنای «یک رویداد، یک پاداش توکنی اصلی» (D7). در نسخهٔ نهایی سمت سرور. */
+function logEvent(type, delta, note){
+  S.seq += 1;
+  S.ledger.push({seq:S.seq, id:'evt_'+S.seq, t:Date.now(), type, delta, note:note||''});
+  if(S.ledger.length > 300) S.ledger.splice(0, S.ledger.length - 300); // نگهداری ۳۰۰ رویداد آخر در نمونه
+  save();
+}
+
+/* ---------- سطح‌ها [عدد آزمایشی] ---------- */
+const XP_LV  = [0, 30, 80, 160, 280, 460];   // سطح مسافر
+const XP_PRF = [0, 25, 70, 140, 240];        // سطح حرفهٔ معدن‌کاری
+function levelOf(xp, arr){ let l=1; for(let i=1;i<arr.length;i++) if(xp>=arr[i]) l=i+1; return l; }
+function addPlayerXP(n){ const before=levelOf(S.xp,XP_LV); S.xp+=n; const after=levelOf(S.xp,XP_LV);
+  if(after>before){ toast('⭐ سطح مسافر: '+fa(after)); logEvent('player_level',{level:after}); } save(); }
+function addProfXP(n){ const before=levelOf(S.prof.xp,XP_PRF); S.prof.xp+=n; S.prof.registered=true;
+  const after=levelOf(S.prof.xp,XP_PRF);
+  if(after>before){ toast('⚒️ سطح حرفهٔ معدن‌کاری: '+fa(after)); logEvent('prof_level',{level:after}); } save(); }
+
+/* ---------- موجودی ---------- */
+function addItem(id, n){
+  S.inv[id] = (S.inv[id]||0) + n;
+  if(S.inv[id] <= 0) delete S.inv[id];
+  save();
+}
+function hasItem(id, n){ return (S.inv[id]||0) >= (n||1); }
+function takeItem(id, n){
+  if(!hasItem(id, n)) return false;
+  S.inv[id] -= n; if(S.inv[id]<=0) delete S.inv[id];
+  save(); return true;
+}
+function countInv(){ let c=0; for(const k in S.inv) c+=S.inv[k]; return c; }
+
+/* ---------- توست ---------- */
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
+
+/* ---------- ناوبری صفحه‌ها ---------- */
+function show(id){
+  $$('.view').forEach(v => v.classList.toggle('active', v.id===id));
+}
+
+/* ---------- پنل‌ها (سنگ‌نامه‌ها) ---------- */
+let openSheetId = null;
+function openSheet(id){
+  $$('.sheet').forEach(s=>s.classList.remove('show'));
+  $(id).classList.add('show');
+  $('#dim').classList.add('show');
+  openSheetId = id;
+}
+function closeSheets(){
+  $$('.sheet').forEach(s=>s.classList.remove('show'));
+  $('#dim').classList.remove('show');
+  openSheetId = null;
+}
+$$('[data-close]').forEach(b => b.addEventListener('click', closeSheets));
+$('#dim').addEventListener('click', closeSheets);
+
+/* ---------- تأیید عملیات حساس (قرارداد UX سند ۱۳) ---------- */
+let confirmYes = null;
+function askConfirm(text, onYes){
+  $('#confirm-text').textContent = text;
+  $('#confirm').classList.add('show');
+  confirmYes = onYes;
+}
+$('#btn-confirm-no').addEventListener('click', ()=> $('#confirm').classList.remove('show'));
+$('#btn-confirm-yes').addEventListener('click', ()=>{
+  $('#confirm').classList.remove('show');
+  if(confirmYes) confirmYes();
+  confirmYes = null;
+});
+
+/* ---------- نقشهٔ جهان ---------- */
+function renderGates(){
+  const grid = $('#gate-grid'); grid.innerHTML = '';
+  GATES.forEach(g=>{
+    const card = document.createElement('button');
+    card.className = 'gate-card ' + (g.open ? 'open' : 'locked');
+    card.dataset.gate = g.id;
+    const ico = g.open ? '🌊' : '🔒';
+    card.innerHTML =
+      '<span class="g-idx">دروازهٔ '+fa(g.id)+'</span>' +
+      '<div class="g-ico" style="background:linear-gradient(135deg,'+g.c1+'33,'+g.c2+'33);border:1px solid '+g.c1+'55">'+ico+'</div>' +
+      '<div class="g-name">'+g.name+'</div>' +
+      '<div class="g-status">'+(g.open ? 'قابل بازی در نمونهٔ اولیه' : 'در مرحلهٔ بعد ساخته می‌شود')+'</div>' +
+      (g.open ? '<span class="g-glow"></span>' : '');
+    card.addEventListener('click', ()=>{
+      if(g.open) enterRealm();
+      else toast('این سرزمین هنوز ساخته نشده — نمونهٔ اولیه فقط سرزمین ۱ دارد');
+    });
+    grid.appendChild(card);
+  });
+  const done = S.mission.done ? 1 : 0;
+  $('#chip-progress-map').textContent = 'پیشرفت نمونه: ' + fa(done) + ' مأموریت';
+}
+$('#btn-enter').addEventListener('click', ()=>{ renderGates(); show('screen-map'); });
+$('#btn-back-map').addEventListener('click', ()=>{ show('screen-map'); renderGates(); });
+/* ═══════════════════ موتور ایزومتریک ═══════════════════
+   بدون کتابخانه — Canvas 2D — قابل تعویض با موتور نهایی پس از تصویب */
+const cv = $('#iso'), ctx = cv.getContext('2d');
+let vw=0, vh=0, DPR=1, TW=64, TH=32;
+function resize(){
+  DPR = Math.min(devicePixelRatio||1, 2);
+  vw = innerWidth; vh = innerHeight;
+  cv.width = vw*DPR; cv.height = vh*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  TW = Math.max(46, Math.min(72, Math.floor(vw/7)));
+  TH = TW/2;
+}
+addEventListener('resize', resize);
+
+const WORLD = {
+  W:16, H:16,
+  spawn:{x:7.5, y:12.5},
+  house:{x:7, y:9, w:2, h:2},              // خانهٔ مسافر ۲×۲
+  workshop:{x:10.5, y:9.5},
+  gate:{x:2.5, y:2.5},
+  chest:{x:3.7, y:3.4},
+  well:{x:8.3, y:6.3},
+  fire:{x:6.7, y:5.9},
+  rocks:[
+    {x:5,   y:4,  charges:3, max:3, respawn:25},
+    {x:11,  y:3,  charges:3, max:3, respawn:25},
+    {x:6,   y:12, charges:3, max:3, respawn:25},
+    {x:12.5,y:10, charges:3, max:3, respawn:25},
+  ],
+  trees:[
+    {x:3,   y:8,  charges:2, max:2, respawn:30},
+    {x:9,   y:6,  charges:2, max:2, respawn:30},
+    {x:13,  y:7,  charges:2, max:2, respawn:30},
+    {x:4,   y:13, charges:2, max:2, respawn:30},
+    {x:10.5,y:13, charges:2, max:2, respawn:30},
+  ],
+  corals:[
+    {id:'m1', x:13.5, y:2.6, size:'درشت'},
+    {id:'m2', x:2,    y:12.5, size:'ریز'},
+    {id:'m3', x:14,   y:14,  size:'میانه'},
+  ],
+  pedestals:[                                // شرق→غربِ دروازه
+    {size:'درشت',  dx:-1.1},
+    {size:'میانه', dx:0},
+    {size:'ریز',   dx:1.1},
+  ],
+  npcs:[
+    {id:'mehtar',  name:'مهتر ساحل',      x:6.1, y:6.9, c:'#7c5cff'},
+    {id:'nakhoda', name:'ناخدای بی‌کشتی', x:9.7, y:10.4, c:'#38c6ff'},
+    {id:'pir',     name:'پیر دریا',       x:3.4, y:4.1, c:'#b16cea'},
+    {id:'dokhtar', name:'دختر فانوس‌بان', x:7.7, y:5.1, c:'#ffd86f'},
+  ],
+  pathTiles:[ '4,3','5,3','6,3','6,4','6,5','7,5','7,6','8,6','9,6','8,7','8,8','8,9','8,10','8,11','9,11','10,11','11,11','11,10','11,9','10,9','7,11','7,12','7,13','3,3','4,4','3,4','3,5','2,5','3,9','4,10','5,11','6,12','12,4','12,3','13,3','13,6','13,7','4,13','5,13','10,13','11,13','14,14','13,14','2,12','2,11' ],
+};
+const P = { x:WORLD.spawn.x, y:WORLD.spawn.y, facing:1, walkT:0 };
+const cam = {sx:0, sy:0, init:false};
+
+function isoScreen(x, y){ return { sx:(x-y)*TW/2, sy:(x+y)*TH/2 }; }
+function tilePath(x,y){ return WORLD.pathTiles.includes(x+','+y); }
+function isSea(y){ return y < 2.1; }
+function hash2(x,y){ let h=(x*374761393 + y*668265263)>>>0; h=(h^(h>>13))*1274126177>>>0; return ((h>>>16)&255)/255; }
+
+/* ---------- برخورد ---------- */
+function blocked(nx, ny){
+  const boxes = [
+    {x:WORLD.house.x, y:WORLD.house.y, w:WORLD.house.w, h:WORLD.house.h},
+    {x:WORLD.workshop.x-0.45, y:WORLD.workshop.y-0.45, w:0.9, h:0.9},
+    {x:WORLD.well.x-0.45, y:WORLD.well.y-0.45, w:0.9, h:0.9},
+  ];
+  for(const b of boxes)
+    if(nx>b.x-0.3 && nx<b.x+b.w+0.3 && ny>b.y-0.3 && ny<b.y+b.h+0.3) return true;
+  const circles = [];
+  WORLD.rocks.forEach(r=>circles.push({x:r.x,y:r.y,r:.55}));
+  WORLD.trees.forEach(t=>circles.push({x:t.x,y:t.y,r:.45}));
+  WORLD.npcs.forEach(n=>circles.push({x:n.x,y:n.y,r:.42}));
+  WORLD.corals.forEach(c=>circles.push({x:c.x,y:c.y,r:.3}));
+  circles.push({x:WORLD.gate.x-1.1,y:WORLD.gate.y,r:.4},{x:WORLD.gate.x+1.1,y:WORLD.gate.y,r:.4});
+  if(!S.chestOpen) circles.push({x:WORLD.chest.x,y:WORLD.chest.y,r:.4});
+  for(const c of circles){
+    const dx=nx-c.x, dy=ny-c.y;
+    if(dx*dx+dy*dy < (c.r+0.26)*(c.r+0.26)) return true;
+  }
+  return false;
+}
+
+/* ---------- ورودی: جوی‌استیک + کیبورد ---------- */
+const joy=$('#joy'), thumb=$('#joy-thumb');
+let joyVec={x:0,y:0}, joyId=null;
+function joyUpdate(e){
+  const r = joy.getBoundingClientRect();
+  const cx = r.left+r.width/2, cy = r.top+r.height/2;
+  let dx = e.clientX-cx, dy = e.clientY-cy;
+  const len = Math.hypot(dx,dy), max=r.width/2-14;
+  if(len>max){ dx=dx/len*max; dy=dy/len*max; }
+  thumb.style.transform = 'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+  joyVec = {x:dx/max, y:dy/max};
+}
+function joyReset(){ joyVec={x:0,y:0}; thumb.style.transform='translate(-50%,-50%)'; }
+joy.addEventListener('pointerdown', e=>{ joyId=e.pointerId; try{ joy.setPointerCapture(joyId); }catch(err){} joyUpdate(e); });
+joy.addEventListener('pointermove', e=>{ if(e.pointerId===joyId) joyUpdate(e); });
+joy.addEventListener('pointerup',   ()=>{ joyId=null; joyReset(); });
+joy.addEventListener('pointercancel',()=>{ joyId=null; joyReset(); });
+const keys={};
+addEventListener('keydown', e=>{ keys[e.key.toLowerCase()]=true; if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault(); });
+addEventListener('keyup',   e=>{ keys[e.key.toLowerCase()]=false; });
+
+/* ---------- حلقهٔ بازی ---------- */
+let interactTarget = null;
+let lastT = 0, fpsAcc=0, fpsN=0, FPS=0;
+function gameLoop(t){
+  requestAnimationFrame(gameLoop);
+  const dt = Math.min(.05, (t-lastT)/1000 || 0); lastT = t;
+  fpsAcc += dt; fpsN++;
+  if(fpsAcc>=1){ FPS=Math.round(fpsN/fpsAcc); fpsAcc=0; fpsN=0; }
+  if(!$('#screen-realm').classList.contains('active')) return;
+  const busy = !!openSheetId || $('#timing').classList.contains('show') || $('#confirm').classList.contains('show');
+  if(!busy) updateMove(dt);
+  updateWorld(t);
+  scanInteract();
+  draw(t);
+}
+function updateMove(dt){
+  let jx=joyVec.x, jy=joyVec.y;
+  if(keys['w']||keys['arrowup'])    jy-=1;
+  if(keys['s']||keys['arrowdown'])  jy+=1;
+  if(keys['a']||keys['arrowleft'])  jx-=1;
+  if(keys['d']||keys['arrowright']) jx+=1;
+  const mag=Math.hypot(jx,jy);
+  if(mag>1){ jx/=mag; jy/=mag; }
+  const sp=3.2, wx=(jx+jy)*sp*dt, wy=(jy-jx)*sp*dt;
+  if(!blocked(P.x+wx, P.y)) P.x+=wx;
+  if(!blocked(P.x, P.y+wy)) P.y+=wy;
+  P.x=Math.max(.5, Math.min(WORLD.W-.5, P.x));
+  P.y=Math.max(.5, Math.min(WORLD.H-.5, P.y));
+  if(mag>0.08){ P.walkT+=dt*9; P.facing = jx>=0?1:-1; } else P.walkT=0;
+}
+function updateWorld(t){
+  const now = performance.now();
+  [...WORLD.rocks, ...WORLD.trees].forEach(n=>{
+    if(n.charges<=0 && n.depletedAt && now-n.depletedAt > n.respawn*1000){
+      n.charges=n.max; n.depletedAt=0;
+    }
+  });
+  // کشف محیط
+  POIS.forEach(p=>{
+    if(!S.discovered.includes(p.id) && Math.hypot(P.x-p.x,P.y-p.y)<2){
+      S.discovered.push(p.id);
+      toast('🧭 کشف شد: '+p.label);
+      logEvent('discover',{poi:p.id});
+    }
+  });
+}
+const POIS = [
+  {id:'plaza',    x:7.5, y:6,   label:'میدان دهکده'},
+  {id:'house',    x:8,   y:11.2,label:'خانهٔ مسافر'},
+  {id:'workshop', x:10.5,y:10.2,label:'کارگاه دهکده'},
+  {id:'gate',     x:2.5, y:3.4, label:'دروازهٔ مرجانی'},
+  {id:'rocks',    x:5,   y:4,   label:'صخره‌های ساحلی'},
+  {id:'trees',    x:3,   y:8,   label:'درخت‌های ساحلی'},
+  {id:'sea',      x:9,   y:1,   label:'ساحل دریای شیشه‌ای'},
+];
+
+/* ---------- هدف تعامل ---------- */
+function scanInteract(){
+  const cands = [];
+  WORLD.rocks.forEach((r,i)=>{ if(r.charges>0) cands.push({type:'rock', ref:r, x:r.x, y:r.y, label:'صخره — کوه‌کاوی'}); });
+  WORLD.trees.forEach(t=>{ if(t.charges>0) cands.push({type:'tree', ref:t, x:t.x, y:t.y, label:'درخت — هیزم‌شکنی'}); });
+  WORLD.corals.forEach(c=>{ if(!S.puzzle.picked.includes(c.id)) cands.push({type:'coral', ref:c, x:c.x, y:c.y, label:'سنگ‌مرجان برداشتن'}); });
+  cands.push({type:'workshop', x:WORLD.workshop.x, y:WORLD.workshop.y, label:'کارگاه دهکده'});
+  cands.push({type:'house', x:8, y:11.3, label:'خانهٔ مسافر'});
+  cands.push({type:'gate', x:WORLD.gate.x, y:WORLD.gate.y+0.9, label:'دروازهٔ مرجانی'});
+  if(!S.chestOpen) cands.push({type:'chest', x:WORLD.chest.x, y:WORLD.chest.y, label:'صندوق دروازه'});
+  WORLD.npcs.forEach(n=>cands.push({type:'npc', ref:n, x:n.x, y:n.y, label:n.name}));
+  let best=null, bd=1.55;
+  cands.forEach(c=>{
+    const d=Math.hypot(P.x-c.x, P.y-c.y);
+    if(d<bd){ bd=d; best=c; }
+  });
+  interactTarget = best;
+  const ab=$('#btn-action'), hint=$('#hint');
+  if(best){ ab.classList.add('show'); ab.textContent=best.label; hint.textContent=''; }
+  else{ ab.classList.remove('show');
+        hint.textContent='با دستهٔ حرکت بگرد — صخره، درخت، کارگاه، خانه، دروازه و ساکنان را نزدیک شو.'; }
+}
+$('#btn-action').addEventListener('click', ()=>{
+  if(!interactTarget) return;
+  const t=interactTarget;
+  if(t.type==='rock')      startTiming('mine', t.ref);
+  else if(t.type==='tree') startTiming('chop', t.ref);
+  else if(t.type==='workshop'){ renderCraft(); openSheet('#sheet-craft'); }
+  else if(t.type==='house'){ renderHouse(); openSheet('#sheet-house'); }
+  else if(t.type==='gate'){ renderPuzzle(); openSheet('#sheet-puzzle'); }
+  else if(t.type==='chest') openChest();
+  else if(t.type==='coral') pickCoral(t.ref);
+  else if(t.type==='npc')   openDialogue(t.ref.id);
+});
+/* ═══════════════════ رندر ═══════════════════ */
+function proj(x, y){
+  const s = isoScreen(x, y);
+  return { x: s.sx + vw/2 - cam.sx, y: s.sy + vh/2 - cam.sy };
+}
+function diamond(px, py, w, h, fill, stroke){
+  ctx.beginPath();
+  ctx.moveTo(px, py - h/2);
+  ctx.lineTo(px + w/2, py);
+  ctx.lineTo(px, py + h/2);
+  ctx.lineTo(px - w/2, py);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke(); }
+}
+function boxIso(px, py, w, h, bh, cTop, cL, cR){
+  // مکعب ایزومتریک: w=نیم‌عرض بالایی, h=نیم‌ارتفاع لوزی, bh=ارتفاع بدنه
+  ctx.fillStyle=cR; ctx.beginPath();
+  ctx.moveTo(px + w, py); ctx.lineTo(px + w, py - bh);
+  ctx.lineTo(px, py - bh + h); ctx.lineTo(px, py + h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=cL; ctx.beginPath();
+  ctx.moveTo(px - w, py); ctx.lineTo(px - w, py - bh);
+  ctx.lineTo(px, py - bh + h); ctx.lineTo(px, py + h); ctx.closePath(); ctx.fill();
+  diamond(px, py - bh, w*2, h*2, cTop);
+}
+function shadowEllipse(px, py, r){
+  ctx.fillStyle='rgba(0,0,0,.25)';
+  ctx.beginPath(); ctx.ellipse(px, py, r, r*0.5, 0, 0, Math.PI*2); ctx.fill();
+}
+function tag(name, px, py, color){
+  ctx.font='600 10px Vazirmatn, Tahoma, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(5,8,31,.55)';
+  const w = ctx.measureText(name).width + 12;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(px-w/2, py-24, w, 16, 8) : ctx.rect(px-w/2, py-24, w, 16); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.18)'; ctx.stroke();
+  ctx.fillStyle=color; ctx.fillText(name, px, py-12);
+}
+
+function draw(t){
+  ctx.clearRect(0,0,vw,vh);
+  // دوربین
+  const pS = isoScreen(P.x, P.y);
+  if(!cam.init){ cam.sx=pS.sx; cam.sy=pS.sy; cam.init=true; }
+  cam.sx += (pS.sx - cam.sx) * .12;
+  cam.sy += (pS.sy - cam.sy) * .12;
+  // زمین
+  for(let ty=0; ty<WORLD.H; ty++){
+    for(let tx=0; tx<WORLD.W; tx++){
+      const s = isoScreen(tx, ty);
+      const px = s.sx + vw/2 - cam.sx, py = s.sy + vh/2 - cam.sy;
+      if(px < -TW*2 || px > vw+TW*2 || py < -TH*4 || py > vh+TH*4) continue;
+      if(isSea(ty)){
+        const shimmer = Math.sin(t/700 + tx*1.4 + ty)*0.5+0.5;
+        diamond(px, py, TW, TH, 'rgba('+Math.round(40+shimmer*30)+','+Math.round(150+shimmer*40)+',255,'+(0.75+shimmer*0.2)+')');
+        if(ty===2) diamond(px, py, TW, TH, 'rgba(255,255,255,'+(0.10+shimmer*0.12)+')');
+      }else{
+        const v = hash2(tx,ty);
+        let c = tilePath(tx,ty) ? (v>0.5?'#c9b189':'#c2a97f') : (v>0.5?'#3c8a58':'#378252');
+        diamond(px, py, TW, TH, c, 'rgba(0,0,0,.06)');
+      }
+    }
+  }
+  // اشیاء با ترتیب عمق
+  const list = [];
+  const put = (depth, fn)=>list.push({depth, fn});
+  WORLD.trees.forEach(tr=>{
+    const q=proj(tr.x,tr.y);
+    put(tr.x+tr.y, ()=>{
+      shadowEllipse(q.x, q.y, 16);
+      ctx.fillStyle='#6e4f31'; ctx.fillRect(q.x-4, q.y-26, 8, 26);
+      ctx.fillStyle='#2f7d4f'; ctx.beginPath(); ctx.arc(q.x, q.y-36, 15, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#3d9b60'; ctx.beginPath(); ctx.arc(q.x-7, q.y-42, 10, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(q.x+8, q.y-40, 9, 0, Math.PI*2); ctx.fill();
+      if(tr.charges<=0){ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(q.x, q.y-36, 15, 0, Math.PI*2); ctx.fill(); }
+    });
+  });
+  WORLD.rocks.forEach(rk=>{
+    const q=proj(rk.x,rk.y);
+    put(rk.x+rk.y, ()=>{
+      shadowEllipse(q.x, q.y, 18);
+      const g = rk.charges>0 ? '#8b93a5' : '#565d6e';
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.moveTo(q.x-16,q.y); ctx.lineTo(q.x-9,q.y-16); ctx.lineTo(q.x+3,q.y-20);
+      ctx.lineTo(q.x+14,q.y-8); ctx.lineTo(q.x+11,q.y); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.16)';
+      ctx.beginPath(); ctx.moveTo(q.x-9,q.y-16); ctx.lineTo(q.x+3,q.y-20); ctx.lineTo(q.x,q.y-10); ctx.closePath(); ctx.fill();
+      if(rk.charges<=0 && rk.depletedAt){ ctx.fillStyle='rgba(5,8,31,.4)'; ctx.beginPath(); ctx.ellipse(q.x,q.y-8,14,6,0,0,Math.PI*2); ctx.fill(); }
+    });
+  });
+  // خانهٔ مسافر
+  (()=>{ const h=WORLD.house, c0=proj(h.x+1, h.y+1);
+    put(h.x+h.y+2, ()=>{
+      shadowEllipse(c0.x, c0.y+6, 40);
+      boxIso(c0.x, c0.y, TW*1.15, TH*1.15, 34, '#9a7b5c', '#7a5f47', '#6b533e');
+      // سقف
+      ctx.fillStyle='#a34e57'; ctx.beginPath();
+      ctx.moveTo(c0.x - TW*1.15, c0.y - 34); ctx.lineTo(c0.x, c0.y - 34 - TH*1.15 - 22);
+      ctx.lineTo(c0.x + TW*1.15, c0.y - 34); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#8c3f49'; ctx.beginPath();
+      ctx.moveTo(c0.x, c0.y - 34 + TH*1.15); ctx.lineTo(c0.x, c0.y - 34 - TH*1.15 - 22);
+      ctx.lineTo(c0.x + TW*1.15, c0.y - 34); ctx.closePath(); ctx.fill();
+      // در و پنجره
+      ctx.fillStyle='#4a3625'; ctx.fillRect(c0.x + TW*0.45, c0.y - 20, 12, 20);
+      ctx.fillStyle='#ffd86f55'; ctx.fillRect(c0.x - TW*0.75, c0.y - 24, 10, 10);
+      tag('خانهٔ مسافر', c0.x, c0.y - 34 - TH*1.15 - 26, '#ffd86f');
+    });
+  })();
+  // کارگاه
+  (()=>{ const w=WORLD.workshop, c0=proj(w.x, w.y);
+    put(w.x+w.y, ()=>{
+      shadowEllipse(c0.x, c0.y+4, 26);
+      boxIso(c0.x, c0.y, TW*0.62, TH*0.62, 22, '#7d8494', '#5f6675', '#525867');
+      ctx.fillStyle='#3a3f4c'; ctx.fillRect(c0.x-8, c0.y-30, 16, 6);   // سندان
+      ctx.fillStyle='#3a3f4c'; ctx.fillRect(c0.x-3, c0.y-24, 6, 10);
+      ctx.fillStyle='#ffd86f'; ctx.font='700 11px Vazirmatn, Tahoma'; ctx.textAlign='center';
+      ctx.fillText('⚒', c0.x, c0.y - 40);
+      tag('کارگاه', c0.x, c0.y - 52, '#9aa3c7');
+    });
+  })();
+  // چاه
+  (()=>{ const q=proj(WORLD.well.x, WORLD.well.y);
+    put(WORLD.well.x+WORLD.well.y, ()=>{
+      shadowEllipse(q.x, q.y, 16);
+      ctx.fillStyle='#8b93a5'; ctx.fillRect(q.x-11, q.y-18, 22, 18);
+      ctx.fillStyle='#39415a'; ctx.beginPath(); ctx.ellipse(q.x, q.y-18, 11, 5, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#a34e57'; ctx.beginPath();
+      ctx.moveTo(q.x-15,q.y-34); ctx.lineTo(q.x,q.y-46); ctx.lineTo(q.x+15,q.y-34); ctx.closePath(); ctx.fill();
+    });
+  })();
+  // آتش میدان
+  (()=>{ const q=proj(WORLD.fire.x, WORLD.fire.y);
+    put(WORLD.fire.x+WORLD.fire.y, ()=>{
+      shadowEllipse(q.x, q.y, 13);
+      ctx.strokeStyle='#6e4f31'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(q.x-9,q.y+2); ctx.lineTo(q.x+9,q.y-4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(q.x-9,q.y-4); ctx.lineTo(q.x+9,q.y+2); ctx.stroke();
+      const fl = Math.sin(t/120)*2;
+      ctx.fillStyle='rgba(255,150,60,.9)';
+      ctx.beginPath(); ctx.moveTo(q.x-6,q.y-4); ctx.quadraticCurveTo(q.x, q.y-22-fl, q.x+6, q.y-4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(255,220,111,.9)';
+      ctx.beginPath(); ctx.moveTo(q.x-3,q.y-4); ctx.quadraticCurveTo(q.x, q.y-13-fl, q.x+3, q.y-4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(255,216,111,.08)';
+      ctx.beginPath(); ctx.arc(q.x, q.y-8, 34, 0, Math.PI*2); ctx.fill();
+    });
+  })();
+  // دروازهٔ مرجانی + سکوها
+  (()=>{ const g=WORLD.gate;
+    WORLD.pedestals.forEach(pd=>{
+      const q=proj(g.x+pd.dx, g.y);
+      put(g.y+g.x+pd.dx*0.01, ()=>{
+        boxIso(q.x, q.y, 14, 7, 10, '#9aa3b8', '#767e93', '#68708a');
+        ctx.fillStyle='#ffd86f'; ctx.font='700 9px Vazirmatn, Tahoma'; ctx.textAlign='center';
+        ctx.fillText(pd.size, q.x, q.y - 16);
+      });
+    });
+    const q=proj(g.x, g.y);
+    put(g.x+g.y+0.5, ()=>{
+      const solved = S.puzzle.solved;
+      shadowEllipse(q.x-18, q.y, 12); shadowEllipse(q.x+18, q.y, 12);
+      boxIso(q.x-18, q.y, 9, 4.5, 40, '#9aa3b8', '#767e93', '#68708a');
+      boxIso(q.x+18, q.y, 9, 4.5, 40, '#9aa3b8', '#767e93', '#68708a');
+      ctx.fillStyle='#7d8494'; ctx.fillRect(q.x-24, q.y-52, 48, 8);
+      if(solved){
+        const gl = Math.sin(t/300)*0.5+0.5;
+        ctx.strokeStyle='rgba(56,198,255,'+(0.35+gl*0.4)+')'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(q.x, q.y-24, 20+gl*4, 0, Math.PI*2); ctx.stroke();
+      }
+      tag('دروازهٔ مرجانی', q.x, q.y-58, solved ? '#7dfcb4' : '#ffd86f');
+    });
+  })();
+  // صندوق
+  if(!S.chestOpen){ const q=proj(WORLD.chest.x, WORLD.chest.y);
+    put(WORLD.chest.x+WORLD.chest.y, ()=>{
+      const pu = Math.sin(t/250)*0.5+0.5;
+      shadowEllipse(q.x, q.y, 13);
+      ctx.fillStyle='#a67c3d'; ctx.fillRect(q.x-12, q.y-16, 24, 16);
+      ctx.fillStyle='#c49a52'; ctx.fillRect(q.x-12, q.y-22, 24, 7);
+      ctx.fillStyle='#ffd86f'; ctx.fillRect(q.x-3, q.y-18, 6, 8);
+      ctx.strokeStyle='rgba(255,216,111,'+(0.3+pu*0.4)+')';
+      ctx.strokeRect(q.x-14, q.y-24, 28, 26);
+    });
+  }
+  // سنگ‌های مرجان
+  WORLD.corals.forEach(c=>{
+    if(S.puzzle.picked.includes(c.id)) return;
+    const q=proj(c.x, c.y);
+    put(c.x+c.y, ()=>{
+      const gl = Math.sin(t/280 + c.x)*0.5+0.5;
+      shadowEllipse(q.x, q.y, 9);
+      ctx.fillStyle='#f9748f';
+      ctx.beginPath(); ctx.arc(q.x, q.y-7, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#f78ca0';
+      ctx.beginPath(); ctx.arc(q.x-4, q.y-12, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(q.x+5, q.y-11, 3.4, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(255,216,111,'+(0.25+gl*0.5)+')'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(q.x, q.y-8, 11+gl*3, 0, Math.PI*2); ctx.stroke();
+    });
+  });
+  // ساکنان
+  WORLD.npcs.forEach(n=>{
+    const q=proj(n.x, n.y);
+    put(n.x+n.y, ()=>{
+      shadowEllipse(q.x, q.y, 12);
+      ctx.fillStyle=n.c;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(q.x-7, q.y-22, 14, 20, 6) : ctx.rect(q.x-7,q.y-22,14,20); ctx.fill();
+      ctx.fillStyle='#ffe3c2';
+      ctx.beginPath(); ctx.arc(q.x, q.y-28, 6.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(5,8,31,.8)';
+      const ed = n.id==='mehtar'?-1.5:(n.id==='nakhoda'?0:2);
+      ctx.beginPath(); ctx.arc(q.x+ed-1.5, q.y-29, 1.1, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(q.x+ed+1.5, q.y-29, 1.1, 0, Math.PI*2); ctx.fill();
+      tag(n.name, q.x, q.y-38, n.c);
+    });
+  });
+  // مسافر (شخصیت موقت هندسی — قابل تعویض با مدل نهایی)
+  { const q=proj(P.x, P.y);
+    const bob = Math.sin(P.walkT)*2;
+    put(P.x+P.y+0.01, ()=>{
+      shadowEllipse(q.x, q.y, 11);
+      // جای مدل نهایی: drawCharacterPlaceholder — فقط در این تابع تعویض می‌شود
+      ctx.fillStyle='#0f8ea8';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(q.x-8, q.y-24+bob, 16, 22, 7) : ctx.rect(q.x-8, q.y-24+bob, 16, 22); ctx.fill();
+      ctx.fillStyle='#38c6ff';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(q.x-8, q.y-24+bob, 16, 9, 7) : ctx.rect(q.x-8, q.y-24+bob, 16, 9); ctx.fill();
+      ctx.fillStyle='#ffe3c2';
+      ctx.beginPath(); ctx.arc(q.x, q.y-31+bob, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(5,8,31,.85)';
+      ctx.beginPath(); ctx.arc(q.x+P.facing*2-2, q.y-32+bob, 1.2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(q.x+P.facing*2+2, q.y-32+bob, 1.2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffd86f';
+      ctx.beginPath(); ctx.moveTo(q.x-8, q.y-36+bob); ctx.lineTo(q.x, q.y-46+bob); ctx.lineTo(q.x+8, q.y-36+bob); ctx.closePath(); ctx.fill();
+      tag('مسافر', q.x, q.y-52+bob, '#8ff0ff');
+    });
+  }
+  // حلقهٔ هدف تعامل
+  list.sort((a,b)=>a.depth-b.depth).forEach(o=>o.fn());   // ترتیب عمق: از دور به نزدیک
+  if(interactTarget){
+    const q=proj(interactTarget.x, interactTarget.y);
+    const pu = Math.sin(t/180)*0.5+0.5;
+    ctx.strokeStyle='rgba(143,240,255,'+(0.5+pu*0.5)+')'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(q.x, q.y+2, 20+pu*3, 10+pu*1.5, 0, 0, Math.PI*2); ctx.stroke();
+  }
+}
+/* ═══════════════════ مینی‌گیم M4 ضربه به‌موقع ═══════════════════
+   مکانیک مصوب کتابخانهٔ ۸گانه — پوستهٔ «کوه‌کاوی/هیزم‌شکنی» */
+const T_ZONE_HW = 0.17;                       // نیم‌پهنای ناحیهٔ سبز [عدد آزمایشی]
+let tmg = null;                               // {mode:'mine'|'chop', node, raf}
+function startTiming(mode, node){
+  tmg = {mode, node, t0:performance.now()};
+  $('#t-title').textContent = mode==='mine' ? 'کوه‌کاوی' : 'هیزم‌شکنی';
+  $('#t-sub').textContent = mode==='mine'
+    ? 'مکانیک M4 «ضربه به‌موقع» — پتک را در پنجرهٔ سبز فرود بیاور.'
+    : 'مکانیک M4 «ضربه به‌موقع» — تبر را در پنجرهٔ سبز فرود بیاور.';
+  $('#timing').classList.add('show');
+  tmgLoop();
+}
+function tmgLoop(){
+  if(!tmg) return;
+  const el = (performance.now()-tmg.t0)/1000;
+  const m = Math.abs(((el*0.55)%2)-1);      // 0..1 بازگشتی
+  const trackH = $('#t-track').clientHeight-14;
+  $('#t-marker').style.top = (m*trackH)+'px';
+  const zH = T_ZONE_HW*2*trackH;
+  $('#t-zone').style.top = ((0.5-T_ZONE_HW)*trackH)+'px';
+  $('#t-zone').style.height = zH+'px';
+  tmg.raf = requestAnimationFrame(tmgLoop);
+}
+$('#btn-hit').addEventListener('click', ()=>{
+  if(!tmg) return;
+  const el = (performance.now()-tmg.t0)/1000;
+  const m = Math.abs(((el*0.55)%2)-1);
+  if(Math.abs(m-0.5) <= T_ZONE_HW) finishHit();
+  else toast('نشنید! نشانگر را در نوار سبز فرود بیاور.');
+});
+$('#btn-timing-cancel').addEventListener('click', cancelTiming);
+function cancelTiming(){ if(tmg) cancelAnimationFrame(tmg.raf); tmg=null; $('#timing').classList.remove('show'); }
+function finishHit(){
+  const {mode, node} = tmg;
+  cancelAnimationFrame(tmg.raf); tmg=null;
+  $('#timing').classList.remove('show');
+  node.charges -= 1;
+  if(node.charges<=0) node.depletedAt = performance.now();
+  if(mode==='mine'){
+    S.stats.mined += 1; S.stats.mineHits += 1;
+    let n = 1;
+    if(levelOf(S.prof.xp, XP_PRF) >= 2 && S.stats.mineHits % 3 === 0){ n = 2; }  // مزیت سطح ۲ — قطعی، بدون شانس [آزمایشی]
+    addItem('sang', n);
+    addProfXP(2); addPlayerXP(1);
+    toast('🪨 سنگ صخره‌ای ×'+fa(n));
+    logEvent('mine', {items:{sang:n}}, 'برداشت با M4 — رکورد تولید واقعی');
+  }else{
+    S.stats.chopped += 1;
+    addItem('choob', 1);
+    addProfXP(2); addPlayerXP(1);
+    toast('🪵 چوب شناور ×۱');
+    logEvent('chop', {items:{choob:1}}, 'برداشت با M4 — رکورد تولید واقعی');
+  }
+  renderHUD();
+}
+
+/* ═══════════════════ ساخت در کارگاه ═══════════════════ */
+const RECIPE = { out:'abzar', outN:1, need:{sang:2, choob:1} };
+function renderCraft(){
+  const b=$('#craft-body');
+  const can = hasItem('sang',2) && hasItem('choob',1);
+  b.innerHTML =
+    '<div class="row"><span class="r-ico">🔨</span><div class="r-main"><b>ابزار سنگی ×۱</b>' +
+    '<small>دستورکار کارگاه — حلقهٔ نخست زنجیرهٔ مصوب: معدن‌کار ← آهنگر ← نجار ← کشاورز</small>' +
+    '<small>مواد لازم: سنگ صخره‌ای ×۲ + چوب شناور ×۱</small></div>' +
+    '<span class="tag test">آزمایشی</span></div>' +
+    '<div class="row"><span class="r-ico">🪨</span><div class="r-main">سنگ: '+fa(S.inv.sang||0)+' / '+fa(2)+'</div></div>' +
+    '<div class="row"><span class="r-ico">🪵</span><div class="r-main">چوب: '+fa(S.inv.choob||0)+' / '+fa(1)+'</div></div>' +
+    '<button class="btn block" id="btn-craft" '+(!can?'disabled':'')+'>ساختن ابزار سنگی</button>' +
+    '<div class="bar" id="craft-prog"><i style="width:0%"></i></div>' +
+    '<p style="font-size:.7rem;color:var(--muted);margin-top:10px">تولید فقط با مواد واقعی ثبت می‌شود (ضد تولید صوری — سند ۰۴ §۹). شناسهٔ رویداد یکتا در دفترکل ثبت می‌شود.</p>';
+  const btn=$('#btn-craft');
+  if(btn) btn.addEventListener('click', doCraft);
+}
+function doCraft(){
+  if(!hasItem('sang',2) || !hasItem('choob',1)) return;
+  const btn=$('#btn-craft'), prog=$('#craft-prog');
+  btn.disabled = true; prog.style.display='block';
+  let w=0;
+  const iv=setInterval(()=>{
+    w+=8; prog.firstElementChild.style.width=Math.min(w,100)+'%';
+    if(w>=100){
+      clearInterval(iv);
+      takeItem('sang',2); takeItem('choob',1); addItem('abzar',1);
+      S.stats.crafted += 1;
+      addProfXP(4); addPlayerXP(2);
+      toast('🔨 ابزار سنگی ساخته شد');
+      logEvent('craft', {consume:{sang:2,choob:1}, produce:{abzar:1}}, 'ProductionJob نمونه با شناسهٔ یکتا');
+      renderCraft(); renderHUD();
+    }
+  }, 90);
+}
+
+/* ═══════════════════ گفت‌وگوها ═══════════════════ */
+function openDialogue(id){
+  const d = DIALOGUES[id]();
+  $('#dlg-title').textContent = d.name;
+  const body = $('#dialogue-body');
+  body.innerHTML = '<div class="dlg-text">'+d.text+'</div><div class="choices" id="dlg-choices"></div>';
+  const ch = $('#dlg-choices');
+  d.choices.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='btn ghost'; btn.textContent=c.label;
+    btn.addEventListener('click', c.fn);
+    ch.appendChild(btn);
+  });
+  openSheet('#sheet-dialogue');
+}
+const DIALOGUES = {
+  mehtar(){
+    const canSell = hasItem('sang',3);
+    return { name:'مهتر ساحل',
+      text: 'به دهکدهٔ ساحل شیشه‌ای خوش آمدی، مسافر. اینجا نخستین سرزمین از سیزده دروازهٔ ابتدایی جهان است. ' +
+            'با دستهٔ حرکت بگرد؛ صخره‌ها سنگ می‌دهند و کارگاه آن را به ابزار بدل می‌کند. ' +
+            'کاروانِ هفتگی هر سه سنگ را می‌خرد — این پیش‌نمایش «بازار محلی» است؛ مدل نهایی قیمت‌گذاری با کارفرماست.',
+      choices: [
+        {label:'سفارش کاروان: فروش ۳ سنگ به ۶ سکه [آزمایشی]', fn:()=>{
+            if(!canSell){ toast('سنگ کافی نداری — ۳ سنگ لازم است'); return; }
+            takeItem('sang',3); S.coins+=6; S.caravan.count+=1; S.stats.sold+=1;
+            addPlayerXP(2);
+            toast('💰 ۶ سکه از کاروان گرفتی');
+            logEvent('sale_caravan', {consume:{sang:3}, tokens:{coins:6}}, 'پیش‌نمایش فروش محلی — نرخ پایهٔ ثابت (A4 باز است)');
+            renderHUD(); closeSheets();
+        }},
+        {label:'چه خبر از جهان؟', fn:()=>{ openDialogue('mehtar2'); }},
+        {label:'بستن', fn:closeSheets},
+      ]};
+  },
+  mehtar2(){
+    return { name:'مهتر ساحل',
+      text: 'می‌گویند پیمانِ دروازهٔ هفتاد و هفتم روزی همهٔ سرزمین‌ها را به هم دوخت. ' +
+            'اما پیر دریا شب‌ها زمزمه می‌کند که «صلح» تنها نیمی از حقیقت بود… برای پیمانِ هفتاد و هفتم امیدوار باش، مسافر.',
+      choices:[{label:'فهمیدم', fn:closeSheets}] };
+  },
+  nakhoda(){
+    const m = S.mission;
+    if(!m.accepted){
+      return { name:'ناخدای بی‌کشتی',
+        text:'کشتم را به دریای شیشه‌ای باختم و دستانم دیگر توانِ طناب ندارند. ' +
+             'یک ابزار سنگی بساز — دو سنگ و یک چوب، در کارگاه دهکده — تا دوباره دست به کار شوم.',
+        choices:[
+          {label:'پذیرش مأموریت: «ابزار برای ناخدا»', fn:()=>{
+              S.mission.accepted=true;
+              toast('📜 مأموریت پذیرفته شد');
+              logEvent('mission_accept',{mission:'tools'});
+              closeSheets();
+          }},
+          {label:'بعداً می‌آیم', fn:closeSheets},
+        ]};
+    }
+    if(m.done){
+      return { name:'ناخدای بی‌کشتی',
+        text:'با این ابزار، عرشهٔ تازه‌ای می‌سازم. روزی با کشتیِ خودم، تو را تا دروازهٔ دوم می‌برم — جنگل نقره‌ای از همین‌جا پیدا است.',
+        choices:[{label:'بستن', fn:closeSheets}] };
+    }
+    if(hasItem('abzar',1)){
+      return { name:'ناخدای بی‌کشتی',
+        text:'آه… آن سوسوی آبی! ابزار سنگی است، درست همان‌طور که گفتم. تحویلش بده.',
+        choices:[
+          {label:'تحویل ابزار سنگی (+۲۰ سکه، +۱۵ تجربه) [آزمایشی]', fn:()=>{
+              takeItem('abzar',1);
+              S.mission.done=true;
+              S.coins+=20; S.stats.delivered+=1;
+              addPlayerXP(15); addProfXP(5);
+              toast('✅ مأموریت کامل شد');
+              logEvent('reward_mission',{tokens:{coins:20}, xp:15}, 'پاداش اصلی رویداد — یک رویداد، یک پاداش (D7)');
+              renderHUD(); closeSheets();
+          }},
+          {label:'هنوز نه', fn:closeSheets},
+        ]};
+    }
+    return { name:'ناخدای بی‌کشتی',
+      text:'منتظر ابزار سنگی‌ام: دو سنگ از صخره‌های ساحلی، یک چوب از درخت‌ها، و ساخت در کارگاه.',
+      choices:[{label:'در مسیرم', fn:closeSheets}] };
+  },
+  pir(){
+    return { name:'پیر دریا',
+      text:'سه سنگ‌مرجانِ دروازه را می‌شناسی؟ روزی که پیمان شکست، از جایشان کنده شدند. ' +
+           'آن‌ها را از ساحل پیدا کن و بر سکوها بگذار — به ترتیبی که طبیعت می‌گوید: ' +
+           'از سمت شرقِ دروازه، نخست «درشت»، سپس «میانه»، آن‌گاه «ریز».',
+      choices:[
+        {label:'کجای ساحل؟', fn:()=>{ openDialogue('pir2'); }},
+        {label:'بستن', fn:closeSheets},
+      ]};
+  },
+  pir2(){
+    return { name:'پیر دریا',
+      text:'یکی در خاورِ ساحل نزدیک دریا، یکی در جنوبِ دورِ دهکده، و یکی در گوشهٔ جنوب‌خاوری. چشم‌هایت را باز کن — می‌درخشند.',
+      choices:[{label:'سپاس', fn:closeSheets}] };
+  },
+  dokhtar(){
+    return { name:'دختر فانوس‌بان',
+      text:'کنار آتش بشین! اینجا هر غروب، ساکنانِ دهکده دور هم جمع می‌شوند — این نخستین فضای اجتماعی جهان است. ' +
+           'فانوس پدرم مسیر سنگ‌های مرجانی را نشان می‌دهد: نور آبیِ دور، یعنی چیزی برای کشف‌کردن هست.',
+      choices:[{label:'ممنون', fn:closeSheets}] };
+  },
+};
+
+/* ═══════════════════ پازل دروازهٔ مرجانی ═══════════════════ */
+let selCoral = null;
+function pickCoral(c){
+  S.puzzle.picked.push(c.id);
+  addItem('marjan', 1);
+  toast('🪸 سنگ‌مرجان «'+c.size+'» برداشته شد');
+  logEvent('pick_coral',{coral:c.id, size:c.size});
+  renderHUD();
+}
+function renderPuzzle(){
+  const b=$('#puzzle-body');
+  if(S.puzzle.solved){
+    b.innerHTML = '<div class="empty-state"><span class="es-ico">🌀</span>' +
+      'دروازهٔ مرجانی بار دیگر می‌درخشد.<br>نشانِ دریای شیشه‌ای از صندوق کنار دروازه گرفته شد.</div>';
+    return;
+  }
+  const available = S.puzzle.picked.filter(id => !S.puzzle.placed.includes(id));
+  const coralInfo = {m1:'درشت', m2:'ریز', m3:'میانه'};
+  let peds='';
+  WORLD.pedestals.forEach((pd,i)=>{
+    const placedId = S.puzzle.placed.find(id => S.puzzle.placedOrder && S.puzzle.placedOrder[i]);
+    peds += '<button class="pedestal" data-i="'+i+'"><span class="p-size">'+(pd.size==='درشت'?'🪨':pd.size==='میانه'?'🪸':'✨')+'</span>' +
+      (pd.size) + '<br>' + (S.puzzle.placedOrder && S.puzzle.placedOrder[i] ? '✓ '+S.puzzle.placedOrder[i] : 'خالی') + '</button>';
+  });
+  let corals='';
+  available.forEach(id=>{
+    corals += '<button class="coral-btn'+(selCoral===id?' sel':'')+'" data-c="'+id+'">سنگ‌مرجان '+coralInfo[id]+'</button>';
+  });
+  b.innerHTML =
+    '<p style="font-size:.78rem;color:var(--muted)">سنگ‌های مرجانی را با اندازهٔ درست روی سکوها بگذار — از شرق به غرب: درشت، میانه، ریز. (پازل قطعی — بدون شانس)</p>' +
+    '<div class="ped-row">'+peds+'</div>' +
+    (corals ? '<div class="coral-row">'+corals+'</div>' :
+      '<div class="empty-state"><span class="es-ico">🪸</span>هنوز سنگ‌مرجانی نداری — سه سنگ را از ساحل پیدا کن.<br>راهنما: پیر دریا کنار دریا ایستاده است.</div>');
+  b.querySelectorAll('.coral-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{ selCoral = el.dataset.c; renderPuzzle(); });
+  });
+  b.querySelectorAll('.pedestal').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const i = +el.dataset.i;
+      if(!selCoral){ toast('نخست یک سنگ‌مرجان را انتخاب کن'); return; }
+      const wanted = WORLD.pedestals[i].size;
+      const got = coralInfo[selCoral];
+      if(got !== wanted){ toast('اندازه نمی‌خورد — این سکو «'+wanted+'» است'); renderPuzzle(); return; }
+      S.puzzle.placedOrder = S.puzzle.placedOrder || [];
+      S.puzzle.placedOrder[i] = got;
+      S.puzzle.placed.push(selCoral);
+      takeItem('marjan',1);
+      selCoral=null;
+      logEvent('place_coral',{pedestal:i, coral:got});
+      if(S.puzzle.placed.length===3){
+        S.puzzle.solved=true;
+        toast('🌀 دروازهٔ مرجانی گشوده شد — صندوقی پدیدار گشت!');
+        logEvent('puzzle_solved',{}, 'پاداش در صندوق ثابت است — بدون شانس');
+      }
+      renderPuzzle(); renderHUD();
+    });
+  });
+}
+function openChest(){
+  if(S.chestOpen) return;
+  askConfirm('صندوق دروازه را باز کنم؟ محتوای آن ثابت و مشخص است: بلور شیشه‌ای ×۲ + نشانِ دریای شیشه‌ای ×۱ (بدون هیچ عنصر شانسی).', ()=>{
+    S.chestOpen=true;
+    addItem('bolur',2); addItem('neshan',1);
+    addPlayerXP(5);
+    toast('🎁 بلور شیشه‌ای ×۲ + نشانِ دریای شیشه‌ای ×۱');
+    logEvent('reward_chest',{items:{bolur:2, neshan:1}}, 'محتوای ثابت — ممنوعیت خرید شانس‌محور');
+    renderHUD();
+  });
+}
+
+/* ═══════════════════ خانه (صندوق شخصی) ═══════════════════ */
+function renderHouse(){
+  const b=$('#house-body');
+  const ids=Object.keys(ITEMS);
+  let rows='';
+  let any=false;
+  ids.forEach(id=>{
+    const inv=S.inv[id]||0, ch=S.chest[id]||0;
+    if(!inv && !ch) return;
+    any=true;
+    rows += '<div class="row"><span class="r-ico">'+ITEMS[id].ico+'</span>' +
+      '<div class="r-main">'+ITEMS[id].name+'<small>کیف: '+fa(inv)+' · صندوق: '+fa(ch)+'</small></div>' +
+      (inv?'<button class="btn ghost" data-dep="'+id+'">گذاشتن</button>':'') +
+      (ch?'<button class="btn ghost" data-wdr="'+id+'">برداشتن</button>':'') +
+      '</div>';
+  });
+  b.innerHTML = any ? rows :
+    '<div class="empty-state"><span class="es-ico">📦</span>صندوق خانه خالی است.<br>کالایی در کیف نداری — از صخره‌ها و درخت‌ها برداشت کن.</div>' +
+    '<p style="font-size:.7rem;color:var(--muted)">دارایی شخصی مصادره نمی‌شود (اصل ۱ از ۹ اصل عدالت). صندوق خانه بخشی از دارایی محافظت‌شدهٔ توست.</p>';
+  b.querySelectorAll('[data-dep]').forEach(el=>el.addEventListener('click',()=>{
+    const id=el.dataset.dep;
+    if(takeItem(id,1)){ S.chest[id]=(S.chest[id]||0)+1; toast('📦 در صندوق گذاشته شد'); renderHouse(); }
+  }));
+  b.querySelectorAll('[data-wdr]').forEach(el=>el.addEventListener('click',()=>{
+    const id=el.dataset.wdr;
+    if((S.chest[id]||0)>0){ S.chest[id]-=1; if(S.chest[id]<=0) delete S.chest[id]; addItem(id,1); toast('🎒 به کیف برگشت'); renderHouse(); }
+  }));
+}
+
+/* ═══════════════════ پنل‌های اطلاعاتی ═══════════════════ */
+function renderInv(){
+  const b=$('#inv-body');
+  const ids=Object.keys(S.inv);
+  if(!ids.length){
+    b.innerHTML='<div class="empty-state"><span class="es-ico">🎒</span>کیف تو خالی است.<br>به صخره‌های ساحلی یا درخت‌ها نزدیک شو و «کوبش» را در پنجرهٔ سبز بزن.</div>';
+    return;
+  }
+  let g='<div class="inv-grid">';
+  ids.forEach(id=>{
+    g+='<div class="inv-slot"><div class="i-ico">'+ITEMS[id].ico+'</div>' +
+       '<div class="i-name">'+ITEMS[id].name+'</div><div class="i-count">×'+fa(S.inv[id])+'</div></div>';
+  });
+  g+='</div><div class="chip" style="margin-top:14px">💰 سکه: '+fa(S.coins)+'</div>';
+  b.innerHTML=g;
+}
+function renderMissions(){
+  const b=$('#missions-body');
+  const m=S.mission;
+  const steps=[
+    {ok:S.stats.mined>=2 || (S.inv.sang||0)>=2, t:'برداشت ۲ سنگ صخره‌ای', v:Math.min(S.inv.sang||0,2)+'/۲'},
+    {ok:(S.inv.choob||0)>=1 || S.stats.crafted>0, t:'برداشت ۱ چوب شناور', v:Math.min(S.inv.choob||0,1)+'/۱'},
+    {ok:S.stats.crafted>0 || (S.inv.abzar||0)>=1, t:'ساخت ابزار سنگی در کارگاه', v:S.stats.crafted>0?'✓':'—'},
+    {ok:m.done, t:'تحویل به ناخدای بی‌کشتی', v:m.done?'✓':'—'},
+  ];
+  let rows = '<div class="row"><span class="r-ico">🔨</span><div class="r-main"><b>ابزار برای ناخدا</b>' +
+    '<small>زنجیرهٔ فعالیت پایهٔ نمونه — پاداش اصلی فقط یک‌بار: ۲۰ سکه + ۱۵ تجربه [آزمایشی]</small></div>' +
+    '<span class="tag '+(m.done?'ok':(m.accepted?'warn':''))+'">'+(m.done?'کامل شد':(m.accepted?'در جریان':'پذیرفته نشده'))+'</span></div>';
+  steps.forEach(s=>{
+    rows += '<div class="row"><span class="r-ico">'+(s.ok?'✅':'⬜')+'</span><div class="r-main">'+s.t+'</div><span class="tag">'+s.v+'</span></div>';
+  });
+  rows += '<div class="row"><span class="r-ico">🪸</span><div class="r-main"><b>سنگ‌مرجان‌های گمشده</b>' +
+    '<small>پازل دروازهٔ مرجانی — میراث مأموریت نمونهٔ v1</small></div>' +
+    '<span class="tag '+(S.puzzle.solved?'ok':'warn')+'">'+(S.puzzle.solved?'حل شد':fa(S.puzzle.picked.length)+'/۳ برداشت')+'</span></div>';
+  rows += '<div class="row"><span class="r-ico">🧺</span><div class="r-main"><b>سفارش کاروان</b>' +
+    '<small>پیش‌نمایش فروش بازار محلی — تکرارشدنی با نرخ پایهٔ ثابت</small></div>' +
+    '<span class="tag">فروخته: '+fa(S.caravan.count)+'</span></div>';
+  b.innerHTML=rows;
+}
+function renderProfile(){
+  const b=$('#profile-body');
+  const lv=levelOf(S.xp,XP_LV), plv=levelOf(S.prof.xp,XP_PRF);
+  const lo=XP_LV[lv-1], hi=XP_LV[lv]||XP_LV[XP_LV.length-1];
+  const plo=XP_PRF[plv-1], phi=XP_PRF[plv]||XP_PRF[XP_PRF.length-1];
+  b.innerHTML =
+    '<div class="stat-grid">' +
+      '<div class="stat-card"><b>'+fa(S.coins)+' 💰</b><span>سکه (پیش‌نام موقت توکن — A5)</span></div>' +
+      '<div class="stat-card"><b>سطح '+fa(lv)+'</b><span>مسافر — تجربهٔ '+fa(S.xp)+'</span></div>' +
+    '</div>' +
+    '<p style="margin:14px 2px 6px;font-size:.8rem">پیشرفت مسافر — تا سطح '+fa(lv+1)+'</p>' +
+    '<div class="bar"><i style="width:'+Math.round(100*(S.xp-lo)/Math.max(1,hi-lo))+'%"></i></div>' +
+    '<div class="row" style="margin-top:14px"><span class="r-ico">⚒️</span><div class="r-main"><b>حرفهٔ معدن‌کاری — سطح '+fa(plv)+'</b>' +
+    '<small>سر زنجیرهٔ نمونهٔ مصوب: معدن‌کار ← آهنگر ← نجار ← کشاورز (D16). تجربه: '+fa(S.prof.xp)+'</small></div>' +
+    '<span class="tag '+(S.prof.registered?'ok':'warn')+'">'+(S.prof.registered?'فعال':'ثبت‌نشده')+'</span></div>' +
+    '<div class="bar"><i style="width:'+Math.round(100*(S.prof.xp-plo)/Math.max(1,phi-plo))+'%"></i></div>' +
+    (plv>=2?'<p style="font-size:.72rem;color:#7dfcb4;margin-top:8px">مزیت سطح ۲: هر سومین کوبشِ موفق، یک سنگ اضافه می‌دهد (قطعی — بدون شانس) [آزمایشی]</p>':'') +
+    '<div class="stat-grid" style="margin-top:14px">' +
+      '<div class="stat-card"><b>'+fa(S.stats.mined)+'</b><span>کوه‌کاوی موفق</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.stats.chopped)+'</b><span>هیزم‌شکنی</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.stats.crafted)+'</b><span>ساخت</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.stats.delivered+S.stats.sold)+'</b><span>تحویل/فروش</span></div>' +
+    '</div>';
+}
+function renderStatus(){
+  const b=$('#status-body');
+  const earned=S.ledger.filter(e=>e.type==='reward_mission'||e.type==='sale_caravan'||e.type==='reward_chest')
+    .reduce((a,e)=>a+(e.delta.tokens?e.delta.tokens.coins:0),0);
+  let led='<div class="notes-sec"><h3>دفترکل ضمیمه‌تنها — آخرین رویدادها (نمونهٔ محلی؛ نسخهٔ نهایی سمت سرور)</h3>';
+  S.ledger.slice(-6).reverse().forEach(e=>{
+    led+='<p>#'+fa(e.seq)+' <span style="color:#38c6ff">'+e.type+'</span> — شناسهٔ '+e.id+'</p>';
+  });
+  if(!S.ledger.length) led+='<p>تا این لحظه رویدادی ثبت نشده است.</p>';
+  led+='</div>';
+  b.innerHTML =
+    '<div class="stat-grid">' +
+      '<div class="stat-card"><b>روستا (سطح ۱/۵)</b><span>روستا ← شهر ← منطقه ← پادشاهی ← امپراتوری — ارتقا در فاز جمعی</span></div>' +
+      '<div class="stat-card"><b>'+fa(4+1)+' ساکن</b><span>۴ ساکن دهکده + مسافر</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.stats.mined+S.stats.chopped+S.stats.crafted)+'</b><span>تولید کل این مسافر</span></div>' +
+      '<div class="stat-card"><b>'+fa(earned)+' 💰</b><span>سکهٔ کسب‌شده (فقط از کار واقعی)</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.mission.done?1:0)+'/۱</b><span>مأموریت‌های کامل</span></div>' +
+      '<div class="stat-card"><b>'+fa(S.discovered.length)+'/'+fa(POIS.length)+'</b><span>کشف محیط</span></div>' +
+    '</div>' + led +
+    '<p style="font-size:.7rem;color:var(--muted)">اقتصاد این نمونه: هیچ فروش توکن، قمار یا خرید شانس‌محور وجود ندارد. سکه فقط از کار واقعی (مأموریت، فروش محصول) می‌آید.</p>';
+}
+
+/* ═══════════════════ یادداشت‌های نمونهٔ اولیه ═══════════════════ */
+function renderNotes(){
+  const b=$('#notes-body');
+  b.innerHTML =
+    '<div class="notes-sec"><h3>۱) معماری — گزینه‌های بررسی‌شده (تصمیم نهایی با کارفرما)</h3>' +
+    '<ul><li><b>الف (انتخاب موقت):</b> تک‌فایل HTML، بدون کتابخانه، Canvas ایزومتریک، localStorage — آفلاین، هزینهٔ صفر، مناسب گوشی معمولی</li>' +
+    '<li><b>ب:</b> تک‌فایل + موتور سه‌بعدی از CDN (Three.js) — نیازمند شبکه، سنگین‌تر برای گوشی معمولی</li>' +
+    '<li><b>ج:</b> سرور + موتور کامل + پایگاه داده — مسیر v2 جمعی؛ پس از تصمیم A3 و بودجه</li></ul>' +
+    '<p>انتخاب قطعی موتور/سرور/انتشار = «نیازمند تصویب کارفرما».</p></div>' +
+    '<div class="notes-sec"><h3>۲) دارایی‌های موقت (قابل تعویض)</h3>' +
+    '<ul><li>شخصیت: شکل هندسی ساده — فقط تابع رندر «مسافر» تعویض می‌شود؛ مدل سه‌بعدی نهایی که در انتظار است جایگزین می‌شود</li>' +
+    '<li>آیکون‌ها: ایموجی موقت · بدون صدا · بدون بافت (Texture)</li>' +
+    '<li>نقشه/ساختمان‌ها: شکل‌های هندسی ایزومتریک</li></ul></div>' +
+    '<div class="notes-sec"><h3>۳) تصمیم‌های مصوب رعایت‌شده</h3>' +
+    '<ul><li>D3: فلسفهٔ تک‌فایل/آفلاین حفظ شد (در فایل جداگانه — v1 دست‌نخورده)</li>' +
+    '<li>D4: مکانیک M4 «ضربه به‌موقع» از کتابخانهٔ ۸گانهٔ مصوب</li>' +
+    '<li>D5: نمایش سطح ۱ از ۵ ساختار سکونتگاه (روستا)</li>' +
+    '<li>D7: «یک رویداد، یک پاداش» — شناسهٔ یکتا + گارد مأموریت</li>' +
+    '<li>D12: همهٔ اعداد آزمایشی‌اند</li>' +
+    '<li>D16: زنجیرهٔ نمونه از سرِ معدن‌کار</li>' +
+    '<li>بدون فروش توکن، بدون قمار، بدون خرید شانس‌محور</li>' +
+    '<li>دارایی شخصی در هیچ ریسکی نیست</li></ul></div>' +
+    '<div class="notes-sec"><h3>۴) موضوعات باز — پیش‌فرض موقت در این نمونه</h3>' +
+    '<ul><li>A1 نام دروازه‌ها → همان نام‌های کد فعلی v1</li>' +
+    '<li>A3 معماری دو نسخه‌ای → این نمونه مستقل از v1 و بدون سرور</li>' +
+    '<li>A4 مدل قیمت‌گذاری → نرخ پایهٔ ثابت کاروان (بدون قیمت‌گذاری بازیکن)</li>' +
+    '<li>A5 نام توکن → «سکه» فقط پیش‌نام</li>' +
+    '<li>A10 همهٔ اعداد → آزمایشی، بدون شبیه‌سازی</li>' +
+    '<li>D13 امتیاز/پاداش سمت سرور → فعلاً محلی؛ دفترکل الگوی نمونه است</li></ul>' +
+    '<p><b style="color:#ffd86f">همهٔ این‌ها نیازمند تصویب کارفرماست.</b></p></div>' +
+    '<div class="notes-sec"><h3>۵) وضعیت فنی</h3>' +
+    '<ul><li>FPS واقعی: <span id="fps-live">—</span></li>' +
+    '<li>کلید ذخیره: hs77_nemune_v1 (جدا از v1)</li>' +
+    '<li>دفترکل: ضمیمه‌تنها، ۳۰۰ رویداد آخر</li></ul>' +
+    '<button class="btn ghost block" id="btn-reset-save" style="margin-top:10px">پاک‌کردن ذخیرهٔ نمونه و شروع از نو</button></div>';
+  $('#fps-live').textContent = FPS ? fa(FPS)+' فریم بر ثانیه' : '—';
+  $('#btn-reset-save').addEventListener('click', ()=>{
+    askConfirm('همهٔ پیشرفت این نمونه پاک شود؟ (این کار روی بازی اصلی v1 اثری ندارد)', ()=>{
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    });
+  });
+}
+
+/* ═══════════════════ HUD و راه‌اندازی ═══════════════════ */
+function renderHUD(){ /* مقادیر HUD از پنل‌ها خوانده می‌شود؛ برای همگام‌سازی نگه داشته شده */ }
+$('#btn-inv').addEventListener('click', ()=>{ renderInv(); openSheet('#sheet-inv'); });
+$('#btn-missions').addEventListener('click', ()=>{ renderMissions(); openSheet('#sheet-missions'); });
+$('#btn-profile').addEventListener('click', ()=>{ renderProfile(); openSheet('#sheet-profile'); });
+$('#btn-status').addEventListener('click', ()=>{ renderStatus(); openSheet('#sheet-status'); });
+$('#btn-notes').addEventListener('click', ()=>{ renderNotes(); openSheet('#sheet-notes'); });
+
+function enterRealm(){
+  show('screen-realm');
+  resize();
+  cam.init=false;
+}
+/* ---------- قلاب‌های آزمون خودکار (فقط با ?debug=1) ---------- */
+if(/[?&]debug=1/.test(location.search)){
+  window.HS77 = {
+    state:S,
+    api:{
+      teleport(x,y){ P.x=x; P.y=y; },
+      give(id,n){ addItem(id,n); },
+      addCoins(n){ S.coins+=n; save(); },
+      getState(){ return JSON.parse(JSON.stringify({x:P.x, y:P.y, coins:S.coins, inv:S.inv,
+        mission:S.mission, puzzle:{picked:S.puzzle.picked, solved:S.puzzle.solved},
+        level:levelOf(S.xp,XP_LV), profLv:levelOf(S.prof.xp,XP_PRF), chestOpen:S.chestOpen,
+        discovered:S.discovered.length, stats:S.stats})); },
+      openTiming(){ if(interactTarget && (interactTarget.type==='rock'||interactTarget.type==='tree')) startTiming(interactTarget.type==='rock'?'mine':'chop', interactTarget.ref); return !!interactTarget; },
+      hit(){ finishHit(); },
+      realm(){ enterRealm(); },
+    }
+  };
+}
+/* ---------- شروع ---------- */
+resize();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
