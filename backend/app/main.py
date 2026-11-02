@@ -16,6 +16,8 @@ async def lifespan(app: FastAPI):
             raise RuntimeError("SESSION_SECRET must be a unique random value of at least 32 characters in production")
         if not settings.bale_bot_token or len(settings.bale_webhook_secret) < 32:
             raise RuntimeError("BALE_BOT_TOKEN and a 32+ character BALE_WEBHOOK_SECRET are required in production")
+        if not settings.database_url.startswith(("postgres://", "postgresql://", "postgresql+psycopg://")):
+            raise RuntimeError("Production DATABASE_URL must point to PostgreSQL")
     Base.metadata.create_all(bind=get_engine())
     db = get_session_factory()()
     try:
