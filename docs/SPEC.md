@@ -105,3 +105,32 @@
 - [ ] تغییر برچسب هدر UI به نام رسمی
 - [ ] لغو/تعویض توکن با دسترسی گسترده (در انتظار تأیید مالک)
 - [ ] تصمیم دربارهٔ انتشار (هاست)
+
+
+## ۹. مرحلهٔ سه — هستهٔ بازیکن و جهان (وضعیت پیاده‌سازی)
+
+| جزء | وضعیت | شواهد / محدودیت |
+|---|---|---|
+| Backend FastAPI | 🟡 | کد در `backend/app`؛ اجرای CI لازم است |
+| مدل‌های کاربر، حساب، پیشرفت، نشست و رخداد | 🟡 | SQLAlchemy در `backend/app/models.py` |
+| ماژول بازیکن و جهان | 🟡 | `backend/app/modules/players.py` و `world.py` |
+| اعتبارسنجی امضای initData بله | 🟡 | `backend/app/core/security.py`؛ آزمون خودکار در CI |
+| API ورود، پروفایل و پیشرفت | 🟡 | مسیرهای `/api/v1` |
+| Seed جهان ۷۷ سرزمینی | 🟡 | ۷۷ رکورد؛ فقط سرزمین اول released است؛ نام ۶۴ مورد موقت |
+| Update تماس و ثبت شماره | 🟡 | مسیر webhook پیاده شده؛ هدر امنیتی و payload واقعی باید در بله تست شود |
+| اتصال Frontend به API | 🟡 | SDK بله و ورود/همگام‌سازی در `index.html`؛ تست واقعی Mini App هنوز انجام نشده |
+| انتقال دادهٔ قدیمی | 🟡 | endpoint مهاجرت با رضایت کاربر؛ دادهٔ قدیمی پاداش یا unlock معتبر نمی‌دهد |
+| استقرار Liara و PostgreSQL عملیاتی | ⬜ | هنوز رازها، دیتابیس و سرویس Liara تنظیم نشده‌اند |
+| تست روی گوشی و کلاینت واقعی بله | ⬜ | انجام نشده |
+
+### APIهای اضافه‌شده
+- `POST /api/v1/auth/bale`
+- `GET /api/v1/players/me`
+- `GET /api/v1/world/territories`
+- `GET /api/v1/progress`
+- `PUT /api/v1/progress/snapshot`
+- `POST /api/v1/progress/events`
+- `POST /api/v1/progress/migrate`
+- `POST /api/v1/integrations/bale/webhook`
+
+**مرز اعتماد:** رخدادهای مینی‌گیم ارسالی از مرورگر `client_unverified` هستند؛ سرور فعلاً هیچ پاداش یا ارزشی بر اساس آن‌ها اعطا نمی‌کند. دادهٔ legacy نیز فقط برای سابقه ذخیره می‌شود.
