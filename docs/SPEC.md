@@ -51,7 +51,7 @@
 | 20 | حساب کاربری / ذخیرهٔ ابری | ⬜ | فعلاً فقط localStorage؛ ذخیره‌سازی ابری وجود ندارد |
 | 21 | مینی‌گیم تعادل دروازهٔ ۱ | ✅ | آزمون مرورگری برد، باخت، شروع مجدد، pointer، ورودی لمسی CDP و ماندگاری نتیجه؛ ۱۰/۱۰ آزمون موفق در GitHub Actions |
 | 22 | ذخیرهٔ پیشرفت مینی‌گیم تعادل | ✅ | ذخیره در شروع، حین پیشروی، پایان برد/باخت و شروع مجدد؛ نتیجه پس از reload بازیابی شد |
-| 23 | گردش‌کار آزمون خودکار مینی‌گیم تعادل | ✅ | `.github/workflows/balance-game.yml`؛ گزارش اجرا: [GitHub Actions](https://github.com/peymankhosravirad470-cell/darvazeha/actions/runs/41529644661) |
+| 23 | گردش‌کار آزمون خودکار مینی‌گیم تعادل | ✅ | `.github/workflows/balance-game.yml`؛ گزارش اجرا: [GitHub Actions](https://github.com/peymankhosravirad470-cell/darvazeha/actions/runs/41530042407) |
 
 > **نکتهٔ مهم:** ادعای «هر ۱۳ دروازه مأموریت، مینی‌گیم و پیش‌بینی کامل دارند» **نادرست**
 > است — فقط دروازهٔ ۱ محتوای نمونه دارد.
@@ -87,7 +87,7 @@
 - آزمون مستقل در `scripts/test_balance.mjs` با Playwright و Chromium اجرا می‌شود.
 - موارد آزموده‌شده: تعریف تابع، بازشدن بدون خطای زمان اجرا، برد با pointer، ماندگاری برد پس از reload، باخت با خروج از مسیر، شروع مجدد و ذخیرهٔ reset، ذخیرهٔ پیشرفت در میانهٔ بازی، ورودی لمسی از مسیر CDP و نبود خطای JavaScript در سناریوهای برد/باخت/لمس.
 - نتیجهٔ اجرای نهایی: **۱۱/۱۱ موفق**.
-- اجرای قابل مشاهده: https://github.com/peymankhosravirad470-cell/darvazeha/actions/runs/41529644661
+- اجرای قابل مشاهده: https://github.com/peymankhosravirad470-cell/darvazeha/actions/runs/41530042407
 - آزمون ورودی لمسی در Chromium انجام شده و نباید به‌عنوان تست روی گوشی فیزیکی گزارش شود.
 
 ## ۷. فرایند توسعه (الزام مالک)
