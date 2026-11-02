@@ -43,6 +43,13 @@ def test_login_world_progress_and_contact_webhook(client):
     assert response.status_code == 200, response.text
     token=response.json()["access_token"]
     headers={"Authorization":f"Bearer {token}"}
+    legacy=client.post("/api/v1/progress/migrate",headers=headers,json={
+      "event_id":"legacy-import-test-001",
+      "legacy_state":{"unlocked":13,"visited":[1,2,13],"missions":8,"stars":99,"balance":{"wins":4}}
+    })
+    assert legacy.status_code == 202
+    assert legacy.json()["server_unlocked"] == 1
+    assert legacy.json()["visited"] == [1]
     before_contact=client.post("/api/v1/progress/events",headers=headers,json={"event_id":"before-contact-001","event_type":"balance_game","result":"win","progress":100,"attempts":1,"wins":1,"losses":0})
     assert before_contact.status_code == 403
     world=client.get("/api/v1/world/territories",headers=headers)
