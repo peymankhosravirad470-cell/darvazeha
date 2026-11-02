@@ -383,6 +383,12 @@ function save(){
   saveTimer = setTimeout(()=>{ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }, 250);
 }
 addEventListener('pagehide', ()=>{ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} });
+/* مرورگر موبایل گاهی بدون pagehide صفحه را می‌بندد — ذخیره در مخفی‌شدن تب هم انجام می‌شود */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden'){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+  }
+});
 
 /* ---------- دفترکل ضمیمه‌تنها (نمونهٔ محلیِ الگوی سند ۱۴) ----------
    قانون نمونه: فقط افزودن؛ هیچ ویرایش/حذفی. شناسهٔ یکتا برای هر رویداد
@@ -601,11 +607,21 @@ function gameLoop(t){
   fpsAcc += dt; fpsN++;
   if(fpsAcc>=1){ FPS=Math.round(fpsN/fpsAcc); fpsAcc=0; fpsN=0; }
   if(!$('#screen-realm').classList.contains('active')) return;
-  const busy = !!openSheetId || $('#timing').classList.contains('show') || $('#confirm').classList.contains('show');
-  if(!busy) updateMove(dt);
-  updateWorld(t);
-  scanInteract();
-  draw(t);
+  /* محافظ هسته: خطای یک فریم نباید حلقهٔ بازی را برای همیشه بمیراند */
+  try{
+    const busy = !!openSheetId || $('#timing').classList.contains('show') || $('#confirm').classList.contains('show');
+    if(!busy) updateMove(dt);
+    updateWorld(t);
+    scanInteract();
+    draw(t);
+  }catch(err){
+    console.error('gameLoop:', err);
+    if(!gameLoop._errShown){
+      gameLoop._errShown = true;
+      toast('خطای غیرمنتظره در رندر — بازی ادامه می‌دهد؛ جزئیات در کنسول');
+      setTimeout(()=>{ gameLoop._errShown = false; }, 5000);
+    }
+  }
 }
 function updateMove(dt){
   let jx=joyVec.x, jy=joyVec.y;
