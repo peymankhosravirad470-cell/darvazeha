@@ -25,6 +25,13 @@ jobs:
       - name: Install dependencies
         working-directory: backend
         run: pip install -r requirements.txt
+      - name: Smoke-test Alembic migration
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./ci.db
+        run: alembic upgrade head
       - name: Run backend tests
         working-directory: backend
         run: python -m pytest -q
+      - name: Build production container
+        run: docker build -f backend/Dockerfile -t darvazeha-backend:ci .
