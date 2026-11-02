@@ -27,7 +27,7 @@ async def bale_webhook(secret: str, request: Request, db: Session = Depends(get_
     if sender_id != contact_user_id:
         return {"ok": True, "verified": False, "reason": "contact_owner_mismatch"}
     normalized = re.sub(r"[^+0-9]", "", phone)
-    if len(re.sub(r"\\D", "", normalized)) < 8 or len(normalized) > 20:
+    if len(re.sub(r"\D", "", normalized)) < 8 or len(normalized) > 20:
         return {"ok": True, "verified": False, "reason": "invalid_phone"}
     user = db.query(User).filter(User.bale_user_id == sender_id).first()
     if not user:
