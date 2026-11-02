@@ -6,7 +6,8 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import AuthenticationError, validate_bale_init_data, issue_session_token, new_session_id
 from app.dependencies import current_user
-from app.models import AuthSession, PlayerAccount, PlayerProgress, User
+from app.models import AuthSession, User
+from app.modules.players import ensure_player_account
 from app.schemas import BaleAuthRequest
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -23,10 +24,7 @@ def login_with_bale(body: BaleAuthRequest, db: Session = Depends(get_db)):
         user = User(id=str(uuid.uuid4()), bale_user_id=int(bale_user["id"]))
         db.add(user)
         db.flush()
-        account = PlayerAccount(id=str(uuid.uuid4()), user_id=user.id, display_name=(bale_user.get("first_name") or "مسافر")[:80])
-        db.add(account)
-        db.flush()
-        db.add(PlayerProgress(id=str(uuid.uuid4()), account_id=account.id))
+    account, progress = ensure_player_account(db, user, bale_user.get("first_name") or "مسافر")
     user.first_name = (bale_user.get("first_name") or user.first_name or "")[:120]
     user.username = bale_user.get("username")
     user.photo_url = bale_user.get("photo_url")
@@ -34,8 +32,6 @@ def login_with_bale(body: BaleAuthRequest, db: Session = Depends(get_db)):
     expires = datetime.now(timezone.utc) + timedelta(seconds=settings.session_ttl_seconds)
     db.add(AuthSession(id=session_id, user_id=user.id, expires_at=expires))
     db.commit()
-    account = db.query(PlayerAccount).filter(PlayerAccount.user_id == user.id).one()
-    progress = db.query(PlayerProgress).filter(PlayerProgress.account_id == account.id).one()
     return {
         "access_token": issue_session_token(user.id, session_id, int(expires.timestamp())),
         "token_type": "bearer", "expires_in": settings.session_ttl_seconds,
