@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.dependencies import current_user
+from app.dependencies import current_user, verified_phone_user
 from app.models import GameEvent, PlayerAccount, PlayerProgress
 from app.schemas import GameEventRequest, ProgressSnapshot, LegacyMigrationRequest
 
@@ -16,7 +16,7 @@ def get_progress(user=Depends(current_user), db: Session = Depends(get_db)):
     return {"unlocked": p.unlocked_territory, "visited": p.visited_territories, "missions": p.missions_completed, "stars": p.stars, "latest_balance_report": latest.payload if latest else None, "legacy_import": legacy.payload if legacy else None, "phone_verified": user.phone_verified_at is not None}
 
 @router.put("/snapshot")
-def save_progress_snapshot(body: ProgressSnapshot, user=Depends(current_user), db: Session = Depends(get_db)):
+def save_progress_snapshot(body: ProgressSnapshot, user=Depends(verified_phone_user), db: Session = Depends(get_db)):
     account = db.query(PlayerAccount).filter(PlayerAccount.user_id == user.id).one()
     p = db.query(PlayerProgress).filter(PlayerProgress.account_id == account.id).one()
     p.visited_territories = sorted({n for n in body.visited if 1 <= n <= 77 and n <= p.unlocked_territory}) or [1]
@@ -24,7 +24,7 @@ def save_progress_snapshot(body: ProgressSnapshot, user=Depends(current_user), d
     return {"ok": True, "visited": p.visited_territories, "unlocked": p.unlocked_territory, "stars": p.stars, "missions": p.missions_completed}
 
 @router.post("/events", status_code=202)
-def record_game_event(body: GameEventRequest, user=Depends(current_user), db: Session = Depends(get_db)):
+def record_game_event(body: GameEventRequest, user=Depends(verified_phone_user), db: Session = Depends(get_db)):
     account = db.query(PlayerAccount).filter(PlayerAccount.user_id == user.id).one()
     existing = db.get(GameEvent, body.event_id)
     if existing:
