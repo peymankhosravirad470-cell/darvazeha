@@ -18,3 +18,8 @@ def current_user(authorization: str | None = Header(default=None), db: Session =
     if not user:
         raise HTTPException(status_code=401, detail="حساب بازیکن پیدا نشد.")
     return user
+
+def verified_phone_user(user: User = Depends(current_user)) -> User:
+    if user.phone_verified_at is None:
+        raise HTTPException(status_code=403, detail="برای ذخیرهٔ پیشرفت، ابتدا شمارهٔ موبایل خود را در بله تأیید کنید.")
+    return user
