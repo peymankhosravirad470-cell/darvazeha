@@ -45,7 +45,7 @@ def test_login_world_progress_and_contact_webhook(client):
     headers={"Authorization":f"Bearer {token}"}
     before_contact=client.post("/api/v1/progress/events",headers=headers,json={"event_id":"before-contact-001","event_type":"balance_game","result":"win","progress":100,"attempts":1,"wins":1,"losses":0})
     assert before_contact.status_code == 403
-  world=client.get("/api/v1/world/territories",headers=headers)
+    world=client.get("/api/v1/world/territories",headers=headers)
     assert world.status_code == 200
     assert world.json()["total"] == 77
     assert len(world.json()["territories"]) == 77
