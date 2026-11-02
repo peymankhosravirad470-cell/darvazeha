@@ -50,16 +50,16 @@ def test_login_world_progress_and_contact_webhook(client):
     assert len(world.json()["territories"]) == 77
     assert world.json()["territories"][0]["unlocked"] is True
     assert world.json()["territories"][1]["unlocked"] is False
-    event=client.post("/api/v1/progress/events",headers=headers,json={
-      "event_id":"balance-event-test-001","event_type":"balance_game","result":"win",
-      "progress":100,"attempts":1,"wins":1,"losses":0
-    })
-    assert event.status_code == 202
-    assert event.json()["reward_granted"] is False
-    update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
+      update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
     contact=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=update)
     assert contact.status_code == 200
     assert contact.json()["verified"] is True
     me=client.get("/api/v1/players/me",headers=headers)
     assert me.status_code == 200
     assert me.json()["user"]["phone_verified"] is True
+    event=client.post("/api/v1/progress/events",headers=headers,json={
+      "event_id":"balance-event-test-001","event_type":"balance_game","result":"win",
+      "progress":100,"attempts":1,"wins":1,"losses":0
+    })
+    assert event.status_code == 202
+    assert event.json()["reward_granted"] is False
