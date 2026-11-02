@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.api import auth, players, progress, world
 from app.core.database import Base, get_engine, get_session_factory
@@ -43,3 +44,6 @@ def health():
 @app.get("/api/v1/world/summary")
 def world_summary():
     return {"territories": 77, "released": 1, "gates_in_current_ui": 13}
+
+# Serve the current Mini App from the same origin as the API.
+app.mount("/", StaticFiles(directory="web", html=True), name="miniapp")
