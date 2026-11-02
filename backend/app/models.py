@@ -69,3 +69,19 @@ class GameEvent(Base):
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     trust_level: Mapped[str] = mapped_column(String(30), default="client_unverified")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+class AccountBalance(Base):
+    __tablename__ = "account_balances"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    account_id: Mapped[str] = mapped_column(ForeignKey("player_accounts.id"), unique=True, nullable=False)
+    token_balance: Mapped[int] = mapped_column(Integer, default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+class TokenLedger(Base):
+    __tablename__ = "token_ledger"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(ForeignKey("player_accounts.id"), nullable=False, index=True)
+    amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    reason: Mapped[str] = mapped_column(String(80), nullable=False)
+    reference_id: Mapped[str | None] = mapped_column(String(80), nullable=True, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
