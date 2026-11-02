@@ -705,12 +705,22 @@ async function initializeBaleApp(){
     return;
   }
   try{
+    const legacySnapshot = JSON.parse(localStorage.getItem(KEY) || 'null');
     const auth = await cloudRequest('/api/v1/auth/bale', {
       method:'POST', body:JSON.stringify({init_data:webApp.initData})
     });
     cloud.token = auth.access_token;
     cloud.online = true;
     cloud.phoneVerified = !!auth.player.phone_verified;
+    let legacyImported = false;
+    if(legacySnapshot && (legacySnapshot.unlocked > 1 || legacySnapshot.missions > 0 || legacySnapshot.stars > 0 || (legacySnapshot.balance && legacySnapshot.balance.attempts > 0))){
+      localStorage.setItem('darvazeha_legacy_backup_v1', JSON.stringify(legacySnapshot));
+      if(confirm('پیشرفت قدیمی این دستگاه پیدا شد. آن را به‌عنوان سابقهٔ محلی (بدون اعطای پاداش یا بازکردن دروازه) به حساب سروری منتقل کنیم؟')){
+        const migrationId = 'legacy-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+        await cloudRequest('/api/v1/progress/migrate', {method:'POST',body:JSON.stringify({event_id:migrationId,legacy_state:legacySnapshot})});
+        legacyImported = true;
+      }
+    }
     const serverProgress = await cloudRequest('/api/v1/progress');
     const world = await cloudRequest('/api/v1/world/territories');
     cloud.world = world.territories || [];
@@ -721,6 +731,9 @@ async function initializeBaleApp(){
     if(serverProgress.latest_balance_report){
       const b = serverProgress.latest_balance_report;
       state.balance = {...state.balance, attempts:b.attempts || 0, wins:b.wins || 0, losses:b.losses || 0, progress:b.progress || 0, lastResult:b.result || null};
+      lastCloudBalance = JSON.stringify(state.balance);
+    }else if(legacyImported && legacySnapshot.balance){
+      state.balance = {...state.balance, ...legacySnapshot.balance};
       lastCloudBalance = JSON.stringify(state.balance);
     }
     localStorage.setItem(KEY, JSON.stringify(state));
