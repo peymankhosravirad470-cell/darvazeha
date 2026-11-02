@@ -12,7 +12,8 @@ def get_progress(user=Depends(current_user), db: Session = Depends(get_db)):
     account = db.query(PlayerAccount).filter(PlayerAccount.user_id == user.id).one()
     p = db.query(PlayerProgress).filter(PlayerProgress.account_id == account.id).one()
     latest = db.query(GameEvent).filter(GameEvent.account_id == account.id, GameEvent.event_type == "balance_game").order_by(GameEvent.created_at.desc()).first()
-    return {"unlocked": p.unlocked_territory, "visited": p.visited_territories, "missions": p.missions_completed, "stars": p.stars, "latest_balance_report": latest.payload if latest else None, "phone_verified": user.phone_verified_at is not None}
+    legacy = db.query(GameEvent).filter(GameEvent.account_id == account.id, GameEvent.event_type == "legacy_import").order_by(GameEvent.created_at.desc()).first()
+    return {"unlocked": p.unlocked_territory, "visited": p.visited_territories, "missions": p.missions_completed, "stars": p.stars, "latest_balance_report": latest.payload if latest else None, "legacy_import": legacy.payload if legacy else None, "phone_verified": user.phone_verified_at is not None}
 
 @router.put("/snapshot")
 def save_progress_snapshot(body: ProgressSnapshot, user=Depends(current_user), db: Session = Depends(get_db)):
