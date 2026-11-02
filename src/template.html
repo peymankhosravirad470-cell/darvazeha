@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05081f">
+<title>هفتاد و هفت سرزمین</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+{{CSS}}
+</style>
+</head>
+<body>
+<!-- ═══════════ صفحهٔ آغاز ═══════════ -->
+<div id="screen-boot" class="view active">
+  <div class="logo-gate">🚪</div>
+  <h1><b>هفتاد و هفت سرزمین</b></h1>
+  <div class="chip ver-chip">نسخهٔ ۰٫۳ — قابل‌بازی · دارایی‌های موقت</div>
+  <p class="sub">سفر از دهکدهٔ ساحل شیشه‌ای آغاز می‌شود؛ نخستین سرزمین از ۱۳ دروازهٔ ابتدایی جهانِ هفت‌وهفت‌سرزمین. سرزمین دوم «جنگل نقره‌ای» نیز در انتظار توست.</p>
+  <button id="btn-enter">ورود به جهان</button>
+  <p class="boot-note">بازی آفلاین و محلی است؛ همهٔ اعداد «آزمایشی»اند (D12) و هیچ تصمیم بازِ اسناد طراحی قطعی نشده است.<br>امتیاز و پاداش نهایی طبق D13 در نسخهٔ سرور ثبت خواهد شد.</p>
+</div>
+
+<!-- ═══════════ ساخت شخصیت ═══════════ -->
+<div id="creation">
+  <div class="cre-card">
+    <h2>سفر را آغاز کن</h2>
+    <p class="cre-sub">نام مسافر و رنگ پرچم سرزمینت را انتخاب کن. این هویت توست — شناسهٔ یکتای بازیکن هم‌اکنون ساخته می‌شود.</p>
+    <input id="cre-name" maxlength="18" placeholder="نام مسافر" autocomplete="off">
+    <span class="cre-label">پرچم مسافر:</span>
+    <div class="banner-row" id="cre-banners"></div>
+    <button class="btn block" id="btn-cre-start">آغاز سفر</button>
+  </div>
+</div>
+
+<!-- ═══════════ نقشهٔ جهان ═══════════ -->
+<div id="screen-map" class="view">
+  <div class="topbar">
+    <span class="chip title"><i class="dot"></i> نقشهٔ جهان — ۱۳ دروازه</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-progress-map"></span>
+  </div>
+  <div class="map-wrap">
+    <p class="map-hint">۱۳ دروازهٔ فعلی بخش ابتدایی جهان ۷۷ سرزمین است (معادل کل جهان نیستند). سرزمین‌های ۱ «دریای شیشه‌ای» و ۲ «جنگل نقره‌ای» قابل بازی‌اند؛ گشودن هر سرزمین با تکمیل مأموریت سرزمین پیشین پیوند دارد (ساختار داده‌محور — محتوای سرزمین‌های ۳ تا ۱۳ طبق نقشه راه و پس از تصمیم A1 اضافه می‌شود).</p>
+    <div id="gate-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════ صحنهٔ سرزمین ═══════════ -->
+<div id="screen-realm" class="view">
+  <canvas id="iso"></canvas>
+  <div class="hud">
+    <div id="hud-top">
+      <button class="chip" id="btn-back-map">↩ نقشه</button>
+      <span class="chip title" id="realm-title"><i class="dot"></i> سرزمین ۱ — دهکدهٔ ساحل شیشه‌ای</span>
+      <span class="spacer"></span>
+      <button class="tool-btn" id="btn-settings" style="width:44px;height:44px" title="تنظیمات">⚙</button>
+      <button class="tool-btn" id="btn-about" style="width:44px;height:44px" title="درباره و تصمیم‌ها">ℹ</button>
+    </div>
+    <span class="chip" id="hud-coins">💰 ۰</span>
+    <span class="chip" id="hud-clock">☀ روز</span>
+    <div id="toasts"></div>
+    <div id="hint"></div>
+    <div id="joy"><div id="joy-thumb"></div></div>
+    <div class="hud-col">
+      <button class="tool-btn" id="btn-status">🏝️<small>سرزمین</small></button>
+      <button class="tool-btn" id="btn-profile">🧭<small>کارنامه</small></button>
+      <button class="tool-btn" id="btn-missions">📜<small>مأموریت</small></button>
+      <button class="tool-btn" id="btn-inv">🎒<small>موجودی</small></button>
+      <button id="btn-action"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ پنل‌ها ═══════════ -->
+<div class="dim" id="dim"></div>
+
+<div class="sheet" id="sheet-inv">
+  <div class="sheet-head"><h2>🎒 موجودی مسافر</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="inv-body"></div>
+</div>
+
+<div class="sheet" id="sheet-craft">
+  <div class="sheet-head"><h2>⚒️ کارگاه</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="craft-body"></div>
+</div>
+
+<div class="sheet" id="sheet-missions">
+  <div class="sheet-head"><h2>📜 مأموریت‌ها</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="missions-body"></div>
+</div>
+
+<div class="sheet" id="sheet-profile">
+  <div class="sheet-head"><h2>🧭 کارنامهٔ مسافر</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="profile-body"></div>
+</div>
+
+<div class="sheet" id="sheet-status">
+  <div class="sheet-head"><h2>🏝️ وضعیت سرزمین</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="status-body"></div>
+</div>
+
+<div class="sheet" id="sheet-house">
+  <div class="sheet-head"><h2>🏠 خانهٔ مسافر — صندوق شخصی</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="house-body"></div>
+</div>
+
+<div class="sheet" id="sheet-dialogue">
+  <div class="sheet-head"><h2 id="dlg-title">گفت‌وگو</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="dialogue-body"></div>
+</div>
+
+<div class="sheet" id="sheet-puzzle">
+  <div class="sheet-head"><h2>🚪 دروازهٔ مرجانی</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="puzzle-body"></div>
+</div>
+
+<div class="sheet" id="sheet-market">
+  <div class="sheet-head"><h2>⛺ بازار محلی دهکده</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="market-body"></div>
+</div>
+
+<div class="sheet" id="sheet-farm">
+  <div class="sheet-head"><h2>🌾 مزرعهٔ دهکده</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="farm-body"></div>
+</div>
+
+<div class="sheet" id="sheet-about">
+  <div class="sheet-head"><h2>ℹ️ دربارهٔ بازی — معماری و تصمیم‌ها</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="about-body"></div>
+</div>
+
+<div class="sheet" id="sheet-settings">
+  <div class="sheet-head"><h2>⚙ تنظیمات</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="settings-body"></div>
+</div>
+
+<!-- ═══════════ مینی‌گیم ضربه به‌موقع ═══════════ -->
+<div id="timing">
+  <div class="timing-card">
+    <h3 id="t-title">کوه‌کاوی</h3>
+    <p class="t-sub" id="t-sub">مکانیک M4 «ضربه به‌موقع» — وقتی نشانگر به نوار سبز رسید بزن.</p>
+    <div id="t-track"><div id="t-zone"></div><div id="t-marker"></div></div>
+    <button class="btn" id="btn-hit">کوبش!</button>
+    <button class="btn ghost block" id="btn-timing-cancel" style="margin-top:10px">انصراف</button>
+  </div>
+</div>
+
+<!-- ═══════════ تأیید حساس ═══════════ -->
+<div id="confirm">
+  <div class="confirm-card">
+    <p id="confirm-text"></p>
+    <div class="cc-row">
+      <button class="btn ghost" id="btn-confirm-no">انصراف</button>
+      <button class="btn danger" id="btn-confirm-yes">بله، انجام بده</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+{{JS}}
+</script>
+</body>
+</html>
