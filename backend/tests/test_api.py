@@ -8,6 +8,7 @@ from app.core import database
 from app.core.config import settings
 from app.core.database import Base, get_db
 from app.main import app
+from app.models import AccountBalance, PlayerAccount, PlayerTerritoryProgress
 
 def make_init_data(token, uid=654321):
     values={"auth_date":str(int(time.time())),"query_id":"api-test-query","user":json.dumps({"id":uid,"first_name":"بازیکن آزمایشی","username":"test_player"},separators=(",",":"))}
@@ -58,6 +59,11 @@ def test_login_world_progress_and_contact_webhook(client):
     assert len(world.json()["territories"]) == 77
     assert world.json()["territories"][0]["unlocked"] is True
     assert world.json()["territories"][1]["unlocked"] is False
+    db=database.get_session_factory()()
+    account=db.query(PlayerAccount).one()
+    assert db.query(PlayerTerritoryProgress).filter_by(account_id=account.id).count() == 77
+    assert db.query(AccountBalance).filter_by(account_id=account.id).one().token_balance == 0
+    db.close()
     update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
     contact=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=update)
     assert contact.status_code == 200
