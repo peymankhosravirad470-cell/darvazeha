@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.security import AuthenticationError, validate_bale_init_data, issue_session_token, new_session_id
+from app.core.security import AuthenticationError, validate_bale_init_data, issue_session_token, new_session_id, verify_session_token
 from app.dependencies import current_user
-from app.models import AuthSession, User
+from app.models import AuthSession, User, utcnow
 from app.modules.players import ensure_player_account
 from app.schemas import BaleAuthRequest
 
@@ -40,5 +40,15 @@ def login_with_bale(body: BaleAuthRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/logout")
-def logout(user: User = Depends(current_user)):
-    return {"ok": True, "note": "Client token should be discarded; server-side revocation endpoint is scheduled for auth hardening."}
+def logout(authorization: str | None = Header(default=None), user: User = Depends(current_user), db: Session = Depends(get_db)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="نشست معتبر نیست.")
+    try:
+        payload = verify_session_token(authorization[7:])
+    except AuthenticationError:
+        raise HTTPException(status_code=401, detail="نشست نامعتبر است.")
+    session = db.get(AuthSession, payload["sid"])
+    if session and session.user_id == user.id and session.revoked_at is None:
+        session.revoked_at = utcnow()
+        db.commit()
+    return {"ok": True}
