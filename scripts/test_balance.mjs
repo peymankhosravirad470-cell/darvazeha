@@ -52,6 +52,7 @@ async function assertStored(page, predicate) {
     if (predicateName === 'lost') return value.balance?.losses === 1 && value.balance?.attempts === 1 && value.balance?.lastResult === 'lost';
     if (predicateName === 'reset') return value.balance?.inProgress === false && value.balance?.progress === 0;
     if (predicateName === 'started') return value.balance?.inProgress === true;
+    if (predicateName === 'progress') return value.balance?.inProgress === true && value.balance?.progress > 0;
     return false;
   }, { key: KEY, predicateName: predicate });
 }
@@ -124,11 +125,15 @@ try {
       touchPoints: type === 'touchEnd' ? [] : [{ x: p.x, y: p.y, id: 1 }]
     });
     await dispatch('touchStart', points[0]);
-    let started = await assertStored(page, 'started');
-    for (const p of points.slice(1)) await dispatch('touchMove', p);
+    const started = await assertStored(page, 'started');
+    for (const p of points.slice(1, 7)) await dispatch('touchMove', p);
+    const midProgressSaved = await assertStored(page, 'progress');
+    for (const p of points.slice(7)) await dispatch('touchMove', p);
     await dispatch('touchEnd', points.at(-1));
     const status = await page.locator('#balance-status').getAttribute('class');
     const saved = await assertStored(page, 'won');
+    record('ذخیرهٔ پیشرفت واقعی در میانهٔ بازی', started && midProgressSaved,
+      `startedPersisted=${started}; midProgressPersisted=${midProgressSaved}`);
     record('ورودی لمسی واقعی (CDP touch) و برد', started && status?.includes('success') && saved,
       `startedPersisted=${started}; status=${status}; persistedWin=${saved}`);
     record('لمس بدون خطای JavaScript', pageErrors.length === 0, pageErrors.join('; '));
