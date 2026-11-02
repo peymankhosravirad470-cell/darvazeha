@@ -22,7 +22,8 @@ async function openGame(browser, { touch = false } = {}) {
   await page.goto(htmlUrl);
   await page.evaluate(key => localStorage.removeItem(key), KEY);
   await page.reload();
-  await page.locator('[data-tab="minigame"]').click();
+  await page.locator('.gate:not(.locked)').first().click();
+  await page.locator('#gm-tabs [data-tab="minigame"]').click();
   await page.locator('#balance-stage').waitFor();
   return { context, page, pageErrors };
 }
