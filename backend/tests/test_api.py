@@ -57,7 +57,7 @@ def test_login_world_progress_and_contact_webhook(client):
     assert event.status_code == 202
     assert event.json()["reward_granted"] is False
     update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
-    contact=client.post("/api/v1/integrations/bale/webhook",headers={"X-Bale-Webhook-Secret":"api-test-webhook-secret"},json=update)
+    contact=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=update)
     assert contact.status_code == 200
     assert contact.json()["verified"] is True
     me=client.get("/api/v1/players/me",headers=headers)
