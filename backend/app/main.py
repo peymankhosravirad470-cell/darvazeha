@@ -5,11 +5,17 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.api import auth, players, progress, world
 from app.core.database import Base, get_engine, get_session_factory
+from app.core.config import settings
 from app.integrations.bale.webhook import router as bale_webhook_router
 from app.modules.world import seed_world
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if settings.app_env == "production":
+        if len(settings.session_secret) < 32 or settings.session_secret.startswith("development"):
+            raise RuntimeError("SESSION_SECRET must be a unique random value of at least 32 characters in production")
+        if not settings.bale_bot_token or len(settings.bale_webhook_secret) < 32:
+            raise RuntimeError("BALE_BOT_TOKEN and a 32+ character BALE_WEBHOOK_SECRET are required in production")
     Base.metadata.create_all(bind=get_engine())
     db = get_session_factory()()
     try:
