@@ -139,5 +139,5 @@
 
 ### گزارش آزمون Backend
 - GitHub Actions: [Backend tests](https://github.com/peymankhosravirad470-cell/darvazeha/actions/workflows/backend.yml)
-- آخرین اجرای موفق ثبت‌شده در این گزارش: ۷ آزمون موفق؛ شامل امضای initData، ورود API، جهان ۷۷ سرزمینی، contact شبیه‌سازی‌شده، محدودیت تلفن و مهاجرت legacy.
-- آزمون اجرای واقعی در اپ بله و استقرار Liara هنوز انجام نشده است.
+- اجرای موفق: [GitHub Actions run 41533386787](https://github.com/peymankhosravirad470-cell/darvazeha/actions/runs/41533386787)؛ ۷ آزمون موفق، smoke test مهاجرت Alembic و build موفق Docker. آزمون‌ها شامل امضای initData، ورود API، جهان ۷۷ سرزمینی، contact شبیه‌سازی‌شده، محدودیت تلفن و مهاجرت legacy هستند.
+- آزمون رابط در کلاینت واقعی بله، دریافت Update واقعی contact و استقرار Liara هنوز انجام نشده است. آزمون‌های CI از SQLite و payload شبیه‌سازی‌شده استفاده می‌کنند.
