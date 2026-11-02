@@ -610,6 +610,7 @@ state.balance = {
 };
 const cloud = {token:null, online:false, phoneVerified:false, syncError:false, world:[]};
 let cloudSaveTimer = null, lastCloudBalance = '';
+
 async function cloudRequest(path, options = {}){
   const headers = {'Content-Type':'application/json', ...(options.headers || {})};
   if(cloud.token) headers.Authorization = 'Bearer ' + cloud.token;
@@ -618,11 +619,23 @@ async function cloudRequest(path, options = {}){
   if(!response.ok) throw new Error(data.detail || 'خطا در ارتباط با سرور');
   return data;
 }
-function syncBaleBackButton(){\n  const webApp = window.Bale && window.Bale.WebApp;\n  const back = webApp && webApp.BackButton;\n  if(!back) return;\n  const shouldShow = !!document.querySelector('.modal.open') || !!(document.getElementById('scene') && document.getElementById('scene').classList.contains('active'));\n  try{ shouldShow ? back.show() : back.hide(); }catch(e){}\n}\nfunction updateCloudAction(){
+function syncBaleBackButton(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  const back = webApp && webApp.BackButton;
+  if(!back) return;
+  const shouldShow = !!document.querySelector('.modal.open') ||
+    !!(document.getElementById('scene') && document.getElementById('scene').classList.contains('active'));
+  try{ shouldShow ? back.show() : back.hide(); }catch(e){}
+}
+function updateCloudAction(){
   const button = document.getElementById('cloud-action');
   if(!button) return;
-  button.textContent = cloud.online ? (cloud.phoneVerified ? (cloud.syncError ? 'تلاش دوباره' : 'همگام‌سازی') : 'تأیید موبایل') : 'اتصال سرور';
-  button.title = cloud.online ? (cloud.phoneVerified ? 'حساب به سرور متصل است' : 'شمارهٔ موبایل هنوز تأیید نشده است') : 'برای ورود، بازی را از بله باز کنید';
+  button.textContent = cloud.online
+    ? (cloud.phoneVerified ? (cloud.syncError ? 'تلاش دوباره' : 'همگام‌سازی') : 'تأیید موبایل')
+    : 'اتصال سرور';
+  button.title = cloud.online
+    ? (cloud.phoneVerified ? (cloud.syncError ? 'همگام‌سازی ناموفق بود؛ برای تلاش دوباره لمس کنید' : 'حساب به سرور متصل است') : 'شمارهٔ موبایل هنوز تأیید نشده است')
+    : 'برای ورود، بازی را از بله باز کنید';
 }
 function queueCloudSync(){
   if(!cloud.token || !cloud.online || !cloud.phoneVerified) return;
@@ -636,16 +649,25 @@ function queueCloudSync(){
       const balanceJson = JSON.stringify(state.balance);
       if(balanceJson !== lastCloudBalance){
         const id = (crypto.randomUUID ? crypto.randomUUID() : ('evt-' + Date.now() + '-' + Math.random().toString(36).slice(2)));
-        const result = state.balance.lastResult === 'win' ? 'win' : state.balance.lastResult === 'loss' ? 'loss' : state.balance.inProgress ? 'progress' : 'reset';
+        const result = state.balance.lastResult === 'win' ? 'win'
+          : state.balance.lastResult === 'loss' ? 'loss'
+          : state.balance.inProgress ? 'progress' : 'reset';
         await cloudRequest('/api/v1/progress/events', {
           method:'POST',
-          body:JSON.stringify({event_id:id,event_type:'balance_game',result,progress:state.balance.progress || 0,
-            attempts:state.balance.attempts || 0,wins:state.balance.wins || 0,losses:state.balance.losses || 0})
+          body:JSON.stringify({
+            event_id:id,event_type:'balance_game',result,
+            progress:state.balance.progress || 0,
+            attempts:state.balance.attempts || 0,
+            wins:state.balance.wins || 0,
+            losses:state.balance.losses || 0
+          })
         });
         lastCloudBalance = balanceJson;
       }
+      cloud.syncError = false;
+      updateCloudAction();
     }catch(error){
-      cloud.online = false;
+      cloud.syncError = true;
       updateCloudAction();
       console.warn('همگام‌سازی ابری انجام نشد:', error);
     }
@@ -668,7 +690,11 @@ async function refreshPhoneStatus(){
     try{
       const me = await cloudRequest('/api/v1/players/me');
       cloud.phoneVerified = !!me.user.phone_verified;
-      if(cloud.phoneVerified){ updateCloudAction(); queueCloudSync(); return; }
+      if(cloud.phoneVerified){
+        updateCloudAction();
+        queueCloudSync();
+        return;
+      }
     }catch(e){ return; }
   }
 }
@@ -692,8 +718,8 @@ async function initializeBaleApp(){
   const button = document.getElementById('cloud-action');
   if(button) button.addEventListener('click', () => {
     if(cloud.online && !cloud.phoneVerified) requestPhoneVerification();
-    else if(!cloud.online) alert('برای اتصال امن، بازی را از داخل بله و از طریق بازوی رسمی باز کنید.');
-    else alert('حساب شما با سرور همگام است.');
+    else if(cloud.online && cloud.phoneVerified) queueCloudSync();
+    else alert('برای اتصال امن، بازی را از داخل بله و از طریق بازوی رسمی باز کنید.');
   });
   if(!webApp){
     updateCloudAction();
@@ -715,11 +741,16 @@ async function initializeBaleApp(){
     cloud.online = true;
     cloud.phoneVerified = !!auth.player.phone_verified;
     let legacyImported = false;
-    if(legacySnapshot && (legacySnapshot.unlocked > 1 || legacySnapshot.missions > 0 || legacySnapshot.stars > 0 || (legacySnapshot.balance && legacySnapshot.balance.attempts > 0))){
+    if(legacySnapshot && (legacySnapshot.unlocked > 1 || legacySnapshot.missions > 0 ||
+       legacySnapshot.stars > 0 || (legacySnapshot.balance && legacySnapshot.balance.attempts > 0))){
       try{ localStorage.setItem('darvazeha_legacy_backup_v1', JSON.stringify(legacySnapshot)); }catch(e){}
       if(confirm('پیشرفت قدیمی این دستگاه پیدا شد. آن را به‌عنوان سابقهٔ محلی (بدون اعطای پاداش یا بازکردن دروازه) به حساب سروری منتقل کنیم؟')){
-        const migrationId = 'legacy-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-        await cloudRequest('/api/v1/progress/migrate', {method:'POST',body:JSON.stringify({event_id:migrationId,legacy_state:legacySnapshot})});
+        const migrationId = 'legacy-' + (crypto.randomUUID ? crypto.randomUUID() :
+          Date.now() + '-' + Math.random().toString(36).slice(2));
+        await cloudRequest('/api/v1/progress/migrate', {
+          method:'POST',
+          body:JSON.stringify({event_id:migrationId,legacy_state:legacySnapshot})
+        });
         legacyImported = true;
       }
     }
@@ -732,19 +763,24 @@ async function initializeBaleApp(){
     state.stars = serverProgress.stars || 0;
     if(serverProgress.latest_balance_report){
       const b = serverProgress.latest_balance_report;
-      state.balance = {...state.balance, attempts:b.attempts || 0, wins:b.wins || 0, losses:b.losses || 0, progress:b.progress || 0, lastResult:b.result || null};
+      state.balance = {...state.balance, attempts:b.attempts || 0, wins:b.wins || 0,
+        losses:b.losses || 0, progress:b.progress || 0, lastResult:b.result || null};
       lastCloudBalance = JSON.stringify(state.balance);
     }else if(legacyImported && legacySnapshot.balance){
       state.balance = {...state.balance, ...legacySnapshot.balance};
       lastCloudBalance = JSON.stringify(state.balance);
     }
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
-    renderGates(); renderProfile(); updateCloudAction();
+    renderGates();
+    renderProfile();
+    updateCloudAction();
+    syncBaleBackButton();
     if(typeof webApp.onEvent === 'function'){
       webApp.onEvent('backButtonPressed', () => {
         const openModal = document.querySelector('.modal.open');
         if(openModal) openModal.classList.remove('open');
         else if(scene.classList.contains('active')) document.getElementById('btn-exit-scene').click();
+        syncBaleBackButton();
       });
     }
   }catch(error){
@@ -799,6 +835,7 @@ function openGate(g){
     document.getElementById('gm-body').innerHTML =
       '<p>برای گشودن این دروازه، ابتدا سفر در سرزمین‌های پیشین را کامل کن. کلید هر دروازه در دل سرزمین قبلی پنهان است.</p>';
     modal.classList.add('open');
+    syncBaleBackButton();
     return;
   }
   document.getElementById('gm-sub').textContent = g.done ? 'گذرانده شد' : 'آمادهٔ سفر';
@@ -816,6 +853,7 @@ function openGate(g){
       '<p>محتوای این سرزمین در نسخهٔ بعدی اضافه می‌شود — ساختار همانند «دریای شیشه‌ای» خواهد بود: مأموریت، مینی‌گیم و پیش‌بینی کامل.</p>';
   }
   modal.classList.add('open');
+  syncBaleBackButton();
 }
 /* tabs */
 document.querySelectorAll('#gm-tabs .tab').forEach(t => t.addEventListener('click', () => {
@@ -936,12 +974,14 @@ const player = document.getElementById('player');
 let px = 20, py = 52; // percent
 function enterScene(){
   scene.classList.add('active');
+  syncBaleBackButton();
   document.querySelector('.topbar').style.display = 'none';
   px = 20; py = 52; place();
   spawnBubbles();
 }
 document.getElementById('btn-exit-scene').addEventListener('click', () => {
   scene.classList.remove('active');
+  syncBaleBackButton();
   document.querySelector('.topbar').style.display = '';
 });
 function place(){ player.style.left = px + '%'; player.style.top = py + '%'; }
