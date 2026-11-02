@@ -316,6 +316,22 @@ with sync_playwright() as p:
     record('19 کلید ذخیرهٔ جدا از v1 (hs77_nemune_v1)', 'hs77_nemune_v1' in keys and 'darvazeha_progress_v1' not in keys,
            f'keys={keys}')
 
+    # 19b — مرحله ۲: زنجیرهٔ اتصال سرزمین‌ها روی نقشه (۱۳ گره)
+    page.locator('#btn-enter').tap(); page.wait_for_timeout(400)
+    chain_n = page.locator('#map-chain .chain-node').count()
+    built_n = page.locator('#map-chain .chain-node.built').count()
+    record('19b نقشه: زنجیرهٔ اتصال ۱۳ گره‌ای با سرزمینِ ساخته‌شده',
+           chain_n == 13 and built_n == 1, f'nodes={chain_n} built={built_n}')
+    page.screenshot(path=str(SHOTS / '19b-map-chain.png'))
+
+    # 19c — مرحله ۲: سرزمین ۲ پس از مأموریتِ کامل، «گشوده» می‌شود (شرط پیش‌نویس)
+    g2 = page.locator('.gate-card[data-gate="2"]').get_attribute('class')
+    g2_txt = page.locator('.gate-card[data-gate="2"]').inner_text()
+    chip = page.locator('#chip-progress-map').inner_text()
+    record('19c گشوده‌شدن شرطی سرزمین ۲ + نمایش پیشرفت روی نقشه',
+           'open' in (g2 or '') and 'گشوده' in g2_txt and 'سرزمین ۲' in chip,
+           f'chip={chip[:40]}')
+
     # 20 — خطاهای کنسول/صفحه در کل سناریو
     record('20 بدون خطای JavaScript در کل سناریو', not console_errors and not page_errors,
            f'console={console_errors[:2]} page={page_errors[:2]}')

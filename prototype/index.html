@@ -195,6 +195,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* kbd hint desktop */
 .kbd-hint{display:none}
 @media(min-width:900px){.kbd-hint{display:block}}
+/* زنجیرهٔ اتصال سرزمین‌ها (مرحله ۲) */
+.map-chain{display:flex;align-items:center;gap:3px;margin:8px 2px 18px;overflow-x:auto;padding-bottom:6px}
+.chain-node{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex:0 0 auto;background:var(--glass-bg);border:1px solid var(--glass-stroke);color:var(--muted)}
+.chain-node.built{border-color:rgba(56,198,255,.6);color:var(--neon-b)}
+.chain-node.open{border-color:rgba(125,252,180,.5);color:#7dfcb4}
+.chain-node.here{box-shadow:0 0 12px rgba(56,198,255,.75)}
+.chain-line{height:2px;flex:1 1 10px;min-width:7px;background:rgba(255,255,255,.15)}
+.chain-legend{font-size:.68rem;color:var(--muted);margin-bottom:10px;line-height:2}
+.g-zone{font-size:.66rem;color:var(--muted)}
+.g-tags{font-size:.62rem;color:var(--neon-c);line-height:1.9;text-align:start}
 </style>
 </head>
 <body>
@@ -216,7 +226,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="chip" id="chip-progress-map"></span>
   </div>
   <div class="map-wrap">
-    <p class="map-hint">۱۳ دروازهٔ فعلی بخش ابتدایی جهان ۷۷ سرزمین است (معادل کل جهان نیستند). سرزمین ۱ «دریای شیشه‌ای» در این نمونهٔ اولیه قابل بازی است؛ نام‌گذاری نهایی دروازه‌ها در انتظار تصمیم کارفرما (موضوع A1).</p>
+    <p class="map-hint">۱۳ دروازهٔ فعلی بخش ابتدایی جهان ۷۷ سرزمین است (معادل کل جهان نیستند). سرزمین ۱ «دریای شیشه‌ای» قابل بازی است؛ شرط گشودن سرزمین ۲ پیش‌نویس است و نهایی‌شدنش با تصمیم طراحی (موضوع A1 و پیوند مأموریت‌ها در مرحله ۵).</p>
     <div id="gate-grid"></div>
   </div>
 </div>
@@ -326,22 +336,40 @@ const $$ = s => [...document.querySelectorAll(s)];
 const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 const SAVE_KEY = 'hs77_nemune_v1';
 
-/* ---------- ۱۳ دروازه — نام‌ها از کد فعلی v1 (موضوع A1 در انتظار تصمیم) ---------- */
-const GATES = [
-  {id:1,  name:'دریای شیشه‌ای', c1:'#38c6ff', c2:'#7c5cff', open:true},
-  {id:2,  name:'جنگل نقره‌ای',  c1:'#9be15d', c2:'#00e3ae'},
-  {id:3,  name:'کوه بلورین',    c1:'#89f7fe', c2:'#66a6ff'},
-  {id:4,  name:'کویر آینه‌ها',  c1:'#f6d365', c2:'#fda085'},
-  {id:5,  name:'غار ستاره‌ها',  c1:'#a18cd1', c2:'#fbc2eb'},
-  {id:6,  name:'شهر ابرها',     c1:'#c2e9fb', c2:'#a1c4fd'},
-  {id:7,  name:'جزیرهٔ مه',     c1:'#d4fc79', c2:'#96e6a1'},
-  {id:8,  name:'درهٔ فانوس‌ها', c1:'#ffd86f', c2:'#fc6262'},
-  {id:9,  name:'باغ روشنایی',   c1:'#84fab0', c2:'#8fd3f4'},
-  {id:10, name:'برج بادها',     c1:'#e0c3fc', c2:'#8ec5fc'},
-  {id:11, name:'چشمهٔ زمان',    c1:'#5ee7df', c2:'#b490ca'},
-  {id:12, name:'صخرهٔ آواز',    c1:'#f78ca0', c2:'#f9748f'},
-  {id:13, name:'دروازهٔ سپیده', c1:'#ffecd2', c2:'#fcb69f'},
+/* ---------- شناسنامهٔ سرزمین‌ها — داده‌محور (مرحله ۲) ----------
+   نام‌ها: از کد فعلی v1 (موضوع A1 باز است — بازچینش با تصمیم کارفرما)
+   مکانیک هر سرزمینِ ساخته‌نشده: پس از تصمیم A1 مشخص می‌شود (سند ۰۳ §۵) */
+const REALMS = [
+  {id:1,  name:'دریای شیشه‌ای', c1:'#38c6ff', c2:'#7c5cff', zone:'ساحل بنیادین', built:true,
+   unlock:()=>true, unlockText:'سرزمین آغازین',
+   sites:['دهکدهٔ ساحل شیشه‌ای','میدان دهکده','کارگاه','خانهٔ مسافر','دروازهٔ مرجانی']},
+  {id:2,  name:'جنگل نقره‌ای',  c1:'#9be15d', c2:'#00e3ae', zone:'جنگل‌ها', built:false,
+   unlock:s=>s.mission.done, unlockText:'پیش‌نویس: کامل‌شدن مأموریت سرزمین ۱'},
+  {id:3,  name:'کوه بلورین',    c1:'#89f7fe', c2:'#66a6ff', zone:'کوهستان', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:4,  name:'کویر آینه‌ها',  c1:'#f6d365', c2:'#fda085', zone:'کویر', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:5,  name:'غار ستاره‌ها',  c1:'#a18cd1', c2:'#fbc2eb', zone:'زیرزمین', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:6,  name:'شهر ابرها',     c1:'#c2e9fb', c2:'#a1c4fd', zone:'آسمان', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:7,  name:'جزیرهٔ مه',     c1:'#d4fc79', c2:'#96e6a1', zone:'دریا', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:8,  name:'درهٔ فانوس‌ها', c1:'#ffd86f', c2:'#fc6262', zone:'دره', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:9,  name:'باغ روشنایی',   c1:'#84fab0', c2:'#8fd3f4', zone:'باغ', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:10, name:'برج بادها',     c1:'#e0c3fc', c2:'#8ec5fc', zone:'ارتفاعات', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:11, name:'چشمهٔ زمان',    c1:'#5ee7df', c2:'#b490ca', zone:'چشمه', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:12, name:'صخرهٔ آواز',    c1:'#f78ca0', c2:'#f9748f', zone:'صخره', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
+  {id:13, name:'دروازهٔ سپیده', c1:'#ffecd2', c2:'#fcb69f', zone:'مرز جهان', built:false,
+   unlock:()=>false, unlockText:'پیوند به مأموریت‌ها — مرحله ۵'},
 ];
+function realmUnlocked(r){ return r.built || r.unlock(S); }
+function progressLevel(){ let p=1; REALMS.forEach(r=>{ if(realmUnlocked(r)) p=Math.max(p,r.id); }); return p; }
 
 /* ---------- کالاها — آیکون‌ها ایموجی موقت‌اند ---------- */
 const ITEMS = {
@@ -467,28 +495,61 @@ $('#btn-confirm-yes').addEventListener('click', ()=>{
   confirmYes = null;
 });
 
-/* ---------- نقشهٔ جهان ---------- */
+/* ---------- نقشهٔ جهان (مرحله ۲: داده‌محور + زنجیرهٔ اتصال + پیشرفت) ---------- */
+function renderChain(prog){
+  let el = $('#map-chain');
+  if(!el){
+    el = document.createElement('div'); el.id='map-chain'; el.className='map-chain';
+    $('.map-wrap').insertBefore(el, $('#gate-grid'));
+    const legend = document.createElement('p'); legend.className='chain-legend';
+    legend.innerHTML = 'مسیر اتصال سرزمین‌ها (زنجیرهٔ پیشرفت): ◆ سرزمینِ ساخته‌شده · ◇ گشوده · · قفل — مسافر اکنون اینجاست:';
+    $('.map-wrap').insertBefore(legend, el);
+  }
+  el.innerHTML = REALMS.map(r=>{
+    const st = r.built ? 'built' : (realmUnlocked(r) ? 'open' : 'locked');
+    const here = (r.built && r.id === 1) ? ' here' : '';
+    return '<span class="chain-node '+st+here+'" title="سرزمین '+fa(r.id)+' — '+r.name+'">'+
+           (r.built?'◆':(realmUnlocked(r)?'◇':'·'))+'</span>';
+  }).join('<span class="chain-line"></span>');
+}
 function renderGates(){
   const grid = $('#gate-grid'); grid.innerHTML = '';
-  GATES.forEach(g=>{
+  REALMS.forEach(g=>{
+    const unlocked = realmUnlocked(g);
     const card = document.createElement('button');
-    card.className = 'gate-card ' + (g.open ? 'open' : 'locked');
+    card.className = 'gate-card ' + (unlocked ? 'open' : 'locked');
     card.dataset.gate = g.id;
-    const ico = g.open ? '🌊' : '🔒';
+    const ico = g.built ? '🌊' : (unlocked ? '🔓' : '🔒');
+    let status;
+    if(g.built) status = 'قابل بازی — هستهٔ فعلی';
+    else if(unlocked) status = 'گشوده شد — محتوا در نسخهٔ بعدی ساخته می‌شود';
+    else status = g.unlockText;
+    let tags;
+    if(g.built){
+      tags = 'مأموریت: ' + (S.mission.done ? 'کامل ✓' : (S.mission.accepted ? 'در جریان' : '—')) +
+             ' · پازل: ' + (S.puzzle.solved ? 'حل ✓' : '—') +
+             ' · اکتشاف: ' + fa(S.discovered.length) + '/'+fa(POIS.length);
+    } else {
+      tags = 'مکانیک سرزمین: پس از تصمیم A1 · جزئیات روایی: سند ۱۲';
+    }
     card.innerHTML =
-      '<span class="g-idx">دروازهٔ '+fa(g.id)+'</span>' +
+      '<span class="g-idx">سرزمین '+fa(g.id)+'</span>' +
       '<div class="g-ico" style="background:linear-gradient(135deg,'+g.c1+'33,'+g.c2+'33);border:1px solid '+g.c1+'55">'+ico+'</div>' +
       '<div class="g-name">'+g.name+'</div>' +
-      '<div class="g-status">'+(g.open ? 'قابل بازی در نمونهٔ اولیه' : 'در مرحلهٔ بعد ساخته می‌شود')+'</div>' +
-      (g.open ? '<span class="g-glow"></span>' : '');
+      '<div class="g-zone">حوزه: '+g.zone+'</div>' +
+      '<div class="g-status">'+status+'</div>' +
+      '<div class="g-tags">'+tags+'</div>' +
+      (g.built ? '<span class="g-glow"></span>' : '');
     card.addEventListener('click', ()=>{
-      if(g.open) enterRealm();
-      else toast('این سرزمین هنوز ساخته نشده — نمونهٔ اولیه فقط سرزمین ۱ دارد');
+      if(g.built) enterRealm();
+      else if(unlocked) toast('این سرزمین گشوده شد ولی محتوایش هنوز ساخته نشده — نسخهٔ بعدی');
+      else toast('قفل است — ' + g.unlockText);
     });
     grid.appendChild(card);
   });
-  const done = S.mission.done ? 1 : 0;
-  $('#chip-progress-map').textContent = 'پیشرفت نمونه: ' + fa(done) + ' مأموریت';
+  const prog = progressLevel();
+  $('#chip-progress-map').textContent = 'پیشرفت مسافر: سرزمین '+fa(prog)+' از ۱۳ · مأموریت '+(S.mission.done?'۱/۱':'۰/۱')+' · پازل '+(S.puzzle.solved?'۱/۱':'۰/۱');
+  renderChain(prog);
 }
 $('#btn-enter').addEventListener('click', ()=>{ renderGates(); show('screen-map'); });
 $('#btn-back-map').addEventListener('click', ()=>{ show('screen-map'); renderGates(); });
