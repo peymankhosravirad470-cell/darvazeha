@@ -1,6 +1,5 @@
 import hashlib, hmac, json, time
 from urllib.parse import urlencode
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -44,13 +43,15 @@ def test_login_world_progress_and_contact_webhook(client):
     assert response.status_code == 200, response.text
     token=response.json()["access_token"]
     headers={"Authorization":f"Bearer {token}"}
-    world=client.get("/api/v1/world/territories",headers=headers)
+    before_contact=client.post("/api/v1/progress/events",headers=headers,json={"event_id":"before-contact-001","event_type":"balance_game","result":"win","progress":100,"attempts":1,"wins":1,"losses":0})
+    assert before_contact.status_code == 403
+  world=client.get("/api/v1/world/territories",headers=headers)
     assert world.status_code == 200
     assert world.json()["total"] == 77
     assert len(world.json()["territories"]) == 77
     assert world.json()["territories"][0]["unlocked"] is True
     assert world.json()["territories"][1]["unlocked"] is False
-      update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
+    update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
     contact=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=update)
     assert contact.status_code == 200
     assert contact.json()["verified"] is True
