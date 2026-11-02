@@ -46,4 +46,4 @@ def world_summary():
     return {"territories": 77, "released": 1, "gates_in_current_ui": 13}
 
 # Serve the current Mini App from the same origin as the API.
-app.mount("/", StaticFiles(directory="web", html=True), name="miniapp")
+app.mount("/", StaticFiles(directory="web", html=True, check_dir=False), name="miniapp")
