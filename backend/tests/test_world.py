@@ -19,3 +19,13 @@ def test_seed_world_creates_77_and_is_idempotent():
         seed_world(db)
         assert db.query(WorldTerritory).count() == 77
     engine.dispose()
+
+def test_seed_world_repairs_partial_dataset():
+    engine=create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as db:
+        db.add(WorldTerritory(id=1, slug="territory-01", title_fa="دریای شیشه‌ای", release_status="released", is_gate=True))
+        db.commit()
+        seed_world(db)
+        assert db.query(WorldTerritory).count() == 77
+    engine.dispose()
