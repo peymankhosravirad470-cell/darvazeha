@@ -9,11 +9,13 @@ FastAPI + SQLAlchemy + PostgreSQL. SQLite فقط برای تست/توسعهٔ م
 ## API
 - GET /health
 - POST /api/v1/auth/bale
+- POST /api/v1/auth/logout
 - GET /api/v1/players/me
 - GET /api/v1/world/territories (۷۷ سرزمین)
 - GET /api/v1/progress
 - PUT /api/v1/progress/snapshot
 - POST /api/v1/progress/events
+- POST /api/v1/progress/migrate
 - POST /api/v1/integrations/bale/webhook/{BALE_WEBHOOK_SECRET}
 
 ## امنیت و محدودیت
