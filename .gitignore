@@ -17,3 +17,8 @@ download/
 # OS
 .DS_Store
 Thumbs.db
+
+# Backend runtime artifacts
+*.db
+backend/.env
+backend/.pytest_cache/
