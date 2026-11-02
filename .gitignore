@@ -17,3 +17,6 @@ download/
 # OS
 .DS_Store
 Thumbs.db
+
+# Internal tool artifacts
+tool-results/

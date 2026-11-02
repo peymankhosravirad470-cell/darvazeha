@@ -5,7 +5,7 @@ Runs 13 real browser checks with Playwright and saves screenshots
 to download/screenshots/. Prints a PASS/FAIL line per check.
 No results are invented: each line reflects an actual assertion.
 """
-import pathlib, sys, time
+import http.server, socketserver, threading, pathlib, sys, time
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -13,6 +13,19 @@ SHOTS = ROOT / 'download' / 'screenshots'
 SHOTS.mkdir(parents=True, exist_ok=True)
 URL = 'http://127.0.0.1:8123/index.html'
 KEY = 'darvazeha_progress_v1'
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, directory=str(ROOT), **kw)
+    def log_message(self, *a): pass
+
+def serve():
+    socketserver.TCPServer.allow_reuse_address = True
+    with socketserver.TCPServer(('127.0.0.1', 8123), Handler) as httpd:
+        httpd.serve_forever()
+
+threading.Thread(target=serve, daemon=True).start()
+time.sleep(0.6)
 
 results, console_errors, page_errors = [], [], []
 def record(name, ok, note=''):
