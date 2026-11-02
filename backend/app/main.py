@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -33,4 +34,8 @@ def world_summary():
     return {"territories": 77, "released": 1, "gates_in_current_ui": 13}
 
 # Serve the current Mini App from the same origin as the API.
-app.mount("/", StaticFiles(directory="web", html=True, check_dir=False), name="miniapp")
+APP_ROOT = Path(__file__).resolve().parents[1]
+STATIC_DIR = APP_ROOT / "web"
+if not STATIC_DIR.is_dir():
+    STATIC_DIR = APP_ROOT.parent  # repository root during tests/local source checkout
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="miniapp")
