@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.dependencies import current_user, verified_phone_user
-from app.models import GameEvent, PlayerAccount, PlayerProgress
+from app.models import GameEvent, PlayerAccount, PlayerProgress, PlayerTerritoryProgress
 from app.schemas import GameEventRequest, ProgressSnapshot, LegacyMigrationRequest
 
 router = APIRouter(prefix="/progress", tags=["Progress"])
