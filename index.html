@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://tapi.bale.ai/miniapp.js"></script>
 <title>دروازه‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -317,6 +318,7 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
       پروفایل</button>
   </div>
+  <button class="navbtn" id="cloud-action" type="button">اتصال سرور</button>
   <span class="progress-chip" id="chip-progress"></span>
 </header>
 
@@ -606,15 +608,136 @@ state.balance = {
   attempts:0, wins:0, losses:0, bestProgress:0, progress:0, inProgress:false, lastResult:null,
   ...(state.balance && typeof state.balance === 'object' ? state.balance : {})
 };
+const cloud = {token:null, online:false, phoneVerified:false, world:[]};
+let cloudSaveTimer = null, lastCloudBalance = '';
+async function cloudRequest(path, options = {}){
+  const headers = {'Content-Type':'application/json', ...(options.headers || {})};
+  if(cloud.token) headers.Authorization = 'Bearer ' + cloud.token;
+  const response = await fetch(path, {...options, headers, credentials:'same-origin'});
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(data.detail || 'خطا در ارتباط با سرور');
+  return data;
+}
+function updateCloudAction(){
+  const button = document.getElementById('cloud-action');
+  if(!button) return;
+  button.textContent = cloud.online ? (cloud.phoneVerified ? 'همگام‌سازی' : 'تأیید موبایل') : 'اتصال سرور';
+  button.title = cloud.online ? (cloud.phoneVerified ? 'حساب به سرور متصل است' : 'شمارهٔ موبایل هنوز تأیید نشده است') : 'برای ورود، بازی را از بله باز کنید';
+}
+function queueCloudSync(){
+  if(!cloud.token || !cloud.online) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(async () => {
+    try{
+      await cloudRequest('/api/v1/progress/snapshot', {
+        method:'PUT',
+        body:JSON.stringify({visited:Array.isArray(state.visited) ? state.visited : [1]})
+      });
+      const balanceJson = JSON.stringify(state.balance);
+      if(balanceJson !== lastCloudBalance){
+        const id = (crypto.randomUUID ? crypto.randomUUID() : ('evt-' + Date.now() + '-' + Math.random().toString(36).slice(2)));
+        const result = state.balance.lastResult === 'win' ? 'win' : state.balance.lastResult === 'loss' ? 'loss' : state.balance.inProgress ? 'progress' : 'reset';
+        await cloudRequest('/api/v1/progress/events', {
+          method:'POST',
+          body:JSON.stringify({event_id:id,event_type:'balance_game',result,progress:state.balance.progress || 0,
+            attempts:state.balance.attempts || 0,wins:state.balance.wins || 0,losses:state.balance.losses || 0})
+        });
+        lastCloudBalance = balanceJson;
+      }
+    }catch(error){
+      cloud.online = false;
+      updateCloudAction();
+      console.warn('همگام‌سازی ابری انجام نشد:', error);
+    }
+  }, 450);
+}
 const save = () => {
   try{
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(KEY, JSON.stringify(state)); // Temporary cache only; server is authoritative after Bale login.
+    queueCloudSync();
     return true;
   }catch(error){
-    console.error('ذخیرهٔ پیشرفت بازی ناموفق بود:', error);
+    console.error('ذخیرهٔ موقت پیشرفت بازی ناموفق بود:', error);
     return false;
   }
 };
+async function refreshPhoneStatus(){
+  for(let i=0;i<6;i++){
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    try{
+      const me = await cloudRequest('/api/v1/players/me');
+      cloud.phoneVerified = !!me.user.phone_verified;
+      if(cloud.phoneVerified){ updateCloudAction(); return; }
+    }catch(e){ return; }
+  }
+}
+async function requestPhoneVerification(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  if(!webApp || typeof webApp.requestContact !== 'function'){
+    alert('درخواست شماره فقط داخل مینی‌اپ بله در دسترس است.');
+    return;
+  }
+  webApp.requestContact((shared) => {
+    if(shared){
+      alert('درخواست اشتراک شماره ارسال شد. پس از تأیید سمت سرور، وضعیت حساب به‌روزرسانی می‌شود.');
+      refreshPhoneStatus();
+    }else{
+      alert('اشتراک شماره انجام نشد. هر زمان آماده بودید دوباره تلاش کنید.');
+    }
+  });
+}
+async function initializeBaleApp(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  const button = document.getElementById('cloud-action');
+  if(button) button.addEventListener('click', () => {
+    if(cloud.online && !cloud.phoneVerified) requestPhoneVerification();
+    else if(!cloud.online) alert('برای اتصال امن، بازی را از داخل بله و از طریق بازوی رسمی باز کنید.');
+    else alert('حساب شما با سرور همگام است.');
+  });
+  if(!webApp){
+    updateCloudAction();
+    return; // Local preview only; no identity is fabricated outside Bale.
+  }
+  try{ webApp.ready(); }catch(e){}
+  try{ if(typeof webApp.expand === 'function') webApp.expand(); }catch(e){}
+  if(!webApp.initData){
+    updateCloudAction();
+    return;
+  }
+  try{
+    const auth = await cloudRequest('/api/v1/auth/bale', {
+      method:'POST', body:JSON.stringify({init_data:webApp.initData})
+    });
+    cloud.token = auth.access_token;
+    cloud.online = true;
+    cloud.phoneVerified = !!auth.player.phone_verified;
+    const serverProgress = await cloudRequest('/api/v1/progress');
+    const world = await cloudRequest('/api/v1/world/territories');
+    cloud.world = world.territories || [];
+    state.unlocked = auth.progress.unlocked || 1;
+    state.visited = serverProgress.visited || auth.progress.visited || [1];
+    state.missions = serverProgress.missions || 0;
+    state.stars = serverProgress.stars || 0;
+    if(serverProgress.latest_balance_report){
+      const b = serverProgress.latest_balance_report;
+      state.balance = {...state.balance, attempts:b.attempts || 0, wins:b.wins || 0, losses:b.losses || 0, progress:b.progress || 0, lastResult:b.result || null};
+      lastCloudBalance = JSON.stringify(state.balance);
+    }
+    localStorage.setItem(KEY, JSON.stringify(state));
+    renderGates(); renderProfile(); updateCloudAction();
+    if(typeof webApp.onEvent === 'function'){
+      webApp.onEvent('backButtonPressed', () => {
+        const openModal = document.querySelector('.modal.open');
+        if(openModal) openModal.classList.remove('open');
+        else if(scene.classList.contains('active')) document.getElementById('btn-exit-scene').click();
+      });
+    }
+  }catch(error){
+    cloud.online = false;
+    updateCloudAction();
+    console.error('ورود امن بله ناموفق بود:', error);
+  }
+}
 
 /* ---------- navigation ---------- */
 const views = document.querySelectorAll('.view');
@@ -869,6 +992,7 @@ function spawnBubbles(){
 /* ---------- init ---------- */
 renderGates();
 renderProfile();
+initializeBaleApp();
 </script>
 </body>
 </html>
