@@ -111,15 +111,15 @@
 
 | جزء | وضعیت | شواهد / محدودیت |
 |---|---|---|
-| Backend FastAPI | 🟡 | کد در `backend/app`؛ اجرای CI لازم است |
-| مدل‌های کاربر، حساب، پیشرفت، نشست و رخداد | 🟡 | SQLAlchemy در `backend/app/models.py` |
-| ماژول بازیکن و جهان | 🟡 | `backend/app/modules/players.py` و `world.py` |
-| اعتبارسنجی امضای initData بله | 🟡 | `backend/app/core/security.py`؛ آزمون خودکار در CI |
-| API ورود، پروفایل و پیشرفت | 🟡 | مسیرهای `/api/v1` |
-| Seed جهان ۷۷ سرزمینی | 🟡 | ۷۷ رکورد؛ فقط سرزمین اول released است؛ نام ۶۴ مورد موقت |
-| Update تماس و ثبت شماره | 🟡 | مسیر webhook پیاده شده؛ هدر امنیتی و payload واقعی باید در بله تست شود |
-| اتصال Frontend به API | 🟡 | SDK بله و ورود/همگام‌سازی در `index.html`؛ تست واقعی Mini App هنوز انجام نشده |
-| انتقال دادهٔ قدیمی | 🟡 | endpoint مهاجرت با رضایت کاربر؛ دادهٔ قدیمی پاداش یا unlock معتبر نمی‌دهد |
+| Backend FastAPI | ✅ | کد در `backend/app`؛ آزمون API و CI موفق |
+| مدل‌های کاربر، حساب، موجودی، دفترکل، پیشرفت، نشست و رخداد | ✅ | SQLAlchemy در `backend/app/models.py`؛ ایجاد حساب و ۷۷ وضعیت سرزمینی آزموده شد |
+| ماژول بازیکن و جهان | ✅ | `backend/app/modules/players.py` و `world.py`؛ seed تکرارپذیر آزموده شد |
+| اعتبارسنجی امضای initData بله | ✅ | آزمون امضای معتبر، دست‌کاری، انقضا و فیلد تکراری |
+| API ورود، پروفایل و پیشرفت | ✅ | ورود، پروفایل، نشست، وضعیت جهان و ثبت رخداد در CI آزموده شد |
+| Seed جهان ۷۷ سرزمینی | ✅ | ۷۷ رکورد و idempotency در آزمون SQLite؛ فقط سرزمین اول released است |
+| Update تماس و ثبت شماره | 🟡 | مسیر webhook با secret در URL و تطبیق `contact.user_id == from.id`؛ payload شبیه‌سازی‌شده آزموده شد، اتصال واقعی بله باقی است |
+| اتصال Frontend به API | 🟡 | SDK بله، initData، API و BackButton در `index.html`؛ تست واقعی Mini App هنوز انجام نشده |
+| انتقال دادهٔ قدیمی | ✅ | endpoint مهاجرت با رضایت؛ آزمون کردیم ادعاهای unlock و پاداش از کلاینت پذیرفته نشوند |
 | استقرار Liara و PostgreSQL عملیاتی | ⬜ | هنوز رازها، دیتابیس و سرویس Liara تنظیم نشده‌اند |
 | تست روی گوشی و کلاینت واقعی بله | ⬜ | انجام نشده |
 
@@ -131,6 +131,12 @@
 - `PUT /api/v1/progress/snapshot`
 - `POST /api/v1/progress/events`
 - `POST /api/v1/progress/migrate`
-- `POST /api/v1/integrations/bale/webhook`
+- `POST /api/v1/integrations/bale/webhook/{secret}`
 
 **مرز اعتماد:** رخدادهای مینی‌گیم ارسالی از مرورگر `client_unverified` هستند؛ سرور فعلاً هیچ پاداش یا ارزشی بر اساس آن‌ها اعطا نمی‌کند. دادهٔ legacy نیز فقط برای سابقه ذخیره می‌شود.
+
+
+### گزارش آزمون Backend
+- GitHub Actions: [Backend tests](https://github.com/peymankhosravirad470-cell/darvazeha/actions/workflows/backend.yml)
+- آخرین اجرای موفق ثبت‌شده در این گزارش: ۷ آزمون موفق؛ شامل امضای initData، ورود API، جهان ۷۷ سرزمینی، contact شبیه‌سازی‌شده، محدودیت تلفن و مهاجرت legacy.
+- آزمون اجرای واقعی در اپ بله و استقرار Liara هنوز انجام نشده است.
