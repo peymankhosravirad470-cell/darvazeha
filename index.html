@@ -652,14 +652,15 @@ function queueCloudSync(){
   }, 450);
 }
 const save = () => {
+  let localSaved = true;
   try{
     localStorage.setItem(KEY, JSON.stringify(state)); // Temporary cache only; server is authoritative after Bale login.
-    queueCloudSync();
-    return true;
   }catch(error){
-    console.error('ذخیرهٔ موقت پیشرفت بازی ناموفق بود:', error);
-    return false;
+    localSaved = false;
+    console.warn('کش محلی در دسترس نیست؛ همگام‌سازی سرور ادامه می‌یابد:', error);
   }
+  queueCloudSync();
+  return localSaved;
 };
 async function refreshPhoneStatus(){
   for(let i=0;i<6;i++){
@@ -705,7 +706,8 @@ async function initializeBaleApp(){
     return;
   }
   try{
-    const legacySnapshot = JSON.parse(localStorage.getItem(KEY) || 'null');
+    let legacySnapshot = null;
+    try{ legacySnapshot = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){}
     const auth = await cloudRequest('/api/v1/auth/bale', {
       method:'POST', body:JSON.stringify({init_data:webApp.initData})
     });
@@ -714,7 +716,7 @@ async function initializeBaleApp(){
     cloud.phoneVerified = !!auth.player.phone_verified;
     let legacyImported = false;
     if(legacySnapshot && (legacySnapshot.unlocked > 1 || legacySnapshot.missions > 0 || legacySnapshot.stars > 0 || (legacySnapshot.balance && legacySnapshot.balance.attempts > 0))){
-      localStorage.setItem('darvazeha_legacy_backup_v1', JSON.stringify(legacySnapshot));
+      try{ localStorage.setItem('darvazeha_legacy_backup_v1', JSON.stringify(legacySnapshot)); }catch(e){}
       if(confirm('پیشرفت قدیمی این دستگاه پیدا شد. آن را به‌عنوان سابقهٔ محلی (بدون اعطای پاداش یا بازکردن دروازه) به حساب سروری منتقل کنیم؟')){
         const migrationId = 'legacy-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
         await cloudRequest('/api/v1/progress/migrate', {method:'POST',body:JSON.stringify({event_id:migrationId,legacy_state:legacySnapshot})});
@@ -736,7 +738,7 @@ async function initializeBaleApp(){
       state.balance = {...state.balance, ...legacySnapshot.balance};
       lastCloudBalance = JSON.stringify(state.balance);
     }
-    localStorage.setItem(KEY, JSON.stringify(state));
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
     renderGates(); renderProfile(); updateCloudAction();
     if(typeof webApp.onEvent === 'function'){
       webApp.onEvent('backButtonPressed', () => {
