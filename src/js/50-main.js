@@ -65,7 +65,7 @@ function updateMove(dt){
 }
 function updateWorld(t){
   const now = performance.now();
-  [...(RW.rocks||[]), ...(RW.trees||[])].forEach(n=>{
+  [...(RW.rocks||[]), ...(RW.trees||[]), ...(RW.crystals||[])].forEach(n=>{
     if(n.charges<=0 && n.depletedAt && now-n.depletedAt > n.respawn*1000){
       n.charges=n.max; n.depletedAt=0;
     }
@@ -96,6 +96,7 @@ function updateWorld(t){
 function scanInteract(){
   const cands = [];
   (RW.rocks||[]).forEach(r=>{ if(r.charges>0) cands.push({type:'rock', ref:r, x:r.x, y:r.y, label:'کوه‌کاوی'}); });
+  (RW.crystals||[]).forEach(cr=>{ if(cr.charges>0) cands.push({type:'crystal', ref:cr, x:cr.x, y:cr.y, label:'بلورکاوی'}); });
   (RW.trees||[]).forEach(tr=>{ if(tr.charges>0) cands.push({type:'tree', ref:tr, x:tr.x, y:tr.y, label:'هیزم‌شکنی'}); });
   (RW.corals||[]).forEach(c=>{ if(!S.puzzle.picked.includes(c.id)) cands.push({type:'coral', ref:c, x:c.x, y:c.y, label:'سنگ‌مرجان برداشتن'}); });
   if(RW.workshop) cands.push({type:'workshop', x:RW.workshop.x, y:RW.workshop.y, label:'کارگاه'});
@@ -123,13 +124,14 @@ $('#btn-action').addEventListener('click', ()=>{
   Sfx.click();
   const t=interactTarget;
   if(t.type==='rock')      startTiming('mine', t.ref);
+  else if(t.type==='crystal') startTiming('crystal', t.ref);
   else if(t.type==='tree') startTiming('chop', t.ref);
   else if(t.type==='workshop'){ renderCraft(); openSheet('#sheet-craft'); }
   else if(t.type==='market'){ mktTab='sell'; renderMarket(); openSheet('#sheet-market'); }
   else if(t.type==='farm'){ renderFarm(); openSheet('#sheet-farm'); }
   else if(t.type==='house'){ renderHouse(); openSheet('#sheet-house'); }
   else if(t.type==='gate'){ renderPuzzle(); openSheet('#sheet-puzzle'); }
-  else if(t.type==='gate2'){ toast('دروازهٔ نقره‌ای به سرزمین ۳ می‌رسد — مسیر روی نقشه با تکمیل مأموریت بانفشه گشوده می‌شود'); }
+  else if(t.type==='gate2'){ toast((RW.gateName||'دروازهٔ نقره‌ای') + ' به سرزمین '+fa(S.realm+1)+' می‌رسد — مسیر روی نقشه با تکمیل مأموریت این سرزمین گشوده می‌شود'); }
   else if(t.type==='chest') openChest();
   else if(t.type==='coral') pickCoral(t.ref);
   else if(t.type==='lantern'){ toast('🏮 فانوس ساحلی' + (S.discovered.includes(S.realm+':'+t.ref.id)?' — پیش‌تر کشف شده':' — کشف شد (اگر نزدیک بودی)')); }
@@ -141,10 +143,12 @@ const T_ZONE_HW = 0.17;
 let tmg = null;
 function startTiming(mode, node){
   tmg = {mode, node, t0:performance.now()};
-  $('#t-title').textContent = mode==='mine' ? 'کوه‌کاوی' : 'هیزم‌شکنی';
+  $('#t-title').textContent = mode==='mine' ? 'کوه‌کاوی' : (mode==='crystal' ? 'بلورکاوی' : 'هیزم‌شکنی');
   $('#t-sub').textContent = mode==='mine'
     ? 'مکانیک M4 «ضربه به‌موقع» — پتک را در پنجرهٔ سبز فرود بیاور.'
-    : 'مکانیک M4 «ضربه به‌موقع» — تبر را در پنجرهٔ سبز فرود بیاور.';
+    : (mode==='crystal'
+      ? 'مکانیک M4 «ضربه به‌موقع» — پتک را روی بلور در پنجرهٔ سبز فرود بیاور.'
+      : 'مکانیک M4 «ضربه به‌موقع» — تبر را در پنجرهٔ سبز فرود بیاور.');
   $('#timing').classList.add('show');
   tmgLoop();
 }
@@ -174,7 +178,9 @@ function finishHit(){
   $('#timing').classList.remove('show');
   node.charges -= 1;
   if(node.charges<=0) node.depletedAt = performance.now();
-  if(mode==='mine') mineReward(node); else chopReward(node);
+  if(mode==='mine') mineReward(node);
+  else if(mode==='crystal') crystalReward(node);
+  else chopReward(node);
   Sfx.hit(); Vibe(20);
   questNotify('inv', {});
   renderHUD();
@@ -207,7 +213,7 @@ if(/[?&]debug=1/.test(location.search)){
       npcPos(id){ const n=RW.npcs.find(n=>n.id===id); return n?{x:n.nx,y:n.ny}:null; },
       tamperLedger(i){ if(S.ledger[i]) S.ledger[i].delta.tokens = {coins:999999}; saveNow(); },
       verifyLedger(){ return verifyLedger(); },
-      openTiming(){ if(interactTarget && (interactTarget.type==='rock'||interactTarget.type==='tree')) startTiming(interactTarget.type==='rock'?'mine':'chop', interactTarget.ref); return !!interactTarget; },
+      openTiming(){ if(interactTarget && ['rock','tree','crystal'].includes(interactTarget.type)) startTiming(interactTarget.type==='rock'?'mine':interactTarget.type, interactTarget.ref); return !!interactTarget; },
       hit(){ finishHit(); },
       getState(){ return JSON.parse(JSON.stringify({
         pid:S.pid, name:S.name, banner:S.banner, x:P.x, y:P.y, coins:S.coins, inv:S.inv,

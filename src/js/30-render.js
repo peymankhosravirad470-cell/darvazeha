@@ -68,6 +68,7 @@ function blocked(nx, ny){
     if(nx>b.x-0.3 && nx<b.x+b.w+0.3 && ny>b.y-0.3 && ny<b.y+b.h+0.3) return true;
   const circles = [];
   (RW.rocks||[]).forEach(r=>circles.push({x:r.x, y:r.y, r:.55}));
+  (RW.crystals||[]).forEach(c=>circles.push({x:c.x, y:c.y, r:.5}));
   (RW.trees||[]).forEach(t=>circles.push({x:t.x, y:t.y, r:.45}));
   (RW.npcs||[]).forEach(n=>circles.push({x:n.nx, y:n.ny, r:.42}));
   (RW.corals||[]).forEach(c=>circles.push({x:c.x, y:c.y, r:.3}));
@@ -196,6 +197,23 @@ function drawProps(put, t){
       ctx.fillStyle=c2; ctx.beginPath(); ctx.arc(q.x-7, q.y-42, 10, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(q.x+8, q.y-40, 9, 0, Math.PI*2); ctx.fill();
       if(tr.charges<=0){ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(q.x, q.y-36, 15, 0, Math.PI*2); ctx.fill(); }
+    });
+  });
+  /* بلورهای کوهستان (سرزمین ۳) — درخشان، بدون شانس */
+  (RW.crystals||[]).forEach(cr=>{
+    if(cr.charges<=0) return;
+    const q = proj(cr.x, cr.y);
+    put(cr.x+cr.y, ()=>{
+      const gl = Math.sin(t/260 + cr.x)*0.5+0.5;
+      shadowEllipse(q.x, q.y, 12);
+      ctx.fillStyle='#7fd7ff';
+      ctx.beginPath();
+      ctx.moveTo(q.x-10, q.y); ctx.lineTo(q.x-5, q.y-18); ctx.lineTo(q.x, q.y-26);
+      ctx.lineTo(q.x+6, q.y-15); ctx.lineTo(q.x+11, q.y); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.5)';
+      ctx.beginPath(); ctx.moveTo(q.x-5, q.y-18); ctx.lineTo(q.x, q.y-26); ctx.lineTo(q.x, q.y-6); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='rgba(137,247,254,'+(0.3+gl*0.45)+')'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(q.x, q.y-12, 13+gl*3, 0, Math.PI*2); ctx.stroke();
     });
   });
   /* بلوط کهن (سرزمین ۲) */
@@ -371,7 +389,7 @@ function drawProps(put, t){
       const gl = Math.sin(t/350)*0.5+0.5;
       ctx.strokeStyle='rgba(155,225,93,'+(0.2+gl*0.3)+')'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.arc(q.x, q.y-22, 17, 0, Math.PI*2); ctx.stroke();
-      tag('دروازهٔ نقره‌ای', q.x, q.y-56, '#9be15d');
+      tag(RW.gateName || 'دروازهٔ نقره‌ای', q.x, q.y-56, RW.pal.tree2 ? '#9be15d' : '#9be15d');
     });
   }
   /* صندوق دروازه */

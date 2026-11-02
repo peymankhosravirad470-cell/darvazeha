@@ -119,6 +119,16 @@ function chopReward(node){
   logEvent('chop', {items:{[item]:n}, realm:S.realm}, 'برداشت با M4 [آزمایشی]');
 }
 
+function crystalReward(node){
+  S.stats.mineHits += 1;
+  let n = 1;
+  if(S.equip.mine && S.stats.mineHits % 2 === 0) n += 1;
+  addItem('bolurK', n);
+  addSkillXP('mining', 2); addPlayerXP(1);
+  toast('💠 بلور کوهستان ×' + fa(n));
+  logEvent('mine_crystal', {items:{bolurK:n}, realm:S.realm}, 'برداشت بلور با M4 [آزمایشی]');
+}
+
 /* ---------- ساخت ---------- */
 function doCraftRecipe(recipeId, onDone){
   const r = RECIPES.find(x=>x.id===recipeId); if(!r) return;

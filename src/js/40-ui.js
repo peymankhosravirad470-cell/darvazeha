@@ -588,6 +588,32 @@ function buildDialogue(id){
     return { name:'بانفشهٔ نگهبان', text:'هنوز کامل نیست: '+(step?step.text:''),
       choices:[{label:'مشغولم', fn:closeD}] };
   }
+  if(id==='bahman'){
+    const q = QUESTS.q_crystal, st = questState('q_crystal');
+    if(st.done) return { name:'بهمن معدن‌چی',
+      text:'یادبود پیمان، بلوری‌تر از همیشه شد! مسیر سرزمین چهارم «کویر آینه‌ها» روی نقشه گشوده شد — محتوایش را سازندگان جهان می‌آورند؛ من فقط دروازه‌بانم، نه وعده‌دهنده.',
+      choices:[{label:'بستن', fn:closeD}] };
+    if(!st.accepted) return { name:'بهمن معدن‌چی',
+      text:'به کوه بلورین خوش آمدی! روزی پیمانِ دروازه‌ها با بلور امضا شد. برای یادبودش ۵ بلور کوهستان می‌خواهم — در دامنهٔ کوه می‌درخشند؛ با پتک در پنجرهٔ سبز بزن.',
+      choices:[
+        {label:'پذیرش مأموریت: «بلور پیمان»', fn:()=>{ questAccept('q_crystal'); closeD(); }},
+        {label:'بعداً می‌آیم', fn:closeD},
+      ]};
+    if(questCanDeliver('q_crystal')) return { name:'بهمن معدن‌چی',
+      text:'پنج بلورِ درخشان! دستت طلا بدهد، مسافر. تحویل بده.',
+      choices:[
+        {label:'تحویل بلورها ('+q.reward.text+')', fn:()=>{ questDeliver('q_crystal'); renderHUD(); closeD(); }},
+        {label:'صبر کن', fn:closeD},
+      ]};
+    const step = q.steps[st.step];
+    return { name:'بهمن معدن‌چی', text:'هنوز کامل نیست: '+(step?step.text:''),
+      choices:[{label:'مشغولم', fn:closeD}] };
+  }
+  if(id==='shirin'){
+    return { name:'شیرین راهنما',
+      text:'از چشمهٔ بلور آب بردار… نمی‌توانی؟ چشمه فقط در قصه‌ها پر می‌شود. اما بلورهای دامنه واقعی‌اند و مهربان: هر ضربهٔ دوم با ابزار، یک بلور اضافه می‌دهد. آتشگاه ما در شب پناهگاه کوه‌نوردان است.',
+      choices:[{label:'سپاس', fn:closeD}] };
+  }
   if(id==='dara'){
     return { name:'دارا هیزم‌شکن',
       text:'درخت‌های این جنگل «چوب نقره‌ای» می‌دهند — سخت‌تر و گران‌بهاتر از چوب ساحل. اگر تبر نداری، در کارگاهِ دهکدهٔ خودتان بساز و بیا. آتشگاه ما شب‌ها گرم است؛ بنشین و قصه‌های بلوط کهن را بشنو.',

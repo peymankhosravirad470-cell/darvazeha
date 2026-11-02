@@ -499,14 +499,61 @@ with sync_playwright() as p:
            and st22['coins'] == coins_f + 30)
     page.screenshot(path=str(SHOTS / '22-quest2.png'))
 
-    # 23 — شرط سرزمین ۳ واقعی کامل شد (محتوا هنوز ساخته نشده — صادقانه)
+    # 22c — سفر به سرزمین ۳ «کوه بلورین» و برداشت بلور
+    goto_map(page)
+    page.locator('.gate-card[data-gate="3"]').tap(); page.wait_for_timeout(600)
+    in3 = 'کوه بلورین' in page.locator('#realm-title').inner_text()
+    page.evaluate('() => window.HS77.api.setTime(0.2)')
+    page.wait_for_timeout(400)
+    page.evaluate('() => window.HS77.api.teleport(2.9, 6.8)')
+    page.wait_for_timeout(400)
+    ok_cr = tap_action_when(page, 'بلورکاوی')
+    if ok_cr and page.locator('#timing.show').count() == 1:
+        hit_when_in_zone(page)
+    st22c = G(page)
+    record('22c سرزمین ۳ «کوه بلورین»: ورود + بلورکاوی M4 (کالای اختصاصی)',
+           in3 and ok_cr is not None and st22c['inv'].get('bolurK',0) >= 1)
+    page.screenshot(path=str(SHOTS / '22c-realm3.png'))
+
+    # 22d — مأموریت ۳ «بلور پیمان»: پذیرش، برداشت ۵ بلور، تحویل
+    page.evaluate('() => window.HS77.api.teleport(9.2, 10.4)')
+    page.wait_for_timeout(400)
+    tap_action_when(page, 'بهمن')
+    acc4 = dlg_tap(page, 'پذیرش مأموریت')
+    spots = [(2.9, 6.8), (13.1, 6.8), (5.2, 12.5), (11.1, 12.6), (4.9, 13.5)]
+    tries = 0
+    while G(page)['inv'].get('bolurK',0) < 5 and tries < 20:
+        s = spots[tries % len(spots)]
+        page.evaluate(f'() => window.HS77.api.teleport({s[0]}, {s[1]})')
+        page.wait_for_timeout(300)
+        if 'show' in (page.locator('#btn-action').get_attribute('class') or '') and 'بلورکاوی' in page.locator('#btn-action').inner_text():
+            page.locator('#btn-action').tap()
+            if page.locator('#timing.show').count() == 1:
+                hit_when_in_zone(page)
+        else:
+            page.wait_for_timeout(1200)
+        tries += 1
+    coins_i = G(page)['coins']
+    page.evaluate('() => window.HS77.api.teleport(9.2, 10.4)')
+    page.wait_for_timeout(400)
+    tap_action_when(page, 'بهمن')
+    dlv3 = dlg_tap(page, 'تحویل بلورها')
+    st22d = G(page)
+    record('22d مأموریت ۳ «بلور پیمان»: برداشت ۵ بلور، تحویل، پاداش +۴۰',
+           acc4 and dlv3 and st22d['quests'].get('q_crystal',{}).get('done', False)
+           and st22d['coins'] == coins_i + 40)
+
+    # 23 — زنجیره: سرزمین ۳ قابل بازی شد؛ سرزمین ۴ وضعیت صادقانه دارد
     goto_map(page)
     c3n = page.locator('.gate-card[data-gate="3"]').get_attribute('class') or ''
     c3t = page.locator('.gate-card[data-gate="3"]').inner_text()
-    record('23 سرزمین ۳: شرط زنجیره کامل شد؛ وضعیت صادقانه «محتوا ساخته نشده»',
-           'open' in c3n and 'A1' in c3t)
+    c4n = page.locator('.gate-card[data-gate="4"]').get_attribute('class') or ''
+    c4t = page.locator('.gate-card[data-gate="4"]').inner_text()
+    record('23 سرزمین ۳ «قابل بازی/مقصِر مسافر» شد؛ سرزمین ۴: شرط کامل + برچسب صادقانه A1',
+           'open' in c3n and ('قابل بازی' in c3t or 'مسافر اینجاست' in c3t)
+           and 'open' in c4n and 'A1' in c4t)
     chain_built = page.locator('#map-chain .chain-node.built').count()
-    record('23b زنجیرهٔ ۱۳ گره‌ای: دو سرزمینِ قابل بازی', chain_built == 2, f'built={chain_built}')
+    record('23b زنجیرهٔ ۱۳ گره‌ای: سه سرزمینِ قابل بازی', chain_built == 3, f'built={chain_built}')
 
     # 24 — بازگشت به سرزمین ۱ (سفر رفت‌وبرگشت)
     page.locator('.gate-card[data-gate="1"]').tap(); page.wait_for_timeout(600)

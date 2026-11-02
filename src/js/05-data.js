@@ -14,6 +14,7 @@ const ITEMS = {
   neshan: {name:'نشانِ دریای شیشه‌ای', ico:'🌀', desc:'نشان اکتشاف — یادگاری (فروش نمی‌شود؛ پیش‌نمایش اقلام کمیاب بازار عمومی آینده)'},
   daneh:  {name:'دانهٔ گندم',   ico:'🌱', desc:'از بازار محلی بخر و در مزرعهٔ دهکده بکار — پایان زنجیرهٔ D16: کشاورز'},
   gandom: {name:'خوشهٔ طلایی',  ico:'🌾', desc:'برداشت مزرعه — رشد قطعی زمان‌محور، بدون شانس'},
+  bolurK: {name:'بلور کوهستان', ico:'💠', desc:'از بلورهای کوه بلورین (سرزمین ۳) — درخششی که پیمان کهن را خاطره‌انگیز می‌کند'},
 };
 
 /* ---------- تجهیزات و جامه‌ها ---------- */
@@ -66,7 +67,7 @@ const RECIPES = [
 /* ---------- بازار محلی (سند ۰۵؛ D8: محلی ≠ عمومی) ----------
    نرخ پایهٔ ثابت — مدل قیمت‌گذاری نهایی = A4 باز؛ بدون مزایده (P14). */
 const MARKET = {
-  sell:{sang:2, choob:2, choobN:3, gandom:4, abzar:8, tabar:8, bolur:12},
+  sell:{sang:2, choob:2, choobN:3, gandom:4, abzar:8, tabar:8, bolur:12, bolurK:15},
   buy:{daneh:3},
   caravan:{need:{sang:3}, pay:6},
   note:'نرخ‌ها آزمایشی‌اند (A4/A10 باز). فروش نشان و مرجان و دانه ممکن نیست — یادگاری/نهادهٔ کشاورزی.',
@@ -83,11 +84,12 @@ const REALMS = [
   {id:2,  name:'جنگل نقره‌ای',  c1:'#9be15d', c2:'#00e3ae', zone:'جنگل‌ها', built:true,
    unlock:s=>!!(s.quests.q_tools && s.quests.q_tools.done),
    unlockText:'کامل‌شدن مأموریت «ابزار برای ناخدا»'},
-  {id:3,  name:'کوه بلورین',    c1:'#89f7fe', c2:'#66a6ff', zone:'کوهستان', built:false,
+  {id:3,  name:'کوه بلورین',    c1:'#89f7fe', c2:'#66a6ff', zone:'کوهستان', built:true,
    unlock:s=>!!(s.quests.q_gate2 && s.quests.q_gate2.done),
-   unlockText:'شرط واقعی: تکمیل «درهای جنگل نقره‌ای» — محتوا پس از تصمیم A1 ساخته می‌شود'},
+   unlockText:'کامل‌شدن مأموریت «درهای جنگل نقره‌ای»'},
   {id:4,  name:'کویر آینه‌ها',  c1:'#f6d365', c2:'#fda085', zone:'کویر', built:false,
-   unlock:()=>false, unlockText:'پیوند زنجیرهٔ مأموریت‌ها — محتوا پس از تصمیم A1'},
+   unlock:s=>!!(s.quests.q_crystal && s.quests.q_crystal.done),
+   unlockText:'شرط واقعی: تکمیل «بلور پیمان» — محتوا پس از تصمیم A1 ساخته می‌شود'},
   {id:5,  name:'غار ستاره‌ها',  c1:'#a18cd1', c2:'#fbc2eb', zone:'زیرزمین', built:false,
    unlock:()=>false, unlockText:'پیوند زنجیرهٔ مأموریت‌ها — محتوا پس از تصمیم A1'},
   {id:6,  name:'شهر ابرها',     c1:'#c2e9fb', c2:'#a1c4fd', zone:'آسمان', built:false,
@@ -209,6 +211,45 @@ const REALM_MAPS = {
       {id:'oldoak',   x:2.5, y:9.5,  label:'بلوط کهن'},
     ],
   },
+  /* ---------- نقشهٔ سرزمین ۳ — کوه بلورین (محصول ۰٫۳ — نام موقت طبق A1) ---------- */
+  3:{
+    W:16, H:16, spawn:{x:8, y:13},
+    pal:{grassA:'#5d6b85', grassB:'#54617a', pathA:'#a8b4c8', pathB:'#9fabbf',
+         tree1:'#3a5a7a', tree2:'#4a7296'},
+    water:{type:'pond', rect:{x:1, y:2, w:2, h:2}},
+    pathTiles:['8,13','8,12','8,11','8,10','7,10','7,9','7,8','8,8','9,8','9,7','9,6','10,6','10,5','11,5','11,4','11,3','12,3','6,10','5,10','5,9','5,8','5,7','6,7','6,6','6,5','7,5','7,4','8,4','9,4','10,4','3,11','3,12','2,13','9,13','10,13','11,12','12,11','13,10','14,9','8,14','7,14','13,4','13,3','14,3','4,6','4,5'],
+    hut:{x:10, y:6, w:2, h:2},
+    gate2:{x:8, y:2.5},
+    gateName:'دروازهٔ بلورین',
+    fire:{x:6.4, y:8.6},
+    rocks:[
+      {x:3, y:4,  charges:3, max:3, respawn:28},
+      {x:12,y:8,  charges:3, max:3, respawn:28},
+      {x:3, y:8,  charges:3, max:3, respawn:28},
+      {x:13,y:12, charges:2, max:2, respawn:28},
+    ],
+    crystals:[
+      {x:2, y:6,  charges:3, max:3, respawn:35},
+      {x:14,y:6,  charges:3, max:3, respawn:35},
+      {x:6, y:12, charges:3, max:3, respawn:35},
+      {x:12,y:13, charges:3, max:3, respawn:35},
+      {x:4, y:14, charges:2, max:2, respawn:35},
+    ],
+    trees:[
+      {x:1, y:10, charges:2, max:2, respawn:32},
+      {x:14,y:11, charges:2, max:2, respawn:32},
+    ],
+    npcs:[
+      {id:'bahman', name:'بهمن معدن‌چی', x:9.2, y:9.4, c:'#89f7fe'},
+      {id:'shirin', name:'شیرین راهنما', x:5.4, y:9.6, c:'#fbc2eb'},
+    ],
+    pois:[
+      {id:'minehut', x:11, y:8.2, label:'خانهٔ معدن‌چی'},
+      {id:'spring',  x:2,  y:3,   label:'چشمهٔ بلور'},
+      {id:'gate3',   x:8,  y:3.4, label:'دروازهٔ بلورین'},
+      {id:'campfire',x:6.4,y:8.6, label:'آتشگاه کوهستان'},
+    ],
+  },
 };
 
 /* ---------- مأموریت‌ها — موتور داده‌محور (مرحله ۵) ----------
@@ -240,4 +281,12 @@ const QUESTS = {
     ],
     reward:{coins:30, xp:25, skill:{woodcutting:8}, text:'+۳۰ سکه · +۲۵ تجربه · +۸ تجربهٔ هیزم‌شکنی'},
     unlocksRealm:3 },
+  q_crystal:{ realm:3, giver:'bahman', main:true, title:'بلور پیمان',
+    brief:'بهمن معدن‌چی برای یادبود پیمان کهن، ۵ بلور کوهستان می‌خواهد؛ بلورها در دامنهٔ کوه می‌درخشند.',
+    steps:[
+      {type:'have', item:'bolurK', n:5, text:'برداشت ۵ بلور کوهستان (بلورکاوی — M4)'},
+      {type:'deliver', items:{bolurK:5}, text:'تحویل بلورها به بهمن معدن‌چی'},
+    ],
+    reward:{coins:40, xp:30, skill:{mining:10}, text:'+۴۰ سکه · +۳۰ تجربه · +۱۰ تجربهٔ معدن‌کاری'},
+    unlocksRealm:4 },
 };
