@@ -608,7 +608,7 @@ state.balance = {
   attempts:0, wins:0, losses:0, bestProgress:0, progress:0, inProgress:false, lastResult:null,
   ...(state.balance && typeof state.balance === 'object' ? state.balance : {})
 };
-const cloud = {token:null, online:false, phoneVerified:false, world:[]};
+const cloud = {token:null, online:false, phoneVerified:false, syncError:false, world:[]};
 let cloudSaveTimer = null, lastCloudBalance = '';
 async function cloudRequest(path, options = {}){
   const headers = {'Content-Type':'application/json', ...(options.headers || {})};
@@ -618,10 +618,10 @@ async function cloudRequest(path, options = {}){
   if(!response.ok) throw new Error(data.detail || 'خطا در ارتباط با سرور');
   return data;
 }
-function updateCloudAction(){
+function syncBaleBackButton(){\n  const webApp = window.Bale && window.Bale.WebApp;\n  const back = webApp && webApp.BackButton;\n  if(!back) return;\n  const shouldShow = !!document.querySelector('.modal.open') || !!(document.getElementById('scene') && document.getElementById('scene').classList.contains('active'));\n  try{ shouldShow ? back.show() : back.hide(); }catch(e){}\n}\nfunction updateCloudAction(){
   const button = document.getElementById('cloud-action');
   if(!button) return;
-  button.textContent = cloud.online ? (cloud.phoneVerified ? 'همگام‌سازی' : 'تأیید موبایل') : 'اتصال سرور';
+  button.textContent = cloud.online ? (cloud.phoneVerified ? (cloud.syncError ? 'تلاش دوباره' : 'همگام‌سازی') : 'تأیید موبایل') : 'اتصال سرور';
   button.title = cloud.online ? (cloud.phoneVerified ? 'حساب به سرور متصل است' : 'شمارهٔ موبایل هنوز تأیید نشده است') : 'برای ورود، بازی را از بله باز کنید';
 }
 function queueCloudSync(){
@@ -846,9 +846,9 @@ document.querySelectorAll('#gm-tabs .tab').forEach(t => t.addEventListener('clic
 }));
 /* modal close */
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () =>
-  document.getElementById(b.dataset.close).classList.remove('open')));
+  { document.getElementById(b.dataset.close).classList.remove('open'); syncBaleBackButton(); }));
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
-  if(e.target === m) m.classList.remove('open');
+  if(e.target === m){ m.classList.remove('open'); syncBaleBackButton(); }
 }));
 
 /* ---------- world map ---------- */
