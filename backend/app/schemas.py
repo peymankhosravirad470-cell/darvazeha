@@ -14,3 +14,7 @@ class GameEventRequest(BaseModel):
     attempts: int = Field(default=0, ge=0, le=1000000)
     wins: int = Field(default=0, ge=0, le=1000000)
     losses: int = Field(default=0, ge=0, le=1000000)
+
+class LegacyMigrationRequest(BaseModel):
+    event_id: str = Field(min_length=8, max_length=80)
+    legacy_state: dict
