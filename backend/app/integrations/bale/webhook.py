@@ -1,5 +1,5 @@
 import hmac, re
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
@@ -8,7 +8,7 @@ from app.models import User, utcnow
 router = APIRouter(prefix="/integrations/bale", tags=["Bale integration"])
 
 @router.post("/webhook")
-async def bale_webhook(request: Request, x_bale_webhook_secret: str | None = Header(default=None), db: Session = Depends(get_db)):
+async def bale_webhook(secret: str, request: Request, db: Session = Depends(get_db)):
     # The configured secret header must be verified against the deployed Bale webhook setup.
     if not settings.bale_webhook_secret or not x_bale_webhook_secret or not hmac.compare_digest(settings.bale_webhook_secret, x_bale_webhook_secret):
         raise HTTPException(status_code=401, detail="Webhook authentication failed")
