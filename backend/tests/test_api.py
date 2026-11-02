@@ -66,6 +66,10 @@ def test_login_world_progress_and_contact_webhook(client):
     assert db.query(AccountBalance).filter_by(account_id=account.id).one().token_balance == 0
     db.close()
     update={"update_id":1,"message":{"from":{"id":654321},"contact":{"user_id":654321,"phone_number":"+989121234567"}}}
+    wrong_owner={**update,"message":{"from":{"id":654321},"contact":{"user_id":777777,"phone_number":"+989121234567"}}}
+    rejected=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=wrong_owner)
+    assert rejected.status_code == 200
+    assert rejected.json()["verified"] is False
     contact=client.post("/api/v1/integrations/bale/webhook/api-test-webhook-secret",json=update)
     assert contact.status_code == 200
     assert contact.json()["verified"] is True
@@ -78,3 +82,11 @@ def test_login_world_progress_and_contact_webhook(client):
     })
     assert event.status_code == 202
     assert event.json()["reward_granted"] is False
+    duplicate=client.post("/api/v1/progress/events",headers=headers,json={
+      "event_id":"balance-event-test-001","event_type":"balance_game","result":"win",
+      "progress":100,"attempts":1,"wins":1,"losses":0
+    })
+    assert duplicate.json()["duplicate"] is True
+    logout=client.post("/api/v1/auth/logout",headers=headers)
+    assert logout.status_code == 200
+    assert client.get("/api/v1/players/me",headers=headers).status_code == 401
