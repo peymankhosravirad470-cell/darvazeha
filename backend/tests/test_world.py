@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from app.core.database import Base
-from app.main import GATE_NAMES, seed_world
+from app.modules.world import GATE_NAMES, seed_world
 from app.models import WorldTerritory
 
 def test_first_13_existing_gate_names_are_preserved():
