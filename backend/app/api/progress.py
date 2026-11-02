@@ -82,6 +82,12 @@ def migrate_legacy_progress(body: LegacyMigrationRequest, user=Depends(current_u
             int(n) for n in visited
             if str(n).isdigit() and 1 <= int(n) <= progress.unlocked_territory
         }) or [1]
+        for territory_id in progress.visited_territories:
+            row = db.query(PlayerTerritoryProgress).filter_by(
+                account_id=account.id, territory_id=territory_id
+            ).first()
+            if row and row.status == "unlocked":
+                row.status = "visited"
     safe_snapshot = {
         "unlocked_reported": legacy.get("unlocked", 1),
         "visited_reported": legacy.get("visited", []),
