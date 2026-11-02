@@ -1,4 +1,5 @@
 import hashlib, hmac, json, time
+import pytest
 from urllib.parse import urlencode
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
