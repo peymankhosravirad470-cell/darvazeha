@@ -625,7 +625,7 @@ function updateCloudAction(){
   button.title = cloud.online ? (cloud.phoneVerified ? 'حساب به سرور متصل است' : 'شمارهٔ موبایل هنوز تأیید نشده است') : 'برای ورود، بازی را از بله باز کنید';
 }
 function queueCloudSync(){
-  if(!cloud.token || !cloud.online) return;
+  if(!cloud.token || !cloud.online || !cloud.phoneVerified) return;
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer = setTimeout(async () => {
     try{
@@ -667,7 +667,7 @@ async function refreshPhoneStatus(){
     try{
       const me = await cloudRequest('/api/v1/players/me');
       cloud.phoneVerified = !!me.user.phone_verified;
-      if(cloud.phoneVerified){ updateCloudAction(); return; }
+      if(cloud.phoneVerified){ updateCloudAction(); queueCloudSync(); return; }
     }catch(e){ return; }
   }
 }
