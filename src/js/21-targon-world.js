@@ -178,6 +178,7 @@ function targonEnter(){
   tResizeCanvas();
   tCurAreaId = null;
   targonEnterArea(true);
+  $('#t-zoom-label').textContent = fa(Math.round(TZ * 100)) + '٪';
   tSyncWorldHUD();
   $('#t-wallet-chip').textContent = '💰 —';
   if(typeof targonWalletAutoRefresh === 'function') targonWalletAutoRefresh();
