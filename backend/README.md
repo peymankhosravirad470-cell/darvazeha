@@ -26,6 +26,8 @@ FastAPI + SQLAlchemy + PostgreSQL. SQLite فقط برای تست/توسعهٔ م
 - POST /api/v1/progress/events
 - POST /api/v1/progress/migrate
 - POST /api/v1/integrations/bale/webhook/{BALE_WEBHOOK_SECRET}
+- رفتار پیام `/start` در وب‌هوک: پاسخ خوشامد با دکمهٔ «🎮 ورود به بازی» از نوع web_app؛ آدرس مینی‌اپ از هدر Host همان درخواست وب‌هوک استخراج می‌شود (بدون دامنهٔ هاردکد) و شکست ارسال پاسخ هرگز باعث 5xx به بله نمی‌شود.
+- Updateهای غیر از `/start` و `contact` نادیده گرفته می‌شوند (`{"ok": true, "ignored": true}`).
 
 پاسخ /health فقط در صورت موفقیت پرس‌وجوی دیتابیس SELECT 1 کد ۲۰۰ می‌دهد؛ در صورت قطع دیتابیس کد ۵۰۳ برمی‌گرداند. خطای دیتابیس یا Migration نباید به‌عنوان سلامت سرویس گزارش شود.
 
@@ -65,7 +67,7 @@ Docker ابتدا فرمان alembic upgrade head را اجرا می‌کند و
 1. دامنهٔ HTTPS را به سرویس متصل کنید.
 2. پس از آماده‌شدن دامنه، URL وبهوک را با متد رسمی setWebhook بازوی بله ثبت کنید؛ مسیر فعلی:
    https://YOUR_DOMAIN/api/v1/integrations/bale/webhook/BALE_WEBHOOK_SECRET
-3. نشانی HTTPS ریشهٔ برنامه را به‌عنوان Mini App اصلی یا در دکمهٔ web_app تنظیم کنید.
+3. نشانی HTTPS ریشهٔ برنامه به‌عنوان مقصد دکمهٔ web_app استفاده می‌شود؛ ربات در پاسخ به /start همین نشانی را خودکار در دکمهٔ «🎮 ورود به بازی» قرار می‌دهد.
 4. ورود واقعی، Update نوع contact، بازشدن Mini App و هدرهای موردنیاز iframe را داخل کلاینت واقعی بله آزمایش کنید.
 
 ## آزمون‌ها
