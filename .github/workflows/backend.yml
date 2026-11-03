@@ -57,6 +57,8 @@ jobs:
           alembic current
       - name: Run backend tests
         working-directory: backend
+        env:
+          TEST_POSTGRES_URL: postgresql+psycopg://darvazeha_ci:ci-only-password@127.0.0.1:5432/darvazeha_ci
         run: python -m pytest -q
       - name: Build production container
         run: docker build -f backend/Dockerfile -t darvazeha-backend:ci .
