@@ -19,8 +19,9 @@ def seed_world(db: Session):
     PostgreSQL and SQLite both support INSERT .. ON CONFLICT DO NOTHING.
     Avoid a read-then-insert sequence: concurrent application replicas can
     otherwise observe the same missing IDs and race on the primary key.
-    Omitting the conflict target also makes an existing unique slug conflict
-    a no-op rather than an IntegrityError. Existing records are never updated.
+    The conflict target is the primary key: an unexpected unique-slug collision
+    remains an error instead of silently hiding an inconsistent dataset.
+    Existing records are never updated.
     """
     values = [
         {
@@ -35,7 +36,7 @@ def seed_world(db: Session):
 
     dialect = db.get_bind().dialect.name
     if dialect == "postgresql":
-        statement = postgresql_insert(WorldTerritory).values(values).on_conflict_do_nothing()
+        statement = postgresql_insert(WorldTerritory).values(values).on_conflict_do_nothing(index_elements=[WorldTerritory.id])
     elif dialect == "sqlite":
         statement = sqlite_insert(WorldTerritory).values(values).on_conflict_do_nothing()
     else:
