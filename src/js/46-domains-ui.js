@@ -112,8 +112,17 @@ function renderDomainLands(id){
 }
 
 /* ---------- ناوبری ---------- */
-$('#btn-realms-open').addEventListener('click', () => { Sfx.click(); renderRealmsMenu(); show('screen-realms'); });
-$('#btn-realms-back').addEventListener('click', () => { Sfx.click(); show('screen-boot'); });
+function openRealmsMenu(){
+  Sfx.click();
+  renderRealmsMenu();
+  show('screen-realms');
+}
+$('#btn-realms-open').addEventListener('click', openRealmsMenu);
+$('#btn-realms-from-map').addEventListener('click', openRealmsMenu);
+$('#btn-realms-back').addEventListener('click', () => {
+  Sfx.click();
+  if(S.pid){ show('screen-map'); } else { show('screen-boot'); }
+});
 $('#btn-domain-back').addEventListener('click', () => { Sfx.click(); renderRealmsMenu(); show('screen-realms'); });
 $('#btn-lands-back').addEventListener('click', () => { Sfx.click(); openDomainIntro(currentDominion || 'targon'); });
 $('#btn-play-domain').addEventListener('click', () => {
