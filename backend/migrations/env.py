@@ -40,6 +40,7 @@ def run_migrations_online():
         # closing this connection releases the lock even if a migration fails.
         if connection.dialect.name == "postgresql":
             connection.execute(text("SELECT pg_advisory_lock(771077)"))
+            connection.commit()
 
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
