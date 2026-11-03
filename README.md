@@ -9,9 +9,10 @@
 
 ## وضعیت انتشار — شفاف
 
-- استقرار عمومی و انتشار روی دامنه هنوز انجام نشده است؛ ساخت مخزن به معنای انتشار بازی نیست.
-- Backend و دیتابیس روی Liara هنوز مستقر/پیکربندی نشده‌اند؛ ورود و همگام‌سازی ابری فقط پس از تنظیم رازها و استقرار فعال می‌شود.
-- بازکردن مستقیم فایل‌ها در مرورگر، پیش‌نمایش محلی است و هویت بله یا همگام‌سازی سروری ایجاد نمی‌کند.
+- **Backend + مینی‌اپ روی Liara زنده است:** https://darvazeh-ha.liara.run (Release v6 — platform docker از `backend/Dockerfile`، کامیت `30abb16`) · `/health` → `ok` با اتصال واقعی PostgreSQL (`lands-db`)
+- **ربات @lands77Bot در بله پاسخ‌گو است:** وب‌هوک با `setWebhook` ثبت شده؛ با زدن Start، پیام خوشامد + دکمهٔ «🎮 ورود به بازی» (web_app) نمایش داده می‌شود.
+- بازی کامل ۰٫۳ آفلاین همچنان مستقل است: بازکردن مستقیم `game/index.html` در مرورگر، بدون سرور قابل بازی است.
+- بازکردن فایل‌های محلی هویت بله یا همگام‌سازی سروری ایجاد نمی‌کند؛ ورود واقعی فقط داخل مینی‌اپ بله انجام می‌شود.
 - گزارش عیب‌یابی استقرار Liara (۲۰۲۶-۱۱-۰۴): [`reports/2026-11-02-delivery-status.md`](reports/2026-11-02-delivery-status.md)
 
 ## بازی کامل نسخهٔ ۰٫۳ (آفلاین)
@@ -26,7 +27,7 @@
 ## Backend و مینی‌اپ بله
 
 - Backend: Python 3.11+ / FastAPI / SQLAlchemy — معماری Modular Monolith
-- Database: PostgreSQL · Hosting مصوب: Liara (استقرار هنوز انجام نشده)
+- Database: PostgreSQL (`lands-db` روی شبکهٔ `my-network` لیارا) · Hosting: Liara — مستقر و زنده (Release v6)
 - رابط v1: اتصال Mini App به SDK بله، ورود با initData، بارگذاری وضعیت سرور، انتقال اختیاری سابقهٔ localStorage با رضایت بازیکن
 - تصمیم‌های فنی تأییدشده: [docs/DECISIONS.md](docs/DECISIONS.md) · راهنمای Backend و استقرار Liara/بله: [backend/README.md](backend/README.md)
 - در Mini App، سرور مرجع اصلی داده است و `localStorage` فقط کش موقت است؛ رویدادهای مینی‌گیم فعلاً با برچسب `client_unverified` ثبت می‌شوند و پاداش ندارند.

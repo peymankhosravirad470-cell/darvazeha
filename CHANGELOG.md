@@ -7,6 +7,11 @@
 - **پیاده‌سازی:** `_send_start_welcome` با `httpx` (timeout 3s) → `sendMessage` به `tapi.bale.ai` شامل پیام خوشامد فارسی + دکمهٔ «🎮 ورود به بازی» از نوع web_app؛ آدرس مینی‌اپ از هدر Host همان درخواست وب‌هوک استخراج می‌شود (بدون دامنهٔ هاردکد)؛ هر شکست ارسال بلعیده و در لاگ ثبت می‌شود تا وب‌هوک هرگز 5xx به بله برنگرداند (جلوگیری از retry-spam)
 - تست‌های جدید: `backend/tests/test_webhook_start.py` — ۶ مورد (خوشامد+دکمهٔ web_app، deep-link `/start ref`، نادیده‌گرفتن پیام عادی، نبود توکن بدون کرش، خطای API بله بدون 500، secret اشتباه → 401 پیش از هر پردازش)
 - نتیجهٔ مجموعهٔ کامل Backend: **۲۰ پاس / ۱ ردشده (تست PostgreSQL محلی — رفتار قبلی)** · مستندات: `backend/README.md`
+- **استقرار:** Release **v6/READY** با platform docker از `backend/Dockerfile` (context ریشه، پورت ۸۰۰۰) از دقیقاً کامیت منتشرشده `30abb16` — build/push ایمیج و health check موفق
+  - نکتهٔ فنی ثبت‌شده: probeهای اولیه با platform python (buildpack لیارا) FAILED شدند (`COPY failed: no source files were specified`) — buildpack به requirements.txt در ریشه نیاز دارد که با ساختار `backend/` مخزن سازگار نیست؛ مسیر درست، همان docker طراحی‌شدهٔ مخزن است
+- **ثبت Webhook در بله:** `setWebhook` موفق → `getWebhookInfo` آدرس درست را تأیید کرد (`pending_update_count: 0`، بدون `last_error`) · `getMe` → توکن معتبر `@lands77bot`
+- **راستی‌آزمایی زنده روی سرویس واقعی:** Update شبیه‌سازی‌شدهٔ `/start` با secret درست → `200 {"ok":true,"greeted":false}` (ارسال به chat جعلی از بله رد شد و خطا بلعیده شد — همان طراحی) · secret اشتباه → `401` · پیام عادی → `ignored` · `/health` → `ok`/`database: ok` · `/` و `/docs` → `200`
+- گام باقی‌مانده: تأیید انسانی — زدن Start در گفت‌وگوی واقعی بله و بازشدن مینی‌اپ از دکمهٔ «🎮 ورود به بازی»
 
 ## [استقرار موفق روی Liara — اپ زنده شد] — ۲۰۲۶-۱۱-۰۴
 - **https://darvazeh-ha.liara.run زنده است** — از 503 «Application Error» به 200 واقعی
