@@ -73,7 +73,10 @@ jobs:
           connection.close()
           PY
           docker run -d --name darvazeha-backend-ci --network host \
-            -e APP_ENV=development \
+            -e APP_ENV=production \
+            -e BALE_BOT_TOKEN=ci-only-test-token-not-a-real-bale-token \
+            -e BALE_WEBHOOK_SECRET=ci-only-webhook-secret-for-production-validation-32chars \
+            -e SESSION_SECRET=ci-only-session-secret-for-production-validation-32chars \
             -e DATABASE_URL=postgresql+psycopg://darvazeha_ci:ci-only-password@127.0.0.1:5432/darvazeha_runtime \
             -e PORT=8000 \
             darvazeha-backend:ci
