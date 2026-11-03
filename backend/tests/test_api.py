@@ -3,11 +3,13 @@ import pytest
 from urllib.parse import urlencode
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from app.core import database
 from app.core.config import settings
 from app.core.database import Base, get_db
+import app.main as main_module
 from app.main import app
 from app.models import AccountBalance, PlayerAccount, PlayerTerritoryProgress
 
@@ -39,6 +41,22 @@ def client():
     settings.bale_bot_token,settings.session_secret,settings.bale_webhook_secret=old
     engine.dispose()
     database._engine=database._factory=None
+
+def test_health_reports_database_ready(client):
+    response=client.get("/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert response.json()["checks"]["database"] == "ok"
+
+def test_health_returns_503_when_database_is_unavailable(client, monkeypatch):
+    class UnavailableEngine:
+        def connect(self):
+            raise SQLAlchemyError("database unavailable")
+
+    monkeypatch.setattr(main_module, "get_engine", lambda: UnavailableEngine())
+    response=client.get("/health")
+    assert response.status_code == 503
+    assert response.json()["detail"]["checks"]["database"] == "unavailable"
 
 def test_login_world_progress_and_contact_webhook(client):
     response=client.post("/api/v1/auth/bale",json={"init_data":make_init_data("api-test-token")})
