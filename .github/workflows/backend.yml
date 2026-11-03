@@ -2,7 +2,7 @@ name: Backend tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, phase-4-liara-readiness]
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
