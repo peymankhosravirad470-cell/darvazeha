@@ -20,3 +20,8 @@ Thumbs.db
 
 # Internal tool artifacts
 tool-results/
+
+# Backend runtime artifacts
+*.db
+backend/.env
+backend/.pytest_cache/

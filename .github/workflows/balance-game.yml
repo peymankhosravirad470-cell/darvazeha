@@ -1,0 +1,31 @@
+name: Balance mini-game tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "scripts/test_balance.mjs"
+      - ".github/workflows/balance-game.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  balance-game:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run balance mini-game tests
+        run: node scripts/test_balance.mjs

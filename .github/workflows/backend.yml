@@ -1,0 +1,96 @@
+name: Backend tests
+
+on:
+  push:
+    branches: [main, phase-4-liara-readiness]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: darvazeha_ci
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: darvazeha_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U darvazeha_ci -d darvazeha_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Smoke-test Alembic migration on SQLite
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./ci.db
+        run: alembic upgrade head
+      - name: Migrate a fresh PostgreSQL database
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://darvazeha_ci:ci-only-password@127.0.0.1:5432/darvazeha_ci
+        run: |
+          alembic upgrade head
+          alembic current
+      - name: Run backend tests
+        working-directory: backend
+        env:
+          TEST_POSTGRES_URL: postgresql+psycopg://darvazeha_ci:ci-only-password@127.0.0.1:5432/darvazeha_ci
+        run: python -m pytest -q
+      - name: Build production container
+        run: docker build -f backend/Dockerfile -t darvazeha-backend:ci .
+      - name: Run container against a fresh PostgreSQL database
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import psycopg
+          connection = psycopg.connect(
+              "host=127.0.0.1 port=5432 dbname=postgres user=darvazeha_ci password=ci-only-password"
+          )
+          connection.autocommit = True
+          connection.execute("CREATE DATABASE darvazeha_runtime")
+          connection.close()
+          PY
+          docker run -d --name darvazeha-backend-ci --network host \
+            -e APP_ENV=production \
+            -e BALE_BOT_TOKEN=ci-only-test-token-not-a-real-bale-token \
+            -e BALE_WEBHOOK_SECRET=ci-only-webhook-secret-for-production-validation-32chars \
+            -e SESSION_SECRET=ci-only-session-secret-for-production-validation-32chars \
+            -e DATABASE_URL=postgresql+psycopg://darvazeha_ci:ci-only-password@127.0.0.1:5432/darvazeha_runtime \
+            -e PORT=8000 \
+            darvazeha-backend:ci
+          cleanup() { docker logs darvazeha-backend-ci || true; docker rm -f darvazeha-backend-ci || true; }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/health > /tmp/darvazeha-health.json; then
+              break
+            fi
+            sleep 2
+          done
+          test -s /tmp/darvazeha-health.json
+          grep -q '"database":"ok"' /tmp/darvazeha-health.json
+          curl --fail --silent http://127.0.0.1:8000/ -o /tmp/darvazeha-index.html
+          test -s /tmp/darvazeha-index.html

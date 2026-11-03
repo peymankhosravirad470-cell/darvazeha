@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://tapi.bale.ai/miniapp.js"></script>
 <title>دروازه‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,6 +100,7 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
 }
 .gate .lock svg{width:13px;height:13px;stroke:var(--muted)}
 .gate.done .gstatus{color:#7be3a0}
+
 /* ---------- world map ---------- */
 .map-wrap{padding:18px;overflow-x:auto}
 .map-svg{min-width:880px;width:100%;height:auto;display:block}
@@ -246,6 +248,48 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
+
+/* ---------- illuminated gate cards ---------- */
+.gate-card{
+  isolation:isolate;min-height:172px;padding:22px 16px 16px;
+  border:1px solid color-mix(in srgb,var(--gate-color-light) 42%,rgba(255,255,255,.18));
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.20) 0%,rgba(255,255,255,.055) 30%,rgba(3,5,22,.18) 62%,rgba(2,4,18,.88) 100%),
+    radial-gradient(120% 75% at 50% -8%,color-mix(in srgb,var(--gate-color-light) 68%,white),transparent 68%),
+    linear-gradient(145deg,color-mix(in srgb,var(--gate-color-light) 32%,#141936),color-mix(in srgb,var(--gate-color-dark) 42%,#080c25) 72%);
+  box-shadow:0 18px 42px rgba(0,0,0,.48),0 7px 18px color-mix(in srgb,var(--gate-color-dark) 28%,transparent),inset 0 1px 0 rgba(255,255,255,.48),inset 0 -22px 35px rgba(0,0,0,.34);
+  transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease,filter .28s ease;
+}
+.gate-card::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(115deg,transparent 12%,rgba(255,255,255,.13) 46%,transparent 70%);
+  opacity:.7;transition:opacity .28s ease}
+.gate-card::after{content:"";position:absolute;inset:auto 0 0;height:48%;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(2,4,18,.78))}
+.gate-card:hover,.gate-card:focus-visible{transform:translateY(-7px) scale(1.018);
+  border-color:color-mix(in srgb,var(--gate-color-light) 78%,white);
+  box-shadow:0 24px 54px rgba(0,0,0,.58),0 0 30px color-mix(in srgb,var(--gate-color-light) 36%,transparent),inset 0 1px 0 rgba(255,255,255,.62)}
+.gate-card:active{transform:translateY(-1px) scale(.985);filter:brightness(1.13)}
+.gate-card .gate-icon{position:relative;z-index:1;
+  text-shadow:0 3px 7px rgba(0,0,0,.55),0 0 18px color-mix(in srgb,var(--gate-color-light) 72%,transparent);
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.55))}
+.gate-card .gname,.gate-card .gstatus{position:relative;z-index:1;text-shadow:0 2px 7px rgba(0,0,0,.9)}
+.gate-card.locked{filter:saturate(.48) brightness(.78)}
+.gate-card.locked:hover{filter:saturate(.6) brightness(.9)}
+/* ---------- playable balance mini-game ---------- */
+.balance-game{margin-top:10px}
+.balance-stage{display:block;width:100%;height:auto;max-height:260px;border-radius:16px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(105,132,255,.2),rgba(5,9,32,.72) 75%);
+  border:1px solid rgba(255,255,255,.12);touch-action:none;user-select:none}
+.balance-path{fill:none;stroke:rgba(125,205,255,.18);stroke-width:24;stroke-linecap:round}
+.balance-track{fill:none;stroke:url(#balanceGradient);stroke-width:5;stroke-linecap:round;stroke-dasharray:5 8}
+.balance-player{fill:#fff;stroke:#8fe7ff;stroke-width:4;filter:drop-shadow(0 0 8px #58cfff)}
+.balance-end{fill:#7be3a0;stroke:#d6ffe5;stroke-width:3;filter:drop-shadow(0 0 9px rgba(123,227,160,.8))}
+.balance-status{font-size:.84rem;line-height:1.9;margin:10px 0;color:#dfe7ff}
+.balance-status.success{color:#9df2b8}.balance-status.failed{color:#ffabb8}
+.balance-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.balance-shake{animation:balanceShake .32s ease}
+@keyframes balanceShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
 </style>
 </head>
 <body>
@@ -274,6 +318,7 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
       پروفایل</button>
   </div>
+  <button class="navbtn" id="cloud-action" type="button">اتصال سرور</button>
   <span class="progress-chip" id="chip-progress"></span>
 </header>
 
@@ -419,6 +464,107 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
 
 <script>
 'use strict';
+
+/* ---------- balance mini-game: pointer/touch path tracking ---------- */
+function initBalanceGame(){
+  const svg = document.getElementById('balance-stage');
+  const path = document.getElementById('balance-path');
+  const marker = document.getElementById('balance-player');
+  const status = document.getElementById('balance-status');
+  const reset = document.getElementById('balance-reset');
+  if(!svg || !path || !marker || !status || !reset) return;
+  let active = false, finished = false, x = 20, y = 90, lastSavedX = 20;
+  const length = path.getTotalLength();
+  const samples = [];
+  for(let d = 0; d <= length; d += 2) samples.push(path.getPointAtLength(d));
+  const toSvg = e => {
+    const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  };
+  const nearestDistance = (px,py) => {
+    let best = Infinity;
+    for(const p of samples) best = Math.min(best,Math.hypot(p.x-px,p.y-py));
+    return best;
+  };
+  const draw = () => { marker.setAttribute('cx',x); marker.setAttribute('cy',y); };
+  const sound = (frequency,duration) => {
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      const ctx = new Ctx(), osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.frequency.value = frequency; osc.type = 'sine';
+      gain.gain.setValueAtTime(.07,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);
+      osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+duration);
+      osc.onended = () => ctx.close();
+    }catch(e){}
+  };
+  const finish = won => {
+    if(finished) return;
+    finished = true; active = false;
+    state.balance.attempts += 1;
+    state.balance.inProgress = false;
+    state.balance.progress = won ? 100 : Math.max(0, Math.min(100, Math.round((x - 20) / 280 * 100)));
+    state.balance.bestProgress = Math.max(state.balance.bestProgress || 0, state.balance.progress);
+    state.balance.lastResult = won ? 'won' : 'lost';
+    state.balance.lastPlayedAt = new Date().toISOString();
+    if(won){
+      status.className = 'balance-status success';
+      status.textContent = 'آفرین! با تمرکز و تعادل از مسیر گذشتی؛ دروازهٔ بعدی در انتظار توست.';
+      sound(740,.22); setTimeout(()=>sound(990,.28),150);
+    }else{
+      status.className = 'balance-status failed';
+      status.textContent = 'از مسیر خارج شدی! نفسی تازه کن و دوباره تلاش کن.';
+      document.body.classList.remove('balance-shake'); void document.body.offsetWidth;
+      document.body.classList.add('balance-shake');
+      if(navigator.vibrate) navigator.vibrate(120);
+      sound(170,.25);
+    }
+    if(won) state.balance.wins += 1;
+    else state.balance.losses += 1;
+    save();
+  };
+  const move = e => {
+    if(!active || finished) return;
+    e.preventDefault();
+    const p = toSvg(e); x = Math.max(0,Math.min(320,p.x)); y = Math.max(0,Math.min(180,p.y)); draw();
+    const rect = svg.getBoundingClientRect();
+    const threshold = 40 * (320 / Math.max(1,rect.width));
+    state.balance.progress = Math.max(0, Math.min(100, Math.round((x - 20) / 280 * 100)));
+    state.balance.bestProgress = Math.max(state.balance.bestProgress || 0, state.balance.progress);
+    if(Math.abs(x - lastSavedX) >= 6){
+      lastSavedX = x;
+      save();
+    }
+    if(nearestDistance(x,y) > threshold){ finish(false); return; }
+    if(x >= 292 && nearestDistance(x,y) <= threshold) finish(true);
+  };
+  svg.addEventListener('pointerdown',e=>{
+    if(finished) return;
+    const p = toSvg(e);
+    if(Math.hypot(p.x-x,p.y-y) > 28) return;
+    active = true; svg.setPointerCapture(e.pointerId); status.className='balance-status';
+    state.balance.inProgress = true;
+    state.balance.lastResult = null;
+    state.balance.progress = Math.max(0, Math.round((x - 20) / 280 * 100));
+    save();
+    status.textContent='عالیه! با آرامش روی مسیر حرکت کن.';
+    move(e);
+  });
+  svg.addEventListener('pointermove',move);
+  const stop = () => { if(active && !finished) active=false; };
+  svg.addEventListener('pointerup',stop); svg.addEventListener('pointercancel',stop);
+  reset.addEventListener('click',()=>{
+    active=false; finished=false; x=20; y=90; lastSavedX=20; draw();
+    state.balance.inProgress = false;
+    state.balance.progress = 0;
+    state.balance.lastResult = null;
+    save();
+    status.className='balance-status'; status.textContent='برای شروع، دایرهٔ آبی را لمس کن و روی مسیر بکش.';
+    document.body.classList.remove('balance-shake');
+  });
+}
+
 /* ============================================================
    داده‌های بازی — نام دروازهٔ ۱ تأییدشده است؛ نام ۱۲ مورد دیگر
    «پیشنهادی» است و پس از تأیید کاربر جایگزین می‌شود.
@@ -450,9 +596,199 @@ const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 
 /* ---------- state ---------- */
 const KEY = 'darvazeha_progress_v1';
-let state = {unlocked:1, visited:[1], missions:0, stars:0};
-try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.unlocked) state = s; }catch(e){}
-const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+let state = {
+  unlocked:1, visited:[1], missions:0, stars:0,
+  balance:{attempts:0, wins:0, losses:0, bestProgress:0, progress:0, inProgress:false, lastResult:null}
+};
+try{
+  const stored = JSON.parse(localStorage.getItem(KEY));
+  if(stored && Number.isInteger(stored.unlocked) && stored.unlocked >= 1) state = {...state, ...stored};
+}catch(e){}
+state.balance = {
+  attempts:0, wins:0, losses:0, bestProgress:0, progress:0, inProgress:false, lastResult:null,
+  ...(state.balance && typeof state.balance === 'object' ? state.balance : {})
+};
+const cloud = {token:null, online:false, phoneVerified:false, syncError:false, world:[]};
+let cloudSaveTimer = null, lastCloudBalance = '';
+
+async function cloudRequest(path, options = {}){
+  const headers = {'Content-Type':'application/json', ...(options.headers || {})};
+  if(cloud.token) headers.Authorization = 'Bearer ' + cloud.token;
+  const response = await fetch(path, {...options, headers, credentials:'same-origin'});
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(data.detail || 'خطا در ارتباط با سرور');
+  return data;
+}
+function syncBaleBackButton(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  const back = webApp && webApp.BackButton;
+  if(!back) return;
+  const shouldShow = !!document.querySelector('.modal.open') ||
+    !!(document.getElementById('scene') && document.getElementById('scene').classList.contains('active'));
+  try{ shouldShow ? back.show() : back.hide(); }catch(e){}
+}
+function updateCloudAction(){
+  const button = document.getElementById('cloud-action');
+  if(!button) return;
+  button.textContent = cloud.online
+    ? (cloud.phoneVerified ? (cloud.syncError ? 'تلاش دوباره' : 'همگام‌سازی') : 'تأیید موبایل')
+    : 'اتصال سرور';
+  button.title = cloud.online
+    ? (cloud.phoneVerified ? (cloud.syncError ? 'همگام‌سازی ناموفق بود؛ برای تلاش دوباره لمس کنید' : 'حساب به سرور متصل است') : 'شمارهٔ موبایل هنوز تأیید نشده است')
+    : 'برای ورود، بازی را از بله باز کنید';
+}
+function queueCloudSync(){
+  if(!cloud.token || !cloud.online || !cloud.phoneVerified) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(async () => {
+    try{
+      await cloudRequest('/api/v1/progress/snapshot', {
+        method:'PUT',
+        body:JSON.stringify({visited:Array.isArray(state.visited) ? state.visited : [1]})
+      });
+      const balanceJson = JSON.stringify(state.balance);
+      if(balanceJson !== lastCloudBalance){
+        const id = (crypto.randomUUID ? crypto.randomUUID() : ('evt-' + Date.now() + '-' + Math.random().toString(36).slice(2)));
+        const result = state.balance.lastResult === 'win' ? 'win'
+          : state.balance.lastResult === 'loss' ? 'loss'
+          : state.balance.inProgress ? 'progress' : 'reset';
+        await cloudRequest('/api/v1/progress/events', {
+          method:'POST',
+          body:JSON.stringify({
+            event_id:id,event_type:'balance_game',result,
+            progress:state.balance.progress || 0,
+            attempts:state.balance.attempts || 0,
+            wins:state.balance.wins || 0,
+            losses:state.balance.losses || 0
+          })
+        });
+        lastCloudBalance = balanceJson;
+      }
+      cloud.syncError = false;
+      updateCloudAction();
+    }catch(error){
+      cloud.syncError = true;
+      updateCloudAction();
+      console.warn('همگام‌سازی ابری انجام نشد:', error);
+    }
+  }, 450);
+}
+const save = () => {
+  let localSaved = true;
+  try{
+    localStorage.setItem(KEY, JSON.stringify(state)); // Temporary cache only; server is authoritative after Bale login.
+  }catch(error){
+    localSaved = false;
+    console.warn('کش محلی در دسترس نیست؛ همگام‌سازی سرور ادامه می‌یابد:', error);
+  }
+  queueCloudSync();
+  return localSaved;
+};
+async function refreshPhoneStatus(){
+  for(let i=0;i<6;i++){
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    try{
+      const me = await cloudRequest('/api/v1/players/me');
+      cloud.phoneVerified = !!me.user.phone_verified;
+      if(cloud.phoneVerified){
+        updateCloudAction();
+        queueCloudSync();
+        return;
+      }
+    }catch(e){ return; }
+  }
+}
+async function requestPhoneVerification(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  if(!webApp || typeof webApp.requestContact !== 'function'){
+    alert('درخواست شماره فقط داخل مینی‌اپ بله در دسترس است.');
+    return;
+  }
+  webApp.requestContact((shared) => {
+    if(shared){
+      alert('درخواست اشتراک شماره ارسال شد. پس از تأیید سمت سرور، وضعیت حساب به‌روزرسانی می‌شود.');
+      refreshPhoneStatus();
+    }else{
+      alert('اشتراک شماره انجام نشد. هر زمان آماده بودید دوباره تلاش کنید.');
+    }
+  });
+}
+async function initializeBaleApp(){
+  const webApp = window.Bale && window.Bale.WebApp;
+  const button = document.getElementById('cloud-action');
+  if(button) button.addEventListener('click', () => {
+    if(cloud.online && !cloud.phoneVerified) requestPhoneVerification();
+    else if(cloud.online && cloud.phoneVerified) queueCloudSync();
+    else alert('برای اتصال امن، بازی را از داخل بله و از طریق بازوی رسمی باز کنید.');
+  });
+  if(!webApp){
+    updateCloudAction();
+    return; // Local preview only; no identity is fabricated outside Bale.
+  }
+  try{ webApp.ready(); }catch(e){}
+  try{ if(typeof webApp.expand === 'function') webApp.expand(); }catch(e){}
+  if(!webApp.initData){
+    updateCloudAction();
+    return;
+  }
+  try{
+    let legacySnapshot = null;
+    try{ legacySnapshot = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){}
+    const auth = await cloudRequest('/api/v1/auth/bale', {
+      method:'POST', body:JSON.stringify({init_data:webApp.initData})
+    });
+    cloud.token = auth.access_token;
+    cloud.online = true;
+    cloud.phoneVerified = !!auth.player.phone_verified;
+    let legacyImported = false;
+    if(legacySnapshot && (legacySnapshot.unlocked > 1 || legacySnapshot.missions > 0 ||
+       legacySnapshot.stars > 0 || (legacySnapshot.balance && legacySnapshot.balance.attempts > 0))){
+      try{ localStorage.setItem('darvazeha_legacy_backup_v1', JSON.stringify(legacySnapshot)); }catch(e){}
+      if(confirm('پیشرفت قدیمی این دستگاه پیدا شد. آن را به‌عنوان سابقهٔ محلی (بدون اعطای پاداش یا بازکردن دروازه) به حساب سروری منتقل کنیم؟')){
+        const migrationId = 'legacy-' + (crypto.randomUUID ? crypto.randomUUID() :
+          Date.now() + '-' + Math.random().toString(36).slice(2));
+        await cloudRequest('/api/v1/progress/migrate', {
+          method:'POST',
+          body:JSON.stringify({event_id:migrationId,legacy_state:legacySnapshot})
+        });
+        legacyImported = true;
+      }
+    }
+    const serverProgress = await cloudRequest('/api/v1/progress');
+    const world = await cloudRequest('/api/v1/world/territories');
+    cloud.world = world.territories || [];
+    state.unlocked = auth.progress.unlocked || 1;
+    state.visited = serverProgress.visited || auth.progress.visited || [1];
+    state.missions = serverProgress.missions || 0;
+    state.stars = serverProgress.stars || 0;
+    if(serverProgress.latest_balance_report){
+      const b = serverProgress.latest_balance_report;
+      state.balance = {...state.balance, attempts:b.attempts || 0, wins:b.wins || 0,
+        losses:b.losses || 0, progress:b.progress || 0, lastResult:b.result || null};
+      lastCloudBalance = JSON.stringify(state.balance);
+    }else if(legacyImported && legacySnapshot.balance){
+      state.balance = {...state.balance, ...legacySnapshot.balance};
+      lastCloudBalance = JSON.stringify(state.balance);
+    }
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+    renderGates();
+    renderProfile();
+    updateCloudAction();
+    syncBaleBackButton();
+    if(typeof webApp.onEvent === 'function'){
+      webApp.onEvent('backButtonPressed', () => {
+        const openModal = document.querySelector('.modal.open');
+        if(openModal) openModal.classList.remove('open');
+        else if(scene.classList.contains('active')) document.getElementById('btn-exit-scene').click();
+        syncBaleBackButton();
+      });
+    }
+  }catch(error){
+    cloud.online = false;
+    updateCloudAction();
+    console.error('ورود امن بله ناموفق بود:', error);
+  }
+}
 
 /* ---------- navigation ---------- */
 const views = document.querySelectorAll('.view');
@@ -472,13 +808,14 @@ function renderGates(){
   GATES.forEach((g, i) => {
     const isOpen = g.id <= state.unlocked;
     const el = document.createElement('div');
-    el.className = 'glass gate' + (isOpen ? '' : ' locked') + (g.done ? ' done' : '');
+    el.className = 'glass gate gate-card' + (isOpen ? '' : ' locked') + (g.done ? ' done' : '');
     el.style.setProperty('--gc1', g.c1); el.style.setProperty('--gc2', g.c2);
+    el.style.setProperty('--gate-color-light', g.c1); el.style.setProperty('--gate-color-dark', g.c2);
     el.style.setProperty('--glow', g.c1 + '66');
     el.style.animationDelay = (i * 45) + 'ms';
     el.innerHTML = `
       ${isOpen ? '' : `<span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>`}
-      <span class="num">${fa(g.id)}</span>
+      <span class="num gate-icon">${fa(g.id)}</span>
       <span class="gname">${g.name}</span>
       <span class="gstatus">${g.done ? 'گذرانده شد' : isOpen ? 'گشوده شد — آمادهٔ سفر' : 'قفل — هنوز بسته است'}</span>`;
     el.addEventListener('click', () => openGate(g));
@@ -498,6 +835,7 @@ function openGate(g){
     document.getElementById('gm-body').innerHTML =
       '<p>برای گشودن این دروازه، ابتدا سفر در سرزمین‌های پیشین را کامل کن. کلید هر دروازه در دل سرزمین قبلی پنهان است.</p>';
     modal.classList.add('open');
+    syncBaleBackButton();
     return;
   }
   document.getElementById('gm-sub').textContent = g.done ? 'گذرانده شد' : 'آمادهٔ سفر';
@@ -515,6 +853,7 @@ function openGate(g){
       '<p>محتوای این سرزمین در نسخهٔ بعدی اضافه می‌شود — ساختار همانند «دریای شیشه‌ای» خواهد بود: مأموریت، مینی‌گیم و پیش‌بینی کامل.</p>';
   }
   modal.classList.add('open');
+  syncBaleBackButton();
 }
 /* tabs */
 document.querySelectorAll('#gm-tabs .tab').forEach(t => t.addEventListener('click', () => {
@@ -525,16 +864,29 @@ document.querySelectorAll('#gm-tabs .tab').forEach(t => t.addEventListener('clic
     body.innerHTML = '<p><b>' + SAMPLE.missionTitle + '</b></p><ol>' +
       SAMPLE.mission.map(m => '<li>' + m + '</li>').join('') + '</ol>';
   } else if(t.dataset.tab === 'minigame'){
-    body.innerHTML = '<p>' + SAMPLE.minigame + '</p>';
+    body.innerHTML = `
+      <div class="balance-game">
+        <p>نشانگر را با انگشت روی مسیر هدایت کن و تا چراغ سبز پایان پیش برو. اگر بیش از ۴۰ پیکسل از مسیر دور شوی، بازی را می‌بازی.</p>
+        <svg class="balance-stage" id="balance-stage" viewBox="0 0 320 180" role="img" aria-label="مسیر بازی تعادل">
+          <defs><linearGradient id="balanceGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#38c6ff"/></linearGradient></defs>
+          <path id="balance-path" class="balance-path" d="M20 90 C55 22 92 22 120 90 S185 158 215 90 S270 22 300 90"/>
+          <path class="balance-track" d="M20 90 C55 22 92 22 120 90 S185 158 215 90 S270 22 300 90"/>
+          <circle class="balance-end" cx="300" cy="90" r="10"/>
+          <circle id="balance-player" class="balance-player" cx="20" cy="90" r="9"/>
+        </svg>
+        <p id="balance-status" class="balance-status">برای شروع، دایرهٔ آبی را لمس کن و روی مسیر بکش.</p>
+        <div class="balance-controls"><button class="btn ghost" id="balance-reset" type="button">شروع دوباره</button></div>
+      </div>`;
+    initBalanceGame();
   } else {
     body.innerHTML = '<p style="font-style:italic;line-height:2.2">«' + SAMPLE.predict + '»</p>';
   }
 }));
 /* modal close */
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () =>
-  document.getElementById(b.dataset.close).classList.remove('open')));
+  { document.getElementById(b.dataset.close).classList.remove('open'); syncBaleBackButton(); }));
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
-  if(e.target === m) m.classList.remove('open');
+  if(e.target === m){ m.classList.remove('open'); syncBaleBackButton(); }
 }));
 
 /* ---------- world map ---------- */
@@ -622,12 +974,14 @@ const player = document.getElementById('player');
 let px = 20, py = 52; // percent
 function enterScene(){
   scene.classList.add('active');
+  syncBaleBackButton();
   document.querySelector('.topbar').style.display = 'none';
   px = 20; py = 52; place();
   spawnBubbles();
 }
 document.getElementById('btn-exit-scene').addEventListener('click', () => {
   scene.classList.remove('active');
+  syncBaleBackButton();
   document.querySelector('.topbar').style.display = '';
 });
 function place(){ player.style.left = px + '%'; player.style.top = py + '%'; }
@@ -693,6 +1047,7 @@ function spawnBubbles(){
 /* ---------- init ---------- */
 renderGates();
 renderProfile();
+initializeBaleApp();
 </script>
 </body>
 </html>
