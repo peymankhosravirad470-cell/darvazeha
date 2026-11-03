@@ -192,6 +192,49 @@
 </div>
 
 <!-- ═══════════ مینی‌گیم ضربه به‌موقع ═══════════ -->
+<!-- ═══════════ جهان تارگون — نقشهٔ مادر ایزومتریک (مرحلهٔ ۲) ═══════════ -->
+<div id="screen-targon" class="view">
+  <canvas id="t-iso"></canvas>
+  <div class="hud">
+    <div id="hud-top">
+      <button class="chip" id="btn-targon-back">↩ سرزمین‌ها</button>
+      <span class="chip title" id="t-area-name"><i class="dot"></i> تارگون</span>
+      <span class="spacer"></span>
+      <button class="chip" id="t-wallet-chip" title="کیف پول">💰 —</button>
+    </div>
+    <div id="t-toasts"></div>
+    <div class="t-zoom">
+      <button class="tool-btn t-zoom-btn" id="t-zoom-in">＋</button>
+      <span class="chip" id="t-zoom-label">۱۰۰٪</span>
+      <button class="tool-btn t-zoom-btn" id="t-zoom-out">－</button>
+    </div>
+    <div class="hud-col">
+      <button class="tool-btn" id="btn-t-areas">🗺️<small>نواحی</small></button>
+      <button class="tool-btn" id="btn-t-missions">📜<small>مأموریت</small></button>
+      <button class="tool-btn" id="btn-t-wallet">💰<small>کیف پول</small></button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-wareas">
+  <div class="sheet-head"><h2>🗺️ یازده ناحیهٔ تارگون</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="wareas-body"></div>
+</div>
+
+<div class="sheet" id="sheet-wmissions">
+  <div class="sheet-head"><h2>📜 مأموریت‌های آغازین تارگون</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body" id="wmissions-body"></div>
+</div>
+
+<div class="sheet" id="sheet-wallet">
+  <div class="sheet-head"><h2>💰 کیف پول مسافر</h2><button class="sheet-close" data-close>✕</button></div>
+  <div class="sheet-body">
+    <div id="wallet-body"><p class="wt-state">برای دریافت موجودی رسمی، برگه را باز نگه دارید…</p></div>
+    <button class="wt-refresh" id="btn-wallet-refresh">↻ به‌روزرسانی موجودی رسمی</button>
+    <p class="wt-src" id="wallet-footnote"></p>
+  </div>
+</div>
+
 <div id="timing">
   <div class="timing-card">
     <h3 id="t-title">کوه‌کاوی</h3>
