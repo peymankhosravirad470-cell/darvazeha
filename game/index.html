@@ -236,6 +236,77 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .g-zone{font-size:.66rem;color:var(--muted)}
 .g-tags{font-size:.62rem;color:var(--neon-c);line-height:1.9;text-align:start}
 
+/* ═══════════ هفت قلمرو (مرحله ۱) — منو، معرفی، ۱۱ سرزمین ═══════════ */
+.realms-cta{display:flex;align-items:center;gap:14px;width:100%;max-width:420px;margin:14px auto 4px;
+  padding:14px 16px;border-radius:18px;text-align:start;cursor:pointer;
+  background:linear-gradient(120deg,rgba(209,69,44,.22),rgba(255,216,111,.10) 55%,rgba(124,92,255,.18));
+  border:1px solid rgba(255,216,111,.38);box-shadow:0 10px 34px rgba(209,69,44,.18)}
+.realms-cta:active{transform:scale(.985)}
+.rc-ico{font-size:1.7rem;filter:drop-shadow(0 0 8px rgba(255,216,111,.45))}
+.rc-text{flex:1;display:flex;flex-direction:column;gap:2px}
+.rc-text b{font-size:1.02rem;color:var(--gold)}
+.rc-text small{font-size:.68rem;color:var(--muted)}
+.rc-arrow{font-size:1.5rem;color:var(--gold);opacity:.8}
+.realms-wrap,.lands-wrap{width:100%;max-width:640px;margin:0 auto;padding:12px 14px 30px;overflow-y:auto;flex:1}
+#realms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:560px){#realms-grid{grid-template-columns:repeat(3,1fr)}}
+.dom-card{position:relative;border-radius:20px;overflow:hidden;text-align:start;padding:0 0 12px;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);cursor:pointer;
+  display:flex;flex-direction:column;gap:8px;animation:domIn .35s ease both}
+.dom-card:nth-child(2){animation-delay:.04s}.dom-card:nth-child(3){animation-delay:.08s}
+.dom-card:nth-child(4){animation-delay:.12s}.dom-card:nth-child(5){animation-delay:.16s}
+.dom-card:nth-child(6){animation-delay:.2s}.dom-card:nth-child(7){animation-delay:.24s}
+@keyframes domIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.dom-card:active{transform:scale(.98)}
+.dom-card.open{border-color:rgba(255,216,111,.5);box-shadow:0 10px 30px rgba(255,216,111,.12)}
+.dom-card.locked{opacity:.62;filter:saturate(.55)}
+.dom-media{position:relative;height:118px;overflow:hidden}
+.dom-img{width:100%;height:100%;object-fit:cover;display:block}
+.dom-noimg{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);
+  font-size:.62rem;line-height:1.9;background:
+  repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 10px,transparent 10px 20px)}
+.dom-flag{position:absolute;inset-inline-start:8px;bottom:8px;width:40px;height:46px;object-fit:cover;
+  border-radius:8px;border:1px solid rgba(255,216,111,.55);box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.dom-flag-none{display:flex;align-items:center;justify-content:center;font-size:.5rem;color:var(--muted);
+  background:rgba(0,0,0,.4)}
+.dom-badge{position:absolute;top:8px;inset-inline-end:8px;font-size:.6rem;padding:3px 8px;border-radius:999px}
+.dom-badge.open-badge{background:rgba(125,252,180,.16);border:1px solid rgba(125,252,180,.55);color:#7dfcb4}
+.dom-badge.lock-badge{background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:var(--text)}
+.dom-names{display:flex;align-items:baseline;gap:8px;padding:0 12px}
+.dom-fa{font-weight:800;font-size:.98rem}
+.dom-en{font-size:.62rem;letter-spacing:.12em;color:var(--muted)}
+.dom-tagline{font-size:.64rem;color:var(--neon-c);padding:0 12px;line-height:1.8}
+.dom-glow{position:absolute;inset:auto -24px -34px auto;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,216,111,.28),transparent 70%);pointer-events:none}
+/* ---------- صفحهٔ معرفی قلمرو ---------- */
+.domain-wrap{width:100%;max-width:640px;margin:0 auto;padding:14px 16px 34px;overflow-y:auto;flex:1;
+  display:flex;flex-direction:column;gap:10px;text-align:center}
+.domain-hero{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--glass-stroke)}
+#domain-media{height:210px}
+.domain-img{width:100%;height:100%;object-fit:cover;display:block}
+.domain-noimg{display:flex;align-items:center;justify-content:center;height:210px;color:var(--muted);font-size:.72rem;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px)}
+#domain-flagbox{position:absolute;inset-inline-start:12px;bottom:12px;width:56px;height:66px;border-radius:10px;
+  overflow:hidden;border:1px solid rgba(255,216,111,.6);box-shadow:0 4px 14px rgba(0,0,0,.55);background:rgba(0,0,0,.45)}
+#domain-flagbox img{width:100%;height:100%;object-fit:cover;display:block}
+#domain-flagbox.none{display:flex;align-items:center;justify-content:center;font-size:.52rem;color:var(--muted)}
+#domain-fa{font-size:1.5rem;font-weight:800;color:var(--gold);margin-top:6px}
+.domain-en{font-size:.72rem;letter-spacing:.28em;color:var(--muted)}
+.domain-tag{font-size:.82rem;color:var(--text);opacity:.9}
+.domain-note{font-size:.66rem;color:var(--neon-b)}
+/* ---------- شبکهٔ ۱۱ سرزمین ---------- */
+#lands-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:560px){#lands-grid{grid-template-columns:repeat(3,1fr)}}
+.land-card{position:relative;border-radius:18px;padding:14px 12px;text-align:start;cursor:pointer;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);display:flex;flex-direction:column;gap:8px}
+.land-card .l-slot{position:absolute;top:8px;inset-inline-start:10px;font-size:.62rem;color:var(--muted)}
+.land-card .l-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.land-card .l-name{font-weight:800;font-size:.85rem;line-height:1.7}
+.land-card .l-status{font-size:.62rem;color:var(--muted);line-height:1.8}
+.land-card.playable{border-color:rgba(56,198,255,.55);box-shadow:0 8px 26px rgba(56,198,255,.15)}
+.land-card.tbd{opacity:.55;filter:saturate(.5)}
+.land-card:active{transform:scale(.98)}
+
 </style>
 </head>
 <body>
@@ -246,6 +317,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="chip ver-chip">نسخهٔ ۰٫۳ — قابل‌بازی · دارایی‌های موقت</div>
   <p class="sub">سفر از دهکدهٔ ساحل شیشه‌ای آغاز می‌شود؛ نخستین سرزمین از ۱۳ دروازهٔ ابتدایی جهانِ هفت‌وهفت‌سرزمین. سرزمین دوم «جنگل نقره‌ای» نیز در انتظار توست.</p>
   <button id="btn-enter">ورود به جهان</button>
+  <div class="realms-cta" id="btn-realms-open" role="button" tabindex="0" aria-label="هفت قلمرو">
+    <span class="rc-ico">🏰</span>
+    <span class="rc-text"><b>هفت قلمرو</b><small>انتخاب قلمرو و سرزمین — تارگون و دژمار آزادند</small></span>
+    <span class="rc-arrow">‹</span>
+  </div>
   <p class="boot-note">بازی آفلاین و محلی است؛ همهٔ اعداد «آزمایشی»اند (D12) و هیچ تصمیم بازِ اسناد طراحی قطعی نشده است.<br>امتیاز و پاداش نهایی طبق D13 در نسخهٔ سرور ثبت خواهد شد.</p>
 </div>
 
@@ -297,6 +373,54 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="tool-btn" id="btn-inv">🎒<small>موجودی</small></button>
       <button id="btn-action"></button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════ هفت قلمرو — منوی انتخاب (مرحله ۱) ═══════════ -->
+<div id="screen-realms" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-realms-back">↩ بازگشت</button>
+    <span class="chip title"><i class="dot"></i> هفت قلمرو</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-realms-status"></span>
+  </div>
+  <div class="realms-wrap">
+    <p class="map-hint">جهانِ هفتاد و هفت سرزمین از هفت قلمرو ساخته شده و هر قلمرو ۱۱ سرزمین دارد. قلمروهای تارگون و دژمار آزادند؛ پنج قلمرو دیگر نمایان‌اند اما هنوز قفل‌اند.</p>
+    <div id="realms-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════ معرفی قلمرو ═══════════ -->
+<div id="screen-domain" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-domain-back">↩ قلمروها</button>
+    <span class="chip title" id="domain-chip"><i class="dot"></i> قلمرو</span>
+    <span class="spacer"></span>
+  </div>
+  <div class="domain-wrap">
+    <div class="domain-hero">
+      <div id="domain-media"></div>
+      <div id="domain-flagbox" title="پرچم قلمرو"></div>
+    </div>
+    <h2 id="domain-fa"></h2>
+    <div class="domain-en" id="domain-en"></div>
+    <p class="domain-tag" id="domain-tag"></p>
+    <p class="domain-note" id="domain-lands-note"></p>
+    <button class="btn block" id="btn-play-domain">بازی کن</button>
+  </div>
+</div>
+
+<!-- ═══════════ سرزمین‌های قلمرو (۱۱ سرزمین) ═══════════ -->
+<div id="screen-lands" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-lands-back">↩ قلمرو</button>
+    <span class="chip title" id="lands-chip"><i class="dot"></i> سرزمین‌های قلمرو</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-lands-count"></span>
+  </div>
+  <div class="lands-wrap">
+    <p class="map-hint" id="lands-hint"></p>
+    <div id="lands-grid"></div>
   </div>
 </div>
 
@@ -709,6 +833,112 @@ const QUESTS = {
     reward:{coins:40, xp:30, skill:{mining:10}, text:'+۴۰ سکه · +۳۰ تجربه · +۱۰ تجربهٔ معدن‌کاری'},
     unlocksRealm:4 },
 };
+
+
+/* ═══════════ هفت قلمرو و ۷۷ سرزمین — دادهٔ ساختاریافته (مرحله ۱) ═══════════
+   قلمرو = DOMINION (۷ عدد) · سرزمین = LAND (۱۱ سرزمین در هر قلمرو = ۷۷)
+
+   مرز این ماژول: فقط داده و منطق قفل/آزاد. هیچ دست‌زدنی به اقتصاد، کیف پول،
+   توکن، دفترکل، وضعیت بازیکن (S) یا ذخیره‌سازی انجام نمی‌شود.
+
+   قواعد محتوایی (طبق دستور مالک محصول):
+   - نام فارسی/انگلیسی قلمروها و شعارها عیناً از تصاویر مرجع رسمی خوانده شده‌اند.
+   - نام نهایی ۷۷ سرزمین عمداً خالی است (name:null) — هیچ نامی خودسرانه ساخته
+     نشده؛ مرحله‌های بعدی نام‌ها را اعلام می‌کنند و همین‌جا قرار می‌گیرند.
+   - سه سرزمینِ قابل‌بازیِ رسمیِ فعلی (دریای شیشه‌ای، جنگل نقره‌ای، کوه بلورین)
+     به‌عنوان سرزمین‌های ۱ تا ۳ قلمرو تارگون معرفی شده‌اند — محتوای موجود بازی،
+     نه نام جدید.
+   - تارماد هنوز تصویر مرجع رسمی ندارد؛ img:null یعنی «بدون تصویر» — هیچ پرچم یا
+     نشانی جایگزین ساخته نمی‌شود.
+*/
+
+/* ---------- وضعیت قفل/آزاد قلمروها — تنها نقطهٔ مدیریت ----------
+   مراحل بعد فقط همین جدول را تغییر می‌دهند (مثلاً open:true پس از آزادسازی
+   رسمی یا افزودن شرط unlockFuture). */
+const DOMINION_UNLOCK = {
+  targon:   { open:true,  note:'' },
+  dezhmaar: { open:true,  note:'' },
+  argad:    { open:false, note:'به‌زودی آزاد می‌شود' },
+  mardak:   { open:false, note:'به‌زودی آزاد می‌شود' },
+  vergad:   { open:false, note:'به‌زودی آزاد می‌شود' },
+  zardak:   { open:false, note:'به‌زودی آزاد می‌شود' },
+  tarmad:   { open:false, note:'به‌زودی آزاد می‌شود' },
+};
+
+/* ---------- هفت قلمرو — ترتیب نمایش: فهرست رسمی مالک محصول ----------
+   tagline عیناً متن پلاک داخل تصویر مرجع همان قلمرو است. */
+const DOMINIONS = [
+  { id:'targon',   fa:'تارگون', en:'TARGON',
+    img:'assets/domains/targon.jpg',   flag:'assets/domains/flags/targon.jpg',
+    tagline:'قلمرو اژدهایان، جنگ و تاج‌وتخت',  c1:'#d4452c', c2:'#ffd86f' },
+  { id:'dezhmaar', fa:'دژمار', en:'DEZHMAAR',
+    img:'assets/domains/dezhmaar.jpg', flag:'assets/domains/flags/dezhmaar.jpg',
+    tagline:'قلمرو ممنوعه و رازهای کهن',       c1:'#a02c1e', c2:'#5b120b' },
+  { id:'argad',    fa:'آرگاد', en:'ARGAD',
+    img:'assets/domains/argad.jpg',    flag:'assets/domains/flags/argad.jpg',
+    tagline:'قلمرو سنگ و آهن',                 c1:'#2f6db4', c2:'#dfe8f2' },
+  { id:'mardak',   fa:'مرداک', en:'MARDAK',
+    img:'assets/domains/mardak.jpg',   flag:'assets/domains/flags/mardak.jpg',
+    tagline:'قلمرو جنگل‌های کهن',              c1:'#1f8a4c', c2:'#d9f2e0' },
+  { id:'vergad',   fa:'ورگاد', en:'VERGAD',
+    img:'assets/domains/vergad.jpg',   flag:'assets/domains/flags/vergad.jpg',
+    tagline:'قلمرو دژهای تسخیرناپذیر',         c1:'#6a3fa8', c2:'#e6dcf7' },
+  { id:'zardak',   fa:'زرداک', en:'ZARDAK',
+    img:'assets/domains/zardak.jpg',   flag:'assets/domains/flags/zardak.jpg',
+    tagline:'قلمرو امپراتوری‌های کهن',         c1:'#d3a72c', c2:'#f7e7b0' },
+  { id:'tarmad',   fa:'تارماد', en:'TARMAD',
+    img:null,                          flag:null,
+    tagline:'',                                c1:'#37474f', c2:'#90a4ae' },
+];
+
+const DOMINION_LANDS_COUNT = 11;   // هر قلمرو دقیقاً ۱۱ سرزمین دارد
+
+/* ---------- سرزمین‌های قابل‌بازی رسمی فعلی داخل تارگون ----------
+   gate = شناسهٔ همان سرزمین در نقشهٔ ۱۳ دروازه‌ای فعلی (enterRealm(gate)). */
+const DOMINION_PLAYABLE_LANDS = {
+  targon: [
+    { slot:1, name:'دریای شیشه‌ای', gate:1 },
+    { slot:2, name:'جنگل نقره‌ای',  gate:2 },
+    { slot:3, name:'کوه بلورین',    gate:3 },
+  ],
+};
+
+function getDominion(id){
+  return DOMINIONS.find(d => d.id === id) || null;
+}
+function isDominionUnlocked(id){
+  const u = DOMINION_UNLOCK[id];
+  return !!(u && u.open);
+}
+function dominionLockNote(id){
+  const u = DOMINION_UNLOCK[id];
+  return (u && u.note) || 'به‌زودی آزاد می‌شود';
+}
+
+/* فهرست ۱۱ سرزمین یک قلمرو — خروجی پایدار و یکسان برای هر قلمرو:
+   {slot, name, playable, gate, locked} */
+function dominionLands(id){
+  const playable = {};
+  (DOMINION_PLAYABLE_LANDS[id] || []).forEach(l => { playable[l.slot] = l; });
+  const lands = [];
+  for(let n=1; n<=DOMINION_LANDS_COUNT; n++){
+    const p = playable[n];
+    lands.push({
+      slot:n,
+      name: p ? p.name : null,          // نام‌های رسمی بعداً همین‌جا قرار می‌گیرند
+      playable: !!p,
+      gate: p ? p.gate : null,
+      locked: !p,
+    });
+  }
+  return lands;
+}
+
+/* شمارندهٔ کلی برای چیپ وضعیت منو */
+function dominionStatusSummary(){
+  const open = DOMINIONS.filter(d => isDominionUnlocked(d.id)).length;
+  return { open, total: DOMINIONS.length };
+}
 
 
 /* ═══════════ وضعیت بازی، ذخیره‌سازی و دفترکل ═══════════ */
@@ -2232,6 +2462,130 @@ $('#btn-profile').addEventListener('click', ()=>{ Sfx.click(); syncEquip(); rend
 $('#btn-status').addEventListener('click', ()=>{ Sfx.click(); renderStatus(); openSheet('#sheet-status'); });
 $('#btn-about').addEventListener('click', ()=>{ Sfx.click(); renderAbout(); openSheet('#sheet-about'); });
 $('#btn-settings').addEventListener('click', ()=>{ Sfx.click(); renderSettings(); openSheet('#sheet-settings'); });
+
+
+/* ═══════════ رابط کاربری هفت قلمرو (مرحله ۱) ═══════════
+   سه صفحهٔ جدید: منوی قلمروها (#screen-realms) · معرفی قلمرو (#screen-domain)
+   · شبکهٔ ۱۱ سرزمین (#screen-lands).
+   مرز تغییرات: فقط این ماژول + markup/استایل صفحات جدید. منطق اقتصادی،
+   دفترکل، وضعیت بازیکن و نقشهٔ ۱۳ دروازه‌ای فعلی دست‌نخورده می‌ماند. */
+
+let currentDominion = null;   // قلمروی در حال مشاهده (فقط حالت رابط، بدون ذخیره)
+
+function dominionImgStyle(d){
+  return 'background:linear-gradient(150deg,' + d.c1 + '33,' + d.c2 + '22)';
+}
+
+/* ---------- ۱) منوی هفت قلمرو ---------- */
+function renderRealmsMenu(){
+  const grid = $('#realms-grid'); grid.innerHTML = '';
+  const sum = dominionStatusSummary();
+  $('#chip-realms-status').textContent = 'آزاد: ' + fa(sum.open) + ' از ' + fa(sum.total) + ' قلمرو';
+  DOMINIONS.forEach(d => {
+    const open = isDominionUnlocked(d.id);
+    const card = document.createElement('button');
+    card.className = 'dom-card ' + (open ? 'open' : 'locked');
+    card.dataset.domain = d.id;
+
+    const imgHTML = d.img
+      ? '<img class="dom-img" src="' + d.img + '" alt="' + d.fa + '">'
+      : '<span class="dom-img dom-noimg"><small>تصویر مرجع قلمرو<br>در انتظار ارسال</small></span>';
+    const flagHTML = d.flag
+      ? '<img class="dom-flag" src="' + d.flag + '" alt="پرچم ' + d.fa + '">'
+      : '<span class="dom-flag dom-flag-none"><small>بدون نشان</small></span>';
+
+    card.innerHTML =
+      '<div class="dom-media" style="' + dominionImgStyle(d) + '">' + imgHTML +
+        flagHTML +
+        (open ? '<span class="dom-badge open-badge">آزاد</span>'
+              : '<span class="dom-badge lock-badge">🔒 ' + dominionLockNote(d.id) + '</span>') +
+      '</div>' +
+      '<div class="dom-names"><div class="dom-fa">' + d.fa + '</div>' +
+      '<div class="dom-en">' + d.en + '</div></div>' +
+      (d.tagline ? '<div class="dom-tagline">' + d.tagline + '</div>' : '') +
+      (open ? '<span class="dom-glow"></span>' : '');
+
+    card.addEventListener('click', () => {
+      Sfx.click();
+      if(open) openDomainIntro(d.id);
+      else toast('قلمرو ' + d.fa + ' قفل است — ' + dominionLockNote(d.id));
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- ۲) صفحهٔ معرفی قلمرو ---------- */
+function openDomainIntro(id){
+  const d = getDominion(id);
+  if(!d || !isDominionUnlocked(id)) return;
+  currentDominion = id;
+  $('#domain-chip').innerHTML = '<i class="dot"></i> قلمرو ' + d.fa;
+  const hero = $('#domain-media');
+  hero.style.background = dominionImgStyle(d);
+  if(d.img){
+    hero.innerHTML = '<img class="domain-img" src="' + d.img + '" alt="' + d.fa + '">';
+  } else {
+    hero.innerHTML = '<span class="domain-noimg"><small>تصویر مرجع قلمرو در انتظار ارسال</small></span>';
+  }
+  const flag = $('#domain-flagbox');
+  if(d.flag){
+    flag.innerHTML = '<img src="' + d.flag + '" alt="پرچم ' + d.fa + '">';
+    flag.classList.remove('none');
+  } else {
+    flag.innerHTML = '<small>بدون نشان</small>';
+    flag.classList.add('none');
+  }
+  $('#domain-fa').textContent = d.fa;
+  $('#domain-en').textContent = d.en;
+  $('#domain-tag').textContent = d.tagline || 'شعار این قلمرو هنوز اعلام نشده است.';
+  const openLands = dominionLands(id).filter(l => l.playable).length;
+  $('#domain-lands-note').textContent = 'این قلمرو ' + fa(DOMINION_LANDS_COUNT) +
+    ' سرزمین دارد · هم‌اکنون قابل بازی: ' + fa(openLands);
+  show('screen-domain');
+}
+
+/* ---------- ۳) شبکهٔ ۱۱ سرزمین قلمرو ---------- */
+function renderDomainLands(id){
+  const d = getDominion(id);
+  if(!d || !isDominionUnlocked(id)) return;
+  currentDominion = id;
+  $('#lands-chip').innerHTML = '<i class="dot"></i> سرزمین‌های ' + d.fa;
+  const lands = dominionLands(id);
+  const ready = lands.filter(l => l.playable).length;
+  $('#chip-lands-count').textContent = 'قابل بازی: ' + fa(ready) + ' از ' + fa(DOMINION_LANDS_COUNT);
+  $('#lands-hint').textContent = 'هر قلمرو دقیقاً ' + fa(DOMINION_LANDS_COUNT) +
+    ' سرزمین دارد. نام و تصویر نهایی ۷۷ سرزمین در مراحل بعدی توسط مالک محصول اعلام و همین‌جا نشسته می‌شود.';
+  const grid = $('#lands-grid'); grid.innerHTML = '';
+  lands.forEach(l => {
+    const card = document.createElement('button');
+    card.className = 'land-card ' + (l.playable ? 'playable' : 'tbd');
+    card.dataset.land = l.slot;
+    card.innerHTML =
+      '<span class="l-slot">' + fa(l.slot) + '</span>' +
+      '<div class="l-ico" style="background:linear-gradient(135deg,' + d.c1 + '44,' + d.c2 + '33);border:1px solid ' + d.c1 + '66">' +
+        (l.playable ? '🌊' : '🔒') + '</div>' +
+      '<div class="l-name">' + (l.name || 'در انتظار نام‌گذاری رسمی') + '</div>' +
+      '<div class="l-status">' + (l.playable ? 'قابل بازی — ورود به سرزمین' : 'نام و تصویر در مراحل بعدی') + '</div>';
+    card.addEventListener('click', () => {
+      Sfx.click();
+      if(!l.playable){ toast('سرزمین ' + fa(l.slot) + ' ' + d.fa + ' هنوز نام‌گذاری و ساخته نشده است'); return; }
+      if(!S.pid){ initCreation(); return; }   // همان جریان رسمی ساخت شخصیت
+      enterRealm(l.gate);
+    });
+    grid.appendChild(card);
+  });
+  show('screen-lands');
+}
+
+/* ---------- ناوبری ---------- */
+$('#btn-realms-open').addEventListener('click', () => { Sfx.click(); renderRealmsMenu(); show('screen-realms'); });
+$('#btn-realms-back').addEventListener('click', () => { Sfx.click(); show('screen-boot'); });
+$('#btn-domain-back').addEventListener('click', () => { Sfx.click(); renderRealmsMenu(); show('screen-realms'); });
+$('#btn-lands-back').addEventListener('click', () => { Sfx.click(); openDomainIntro(currentDominion || 'targon'); });
+$('#btn-play-domain').addEventListener('click', () => {
+  Sfx.click();
+  if(currentDominion) renderDomainLands(currentDominion);
+});
 
 
 /* ═══════════ ورودی، حلقهٔ بازی، تعامل، راه‌اندازی ═══════════ */

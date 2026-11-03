@@ -20,6 +20,11 @@
   <div class="chip ver-chip">نسخهٔ ۰٫۳ — قابل‌بازی · دارایی‌های موقت</div>
   <p class="sub">سفر از دهکدهٔ ساحل شیشه‌ای آغاز می‌شود؛ نخستین سرزمین از ۱۳ دروازهٔ ابتدایی جهانِ هفت‌وهفت‌سرزمین. سرزمین دوم «جنگل نقره‌ای» نیز در انتظار توست.</p>
   <button id="btn-enter">ورود به جهان</button>
+  <div class="realms-cta" id="btn-realms-open" role="button" tabindex="0" aria-label="هفت قلمرو">
+    <span class="rc-ico">🏰</span>
+    <span class="rc-text"><b>هفت قلمرو</b><small>انتخاب قلمرو و سرزمین — تارگون و دژمار آزادند</small></span>
+    <span class="rc-arrow">‹</span>
+  </div>
   <p class="boot-note">بازی آفلاین و محلی است؛ همهٔ اعداد «آزمایشی»اند (D12) و هیچ تصمیم بازِ اسناد طراحی قطعی نشده است.<br>امتیاز و پاداش نهایی طبق D13 در نسخهٔ سرور ثبت خواهد شد.</p>
 </div>
 
@@ -71,6 +76,54 @@
       <button class="tool-btn" id="btn-inv">🎒<small>موجودی</small></button>
       <button id="btn-action"></button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════ هفت قلمرو — منوی انتخاب (مرحله ۱) ═══════════ -->
+<div id="screen-realms" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-realms-back">↩ بازگشت</button>
+    <span class="chip title"><i class="dot"></i> هفت قلمرو</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-realms-status"></span>
+  </div>
+  <div class="realms-wrap">
+    <p class="map-hint">جهانِ هفتاد و هفت سرزمین از هفت قلمرو ساخته شده و هر قلمرو ۱۱ سرزمین دارد. قلمروهای تارگون و دژمار آزادند؛ پنج قلمرو دیگر نمایان‌اند اما هنوز قفل‌اند.</p>
+    <div id="realms-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════ معرفی قلمرو ═══════════ -->
+<div id="screen-domain" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-domain-back">↩ قلمروها</button>
+    <span class="chip title" id="domain-chip"><i class="dot"></i> قلمرو</span>
+    <span class="spacer"></span>
+  </div>
+  <div class="domain-wrap">
+    <div class="domain-hero">
+      <div id="domain-media"></div>
+      <div id="domain-flagbox" title="پرچم قلمرو"></div>
+    </div>
+    <h2 id="domain-fa"></h2>
+    <div class="domain-en" id="domain-en"></div>
+    <p class="domain-tag" id="domain-tag"></p>
+    <p class="domain-note" id="domain-lands-note"></p>
+    <button class="btn block" id="btn-play-domain">بازی کن</button>
+  </div>
+</div>
+
+<!-- ═══════════ سرزمین‌های قلمرو (۱۱ سرزمین) ═══════════ -->
+<div id="screen-lands" class="view">
+  <div class="topbar">
+    <button class="chip" id="btn-lands-back">↩ قلمرو</button>
+    <span class="chip title" id="lands-chip"><i class="dot"></i> سرزمین‌های قلمرو</span>
+    <span class="spacer"></span>
+    <span class="chip" id="chip-lands-count"></span>
+  </div>
+  <div class="lands-wrap">
+    <p class="map-hint" id="lands-hint"></p>
+    <div id="lands-grid"></div>
   </div>
 </div>
 
