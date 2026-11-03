@@ -2,6 +2,14 @@
 
 قالب: بر پایهٔ مراحل اجرایی (نه صرفاً تاریخ) — هر مرحله با آزمون و گزارش همراه است.
 
+## [استقرار موفق روی Liara — اپ زنده شد] — ۲۰۲۶-۱۱-۰۴
+- **https://darvazeh-ha.liara.run زنده است** — از 503 «Application Error» به 200 واقعی
+- ریشهٔ ناتوانی deployهای قبلی (اثبات‌شده): `pip` در build سرورهای لیارا به PyPI جهانی دسترسی پایدار نداشت (timeoutهای مکرر `files.pythonhosted.org`) → build هرگز به release نمی‌رسید → تاریخچهٔ خالی، لاگ خالی
+- **رفع:** خط اول `backend/requirements.txt` → میرور رسمی PyPI لیارا (`package-mirror.liara.ir/repository/pypi/simple`) — کامیت `7d4b409` منتشر شد
+- اولین release موفق (CLI deploy از دقیقاً همان کامیت منتشرشده، build در موقعیت ایران) + تنظیم پورت اپ روی 8000 (مسیریابی درست)
+- راستی‌آزمایی زنده: `/` و `/health` و `/docs` → 200 · `/api/v1/world/summary` → `{"territories":77,"released":1,"gates_in_current_ui":13}` (پاسخ واقعی از lands-db روی `my-network`) · مسیرهای محافظت‌شده → 401 صحیح
+- متغیرهای محیطی ۷گانه توسط مالک از پنل ست شد؛ migration اجرا شد؛ دیتابیس RUNNING
+
 ## [ادغام خط Backend/بله + انتشار واقعی مخزن] — ۲۰۲۶-۱۱-۰۴
 - **انتشار واقعی انجام شد:** توکن تازه از مدیر پروژه → credential helper → push موفق `main` به GitHub (راستی‌آزمایی با `git ls-remote`)
 - **ادغام دو خط موازی:** خط Backend/بله سمت remote (۳۰+ کامیت: FastAPI + Alembic + CI دوجریانه + راهنمای استقرار Liara) با خط محصول بازی ۰٫۳ سمت محلی (۱۱ کامیت) — merge رسمی
