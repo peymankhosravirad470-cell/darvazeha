@@ -60,3 +60,16 @@ chmod 600 ~/.config/darvazeha/github.token
 
 پس از هر تغییر: کامیت جداگانه با پیام دقیق، سپس push؛ هش کامیت‌ها در گزارش‌ها.
 اگر push شکست بخورد، ثبت‌شدن تغییرات روی GitHub ادعا نمی‌شود.
+## توکن Fine-grained — دستورالعمل (الزام کارفرما — ۲۰۲۶-۱۱-۰۴)
+
+ساخت PAT (کلاسیک یا fine-grained) از طریق API گیت‌هاب **ممکن نیست** — فقط از رابط وب.
+مراحل برای مالک حساب:
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token
+2. Repository access: **Only select repositories** → `peymankhosravirad470-cell/darvazeha`
+3. Permissions → Repository permissions → **Contents: Read and write** (همین یکی بس است)
+4. Expiration: کوتاه (مثلاً ۳۰ روز)
+5. اعتبارسنجی توکن جدید: `git ls-remote https://github.com/peymankhosravirad470-cell/darvazeha.git`
+6. پس از تأیید عملکرد توکن جدید، توکن قبلی (scopeهای گسترده شامل `delete_repo`/`admin:*`) لغو شود و مقدار جدید در
+   `~/.config/darvazeha/github.token` (chmod 600) جایگزین گردد. **لغو توکن فعلی پیش از عملی‌بودن توکن جدید انجام نمی‌شود.**
+

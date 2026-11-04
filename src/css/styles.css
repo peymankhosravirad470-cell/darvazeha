@@ -224,3 +224,118 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .chain-legend{font-size:.68rem;color:var(--muted);margin-bottom:10px;line-height:2}
 .g-zone{font-size:.66rem;color:var(--muted)}
 .g-tags{font-size:.62rem;color:var(--neon-c);line-height:1.9;text-align:start}
+
+/* ═══════════ هفت قلمرو (مرحله ۱) — منو، معرفی، ۱۱ سرزمین ═══════════ */
+.realms-cta{display:flex;align-items:center;gap:14px;width:100%;max-width:420px;margin:14px auto 4px;
+  padding:14px 16px;border-radius:18px;text-align:start;cursor:pointer;
+  background:linear-gradient(120deg,rgba(209,69,44,.22),rgba(255,216,111,.10) 55%,rgba(124,92,255,.18));
+  border:1px solid rgba(255,216,111,.38);box-shadow:0 10px 34px rgba(209,69,44,.18)}
+.realms-cta:active{transform:scale(.985)}
+.rc-ico{font-size:1.7rem;filter:drop-shadow(0 0 8px rgba(255,216,111,.45))}
+.rc-text{flex:1;display:flex;flex-direction:column;gap:2px}
+.rc-text b{font-size:1.02rem;color:var(--gold)}
+.rc-text small{font-size:.68rem;color:var(--muted)}
+.rc-arrow{font-size:1.5rem;color:var(--gold);opacity:.8}
+.realms-wrap,.lands-wrap{width:100%;max-width:640px;margin:0 auto;padding:12px 14px 30px;overflow-y:auto;flex:1}
+#realms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:560px){#realms-grid{grid-template-columns:repeat(3,1fr)}}
+.dom-card{position:relative;border-radius:20px;overflow:hidden;text-align:start;padding:0 0 12px;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);cursor:pointer;
+  display:flex;flex-direction:column;gap:8px;animation:domIn .35s ease both}
+.dom-card:nth-child(2){animation-delay:.04s}.dom-card:nth-child(3){animation-delay:.08s}
+.dom-card:nth-child(4){animation-delay:.12s}.dom-card:nth-child(5){animation-delay:.16s}
+.dom-card:nth-child(6){animation-delay:.2s}.dom-card:nth-child(7){animation-delay:.24s}
+@keyframes domIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.dom-card:active{transform:scale(.98)}
+.dom-card.open{border-color:rgba(255,216,111,.5);box-shadow:0 10px 30px rgba(255,216,111,.12)}
+.dom-card.locked{opacity:.62;filter:saturate(.55)}
+.dom-media{position:relative;height:118px;overflow:hidden}
+.dom-img{width:100%;height:100%;object-fit:cover;display:block}
+.dom-noimg{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);
+  font-size:.62rem;line-height:1.9;background:
+  repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 10px,transparent 10px 20px)}
+.dom-flag{position:absolute;inset-inline-start:8px;bottom:8px;width:40px;height:46px;object-fit:cover;
+  border-radius:8px;border:1px solid rgba(255,216,111,.55);box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.dom-flag-none{display:flex;align-items:center;justify-content:center;font-size:.5rem;color:var(--muted);
+  background:rgba(0,0,0,.4)}
+.dom-badge{position:absolute;top:8px;inset-inline-end:8px;font-size:.6rem;padding:3px 8px;border-radius:999px}
+.dom-badge.open-badge{background:rgba(125,252,180,.16);border:1px solid rgba(125,252,180,.55);color:#7dfcb4}
+.dom-badge.lock-badge{background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:var(--text)}
+.dom-names{display:flex;align-items:baseline;gap:8px;padding:0 12px}
+.dom-fa{font-weight:800;font-size:.98rem}
+.dom-en{font-size:.62rem;letter-spacing:.12em;color:var(--muted)}
+.dom-tagline{font-size:.64rem;color:var(--neon-c);padding:0 12px;line-height:1.8}
+.dom-glow{position:absolute;inset:auto -24px -34px auto;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,216,111,.28),transparent 70%);pointer-events:none}
+/* ---------- صفحهٔ معرفی قلمرو ---------- */
+.domain-wrap{width:100%;max-width:640px;margin:0 auto;padding:14px 16px 34px;overflow-y:auto;flex:1;
+  display:flex;flex-direction:column;gap:10px;text-align:center}
+.domain-hero{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--glass-stroke)}
+#domain-media{height:210px}
+.domain-img{width:100%;height:100%;object-fit:cover;display:block}
+.domain-noimg{display:flex;align-items:center;justify-content:center;height:210px;color:var(--muted);font-size:.72rem;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px)}
+#domain-flagbox{position:absolute;inset-inline-start:12px;bottom:12px;width:56px;height:66px;border-radius:10px;
+  overflow:hidden;border:1px solid rgba(255,216,111,.6);box-shadow:0 4px 14px rgba(0,0,0,.55);background:rgba(0,0,0,.45)}
+#domain-flagbox img{width:100%;height:100%;object-fit:cover;display:block}
+#domain-flagbox.none{display:flex;align-items:center;justify-content:center;font-size:.52rem;color:var(--muted)}
+#domain-fa{font-size:1.5rem;font-weight:800;color:var(--gold);margin-top:6px}
+.domain-en{font-size:.72rem;letter-spacing:.28em;color:var(--muted)}
+.domain-tag{font-size:.82rem;color:var(--text);opacity:.9}
+.domain-note{font-size:.66rem;color:var(--neon-b)}
+/* ---------- شبکهٔ ۱۱ سرزمین ---------- */
+#lands-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:560px){#lands-grid{grid-template-columns:repeat(3,1fr)}}
+.land-card{position:relative;border-radius:18px;padding:14px 12px;text-align:start;cursor:pointer;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);display:flex;flex-direction:column;gap:8px}
+.land-card .l-slot{position:absolute;top:8px;inset-inline-start:10px;font-size:.62rem;color:var(--muted)}
+.land-card .l-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.land-card .l-name{font-weight:800;font-size:.85rem;line-height:1.7}
+.land-card .l-status{font-size:.62rem;color:var(--muted);line-height:1.8}
+.land-card.playable{border-color:rgba(56,198,255,.55);box-shadow:0 8px 26px rgba(56,198,255,.15)}
+.land-card.tbd{opacity:.55;filter:saturate(.5)}
+.land-card:active{transform:scale(.98)}
+
+/* ═══════════ جهان تارگون — نقشهٔ مادر ایزومتریک (مرحلهٔ ۲) ═══════════ */
+#screen-targon{position:relative;overflow:hidden;background:#0b2a17}
+#t-iso{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#t-area-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+#t-wallet-chip{cursor:pointer;font-weight:700}
+#t-toasts{position:absolute;top:64px;inset-inline:0;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:9}
+.t-zoom{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));inset-inline-start:12px;
+  display:flex;flex-direction:column;gap:6px;align-items:center}
+.t-zoom-btn{width:46px;height:46px;border-radius:16px;font-size:1.15rem}
+#t-zoom-label{font-size:.62rem;padding:4px 10px}
+.targon-world-cta{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;
+  padding:16px;border-radius:18px;margin-top:14px;cursor:pointer;
+  background:linear-gradient(120deg,rgba(212,69,44,.28),rgba(255,216,111,.14));
+  border:1px solid rgba(255,216,111,.55);box-shadow:0 10px 34px rgba(212,69,44,.22);
+  animation:domIn .35s ease both}
+.targon-world-cta:active{transform:scale(.985)}
+.targon-world-cta b{color:var(--gold);font-size:1rem}
+.targon-world-cta small{color:var(--muted);font-size:.66rem}
+/* برگه‌های جهان */
+.w-area-row,.w-mission{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;
+  background:var(--glass-bg);border:1px solid var(--glass-stroke);margin-bottom:8px}
+.w-area-row .wa-ico,.w-mission .wm-ico{width:36px;height:36px;border-radius:12px;font-size:1.05rem;
+  display:flex;align-items:center;justify-content:center;background:rgba(255,216,111,.12)}
+.wa-names,.wm-names{flex:1;display:flex;flex-direction:column;line-height:1.9}
+.wa-names b,.wm-names b{font-size:.86rem}
+.wa-names small,.wm-names small,.wm-prog{font-size:.62rem;color:var(--muted)}
+.wm-prog{color:var(--neon-b)}
+.w-mission.done{border-color:rgba(125,252,180,.4)}
+.w-mission.done .wm-prog{color:#7dfcb4}
+.wa-go{padding:7px 16px;border-radius:999px;font-size:.72rem;font-weight:700;
+  background:rgba(56,198,255,.14);border:1px solid rgba(56,198,255,.5);color:#8fe0ff}
+.wa-go:active{transform:scale(.94)}
+.wm-note{font-size:.64rem;color:var(--muted);line-height:2;margin-bottom:10px}
+.wt-state{font-size:.8rem;line-height:2.1}
+.wt-err{color:#ffb08c}
+.wt-balance{display:flex;align-items:baseline;gap:10px;margin:6px 0}
+.wt-num{font-size:2rem;font-weight:800;color:var(--gold)}
+.wt-unit{font-size:.72rem;color:var(--muted)}
+.wt-ok{font-size:.7rem;color:#7dfcb4}
+.wt-src{font-size:.62rem;color:var(--muted);line-height:2}
+.wt-refresh{width:100%;padding:12px;border-radius:14px;font-size:.8rem;font-weight:700;margin:8px 0;
+  background:rgba(255,216,111,.12);border:1px solid rgba(255,216,111,.5);color:var(--gold)}
+.wt-refresh:active{transform:scale(.985)}

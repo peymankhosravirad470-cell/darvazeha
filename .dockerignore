@@ -1,0 +1,21 @@
+# Keep secrets and non-runtime material out of the Docker build context/image.
+# The Dockerfile COPY lines are explicit; this file only shrinks the context
+# and guarantees nothing sensitive (tokens, keys) can ever enter the image.
+.git
+.secrets
+.env
+.env.*
+!.env.example
+download
+docs
+reports
+prototype
+src
+scripts
+tests
+node_modules
+__pycache__
+**/__pycache__
+*.pyc
+*.log
+local.db
