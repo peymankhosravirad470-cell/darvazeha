@@ -92,7 +92,7 @@ function renderGates(){
     let status;
     if(g.built && unlocked) status = (g.id===S.realm) ? 'مسافر اینجاست' : 'قابل بازی';
     else if(g.built) status = 'قفل — ' + g.unlockText;
-    else if(unlocked) status = 'شرط کامل شد — محتوا پس از تصمیم A1 ساخته می‌شود';
+    else if(unlocked) status = 'شرط کامل شد — محتوای این سرزمین در به‌روزرسانی بعدی گشوده می‌شود';
     else status = g.unlockText;
     card.innerHTML =
       '<span class="g-idx">سرزمین '+fa(g.id)+'</span>' +
@@ -105,7 +105,7 @@ function renderGates(){
     card.addEventListener('click', ()=>{
       Sfx.click();
       if(g.built && unlocked) enterRealm(g.id);
-      else if(unlocked) toast('شرط گشودن کامل شد؛ محتوای این سرزمین هنوز ساخته نشده (A1 باز است)');
+      else if(unlocked) toast('شرط گشودن کامل شد؛ محتوای این سرزمین در به‌روزرسانی بعدی گشوده می‌شود');
       else toast('قفل است — ' + g.unlockText);
     });
     grid.appendChild(card);
@@ -161,12 +161,12 @@ function renderCraft(){
       '<div class="r-main"><b>'+r.title+'</b>' +
       '<small>'+r.note+'</small>' +
       '<small>مواد: '+needTxt+'</small></div>' +
-      '<span class="tag test">آزمایشی</span></div>' +
+      '</div>' +
       '<button class="btn block" data-craft="'+r.id+'" '+(!can?'disabled':'')+'>ساختن '+r.title+'</button>';
   });
   rows += '<div class="bar" id="craft-prog" style="display:none"><i style="width:0%"></i></div>';
-  rows += '<p style="font-size:.7rem;color:var(--muted);margin-top:10px">تولید فقط با مواد واقعی ثبت می‌شود (ضد تولید صوری — سند ۰۴ §۹). ' +
-          'مزیت مهارت ساخت (سطح ۲+): هر سومین ساخت، خروجی +۱. شناسهٔ رویداد یکتا در دفترکل ثبت می‌شود.</p>';
+  rows += '<p style="font-size:.7rem;color:var(--muted);margin-top:10px">تولید فقط با مواد واقعی ثبت می‌شود — تولید صوری مسدود است. ' +
+          'مزیت مهارت ساخت (سطح ۲+): هر سومین ساخت، خروجی +۱. هر ساخت با شناسهٔ یکتا در دفترکل ثبت می‌شود.</p>';
   b.innerHTML = rows;
   b.querySelectorAll('[data-craft]').forEach(el=>el.addEventListener('click', ()=>{
     el.disabled = true;
@@ -195,13 +195,13 @@ function renderMissions(){
       steps += '<div class="qstep'+(done?' done':'')+'"><span class="st-ico">'+(done?'✅':'⬜')+'</span>'+s.text+'</div>';
     });
     steps += '</div>';
-    const rewardTxt = q.reward ? ('پاداش یک‌بار: ' + q.reward.text + ' [آزمایشی]') : '';
+    const rewardTxt = q.reward ? ('پاداش یک‌بار: ' + q.reward.text) : '';
     rows += '<div class="row"><span class="r-ico">'+(q.main?'📜':'🏮')+'</span>' +
       '<div class="r-main"><b>'+q.title+'</b><small>سرزمین '+fa(q.realm)+' · '+q.brief+'</small>' + steps +
       '<small>'+rewardTxt+'</small></div>' +
       '<span class="tag '+(st.done?'ok':(st.accepted?'warn':''))+'">'+(st.done?'کامل شد':(st.accepted?'در جریان':'پذیرفته نشده'))+'</span></div>';
   });
-  rows += '<p style="font-size:.7rem;color:var(--muted)">مأموریت‌ها داده‌محورند؛ گشودن سرزمین بعدی به «کامل‌شدن» مأموریت اصلی پیوند دارد. پاداش اصلی فقط یک‌بار (D7).</p>';
+  rows += '<p style="font-size:.7rem;color:var(--muted)">مأموریت‌ها داده‌محورند؛ گشودن سرزمین بعدی به «کامل‌شدن» مأموریت اصلی پیوند دارد. پاداش اصلی فقط یک‌بار داده می‌شود.</p>';
   b.innerHTML=rows;
 }
 
@@ -219,7 +219,7 @@ function renderProfile(){
     '<div class="bar"><i style="width:'+Math.round(100*(S.xp-lo)/Math.max(1,hi-lo))+'%"></i></div>';
   html += '<p style="margin:16px 2px 6px;font-size:.8rem">شناسهٔ بازیکن (یکتا): <span style="color:var(--neon-b);font-size:.7rem">'+ (S.pid||'—') +'</span></p>';
   /* مهارت‌ها */
-  html += '<p style="margin:14px 2px 6px;font-size:.8rem">مهارت‌ها (حرفه‌های فعال نمونه — فهرست کامل ۱۲ حرفه = A7 باز):</p>';
+  html += '<p style="margin:14px 2px 6px;font-size:.8rem">مهارت‌ها (حرفه‌های فعال — حرفه‌های بیشتر در به‌روزرسانی‌های بعدی):</p>';
   Object.keys(SKILLS).forEach(id=>{
     const slv = skillLv(id);
     const slo = SKILL_XP[slv-1], shi = SKILL_XP[slv]||SKILL_XP[SKILL_XP.length-1];
@@ -279,7 +279,7 @@ function renderStatus(){
   const v = verifyLedger();
   const earned = S.ledger.filter(e=>e.type==='reward_quest'||e.type==='sale_market'||e.type==='sale_caravan'||e.type==='reward_chest')
     .reduce((a,e)=>a+(e.delta.tokens?e.delta.tokens.coins:0),0);
-  let led = '<div class="notes-sec"><h3>دفترکل ضمیمه‌تنها + زنجیرهٔ هش (نمونهٔ محلیِ الگوی سند ۱۴ — نسخهٔ نهایی سمت سرور است)</h3>';
+  let led = '<div class="notes-sec"><h3>دفترکل محلی + زنجیرهٔ هش — گواهیِ دست‌نخوردگی رویدادها</h3>';
   S.ledger.slice(-6).reverse().forEach(e=>{
     led += '<p>#'+fa(e.seq)+' <span style="color:#38c6ff">'+e.type+'</span> — '+e.id+' · هش '+e.h.slice(0,8)+'</p>';
   });
@@ -290,7 +290,7 @@ function renderStatus(){
   const npcCount = (REALM_MAPS[S.realm]?REALM_MAPS[S.realm].npcs.length:0);
   b.innerHTML =
     '<div class="stat-grid">' +
-      '<div class="stat-card"><b>روستا (سطح ۱/۵)</b><span>روستا ← شهر ← منطقه ← پادشاهی ← امپراتوری (D5) — ارتقا در فاز جمعی</span></div>' +
+      '<div class="stat-card"><b>روستا (سطح ۱/۵)</b><span>روستا ← شهر ← منطقه ← پادشاهی ← امپراتوری — ارتقا در فاز جمعی</span></div>' +
       '<div class="stat-card"><b>'+fa(npcCount+1)+' ساکن</b><span>'+npcCount+' ساکن + مسافر (NPC — بازیکن واقعی دیگر حاضر نیست)</span></div>' +
       '<div class="stat-card"><b>'+fa(S.stats.mined+S.stats.chopped+S.stats.crafted+S.stats.harvested)+'</b><span>تولید کل این مسافر</span></div>' +
       '<div class="stat-card"><b>'+fa(earned)+' 💰</b><span>سکهٔ کسب‌شده (فقط از کار واقعی)</span></div>' +
@@ -366,7 +366,7 @@ function renderMarket(){
     html += '<div class="row"><span class="r-ico">🧺</span>' +
       '<div class="r-main"><b>سفارش کاروان هفتگی</b><small>'+needTxt+' → '+fa(MARKET.caravan.pay)+' سکه'+(skillLv('trading')>=2?'+۱ مزیت بازرگانی':'')+'</small></div>' +
       '<button class="btn ghost" id="btn-caravan" '+(!can?'disabled':'')+'>فروش</button></div>' +
-      '<p style="font-size:.7rem;color:var(--muted)">سفارش کاروان تکرارشدنی است — نرخ پایهٔ ثابت؛ مدل قیمت‌گذاری نهایی = A4 باز.</p>';
+      '<p style="font-size:.7rem;color:var(--muted)">سفارش کاروان تکرارشدنی است — با نرخ پایهٔ ثابت.</p>';
   }
   b.innerHTML = html;
   b.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click', ()=>{
@@ -406,7 +406,7 @@ function renderFarm(){
       '<div class="r-main"><b>آمادهٔ برداشت</b><small>خوشهٔ طلایی ×'+fa(FARM_CFG.cropN+(skillLv('farming')>=2?1:0))+'</small></div></div>' +
       '<button class="btn block" id="btn-harvest">برداشت</button>';
   }
-  html += '<p style="font-size:.7rem;color:var(--muted);margin-top:10px">مزرعه = پایان زنجیرهٔ نمونهٔ D16: معدن‌کار ← آهنگر ← نجار ← کشاورز. مزیت کشاورزی سطح ۲: برداشت +۱.</p>';
+  html += '<p style="font-size:.7rem;color:var(--muted);margin-top:10px">مزرعه = پایان زنجیرهٔ تولید: معدن‌کار ← آهنگر ← نجار ← کشاورز. مزیت کشاورزی سطح ۲: برداشت +۱.</p>';
   b.innerHTML = html;
   const bp = b.querySelector('#btn-plant');
   if(bp) bp.addEventListener('click', ()=>{ if(farmPlant()){ renderFarm(); renderHUD(); } });
@@ -542,7 +542,7 @@ function buildDialogue(id){
   }
   if(id==='mehtar'){
     return { name:'مهتر ساحل',
-      text:'به دهکدهٔ ساحل شیشه‌ای خوش آمدی، مسافر. کاروانِ من هر هفته سنگ می‌خرد و چادرِ بازار همیشه باز است: فروش، خرید دانه، سفارش کاروان. نرخ‌ها آزمایشی‌اند تا مدل قیمت‌گذاری نهایی (A4) تصویب شود.',
+      text:'به دهکدهٔ ساحل شیشه‌ای خوش آمدی، مسافر. کاروانِ من هر هفته سنگ می‌خرد و چادرِ بازار همیشه باز است: فروش، خرید دانه، سفارش کاروان. نرخ‌ها را کاروان هر فصل بازبینی می‌کند.',
       choices:[
         {label:'باز کن: بازار محلی ⛺', fn:()=>{ closeSheets(); mktTab='sell'; renderMarket(); openSheet('#sheet-market'); }},
         {label:'چه خبر از جهان؟', fn:()=>{ openDialogue('mehtar2'); }},
@@ -626,42 +626,24 @@ function buildDialogue(id){
 function renderAbout(){
   const b=$('#about-body');
   b.innerHTML =
-    '<div class="notes-sec"><h3>۱) معماری — انتخاب فعلی و گزینه‌ها</h3>' +
-    '<ul><li><b>الف (فعلی):</b> ساختار ماژولار در <code>src/</code> + ساخت تک‌فایل <code>game/index.html</code> — آفلاین، بدون کتابخانه، Canvas ایزومتریک، localStorage</li>' +
-    '<li><b>ب:</b> موتور سه‌بعدی CDN — نیازمند شبکه، سنگین برای گوشی معمولی</li>' +
-    '<li><b>ج:</b> سرور + پایگاه داده — مسیر v2 جمعی؛ پس از تصمیم A3 و بودجه</li></ul>' +
-    '<p>انتخاب قطعی موتور/سرور/انتشار = «نیازمند تصویب کارفرما».</p></div>' +
-    '<div class="notes-sec"><h3>۲) دارایی‌های موقت (صادقانه)</h3>' +
-    '<ul><li>شخصیت‌ها و ساختمان‌ها: هندسی — جای مدل نهایی را می‌گیرند؛ ادعای دارایی نهایی نمی‌شود</li>' +
-    '<li>آیکون‌ها: ایموجی موقت · صدا: سنتز WebAudio (بدون فایل) · بدون بافت</li></ul></div>' +
-    '<div class="notes-sec"><h3>۳) تصمیم‌های قطعی رعایت‌شده</h3>' +
-    '<ul><li>D2: ۱۳ دروازه = بخش ابتدایی جهان ۷۷ سرزمین</li>' +
-    '<li>D4: مکانیک M4 «ضربه به‌موقع» از کتابخانهٔ ۸گانه</li>' +
-    '<li>D5: ساختار سکونتگاه روستا (سطح ۱/۵)</li>' +
-    '<li>D7: یک رویداد، یک پاداش — شناسهٔ یکتا + گارد</li>' +
-    '<li>D8: بازار محلی ≠ بازار عمومی (عمومی هنوز ساخته نشده)</li>' +
-    '<li>D12: همهٔ اعداد آزمایشی</li>' +
-    '<li>D16: زنجیرهٔ نمونه معدن‌کار←آهنگر←نجار←کشاورز (با مزرعه و بازار کامل شد)</li>' +
-    '<li>بدون فروش توکن، قمار، خرید شانس‌محور · دارایی شخصی مصادره نمی‌شود</li></ul></div>' +
-    '<div class="notes-sec"><h3>۴) موضوعات باز — پیش‌فرض‌های موقت این نسخه</h3>' +
-    '<ul><li>A1 نام دروازه‌ها → نام‌های کد v1</li>' +
-    '<li>A3 معماری دو نسخه‌ای → این نسخه آفلاین مستقل</li>' +
-    '<li>A4 مدل قیمت‌گذاری → نرخ پایهٔ ثابت بدون قیمت‌گذاری بازیکن</li>' +
-    '<li>A5 نام توکن → «سکه» پیش‌نام</li>' +
-    '<li>A7 فهرست ۱۲ حرفه → ۵ مهارت نمونه فعال (موتور داده‌محور)</li>' +
-    '<li>A10 اعداد → آزمایشی بدون شبیه‌سازی</li></ul>' +
-    '<p><b style="color:#ffd86f">همهٔ این‌ها نیازمند تصویب کارفرماست.</b></p></div>' +
-    '<div class="notes-sec"><h3>۵) اجتماعی و چندنفره — شفاف</h3>' +
-    '<p>این نسخه آفلاین است: ساکنانِ گرد آتشگاه NPC هستند، نه بازیکن واقعی. چندنفرهٔ واقعی نیازمند Backend (D13/A3) است؛ رابط شبکه‌ای آماده شده ولی هیچ قابلیت آنلاین جعل نشده است.</p></div>' +
-    '<div class="notes-sec"><h3>۶) وضعیت فنی</h3>' +
+    '<div class="notes-sec"><h3>۱) این نسخه چه دارد</h3>' +
+    '<ul><li>هستهٔ کامل بازی در یک فایل — بدون کتابخانهٔ بیرونی، Canvas ایزومتریک</li>' +
+    '<li>پیشرفت شما روی همین دستگاه ذخیره می‌شود</li>' +
+    '<li>کیف پول رسمی در بله به‌صورت زنده از سرور خوانده می‌شود (فقط خواندن)</li></ul></div>' +
+    '<div class="notes-sec"><h3>۲) امنیت و انصاف</h3>' +
+    '<ul><li>بدون فروش توکن، قمار یا خرید شانس‌محور · دارایی شخصی مصادره نمی‌شود</li>' +
+    '<li>هر رویداد با شناسهٔ یکتا در دفترکل ثبت و با زنجیرهٔ هش محافظت می‌شود</li></ul></div>' +
+    '<div class="notes-sec"><h3>۳) جامعه و چندنفره</h3>' +
+    '<p>در این نسخه ساکنانِ گرد آتشگاه شخصیت‌های بازی هستند؛ بازی جمعی واقعی در نقشهٔ راه نسخه‌های بعدی است.</p></div>' +
+    '<div class="notes-sec"><h3>۴) وضعیت فنی</h3>' +
     '<ul><li>FPS واقعی: <span id="fps-live">—</span></li>' +
-    '<li>کلید ذخیره: '+SAVE_KEY+' (جدا از v1 و نمونه)</li>' +
+    '<li>کلید ذخیره: '+SAVE_KEY+'</li>' +
     '<li>دفترکل: ضمیمه‌تنها + زنجیرهٔ هش، ۴۰۰ رویداد آخر</li>' +
     '<li>نسخه: '+GAME_VERSION+'</li></ul>' +
     '<button class="btn ghost block" id="btn-reset-save" style="margin-top:10px">پاک‌کردن ذخیره و شروع از نو</button></div>';
   $('#fps-live').textContent = FPS ? fa(FPS)+' فریم بر ثانیه' : '—';
   $('#btn-reset-save').addEventListener('click', ()=>{
-    askConfirm('همهٔ پیشرفت این بازی پاک شود؟ (روی v1 و نمونهٔ اولیه اثری ندارد)', ()=>{
+    askConfirm('همهٔ پیشرفت این بازی پاک شود؟', ()=>{
       localStorage.removeItem(SAVE_KEY);
       location.reload();
     });
@@ -676,8 +658,8 @@ function renderSettings(){
     '<button class="btn ghost" id="btn-sound">'+(S.settings.sound?'روشن':'خاموش')+'</button></div>' +
     '<div class="row"><span class="r-ico">📳</span><div class="r-main"><b>لرزش</b><small>بازخورد لمسی اندروید (در دستگاه پشتیبان)</small></div>' +
     '<button class="btn ghost" id="btn-vibro">'+(S.settings.vibro?'روشن':'خاموش')+'</button></div>' +
-    '<div class="row"><span class="r-ico">🌙</span><div class="r-main"><b>شب و روز</b><small>چرخهٔ خودکار ~۴ دقیقه‌ای [آزمایشی]</small></div><span class="tag">فعال</span></div>' +
-    '<p style="font-size:.7rem;color:var(--muted)">تنظیمات در ذخیره می‌ماند. گزینهٔ «دارایی گرافیکی دانلودی» عمداً وجود ندارد: بازی باید آفلاین کامل بماند.</p>';
+    '<div class="row"><span class="r-ico">🌙</span><div class="r-main"><b>شب و روز</b><small>چرخهٔ خودکار ~۴ دقیقه‌ای</small></div><span class="tag">فعال</span></div>' +
+    '<p style="font-size:.7rem;color:var(--muted)">تنظیمات روی همین دستگاه ذخیره می‌ماند.</p>';
   $('#btn-sound').addEventListener('click', ()=>{ S.settings.sound=!S.settings.sound; save(); if(S.settings.sound) Sfx.click(); renderSettings(); });
   $('#btn-vibro').addEventListener('click', ()=>{ S.settings.vibro=!S.settings.vibro; save(); Vibe(30); renderSettings(); });
 }

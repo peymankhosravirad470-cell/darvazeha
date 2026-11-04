@@ -1,6 +1,6 @@
 /* ═══════════ وضعیت بازی، ذخیره‌سازی و دفترکل ═══════════ */
 const SAVE_KEY = 'hs77_darvazeha_v1';   // کلید مستقل از v1 و نمونهٔ اولیه
-const GAME_VERSION = '۰٫۳';
+const GAME_VERSION = '۱٫۰';
 
 function defaultState(){
   return {
