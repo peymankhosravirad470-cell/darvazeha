@@ -198,6 +198,19 @@ requestAnimationFrame(gameLoop);
 if(/[?&]debug=1/.test(location.search)){
   window.HS77 = {
     state:S,
+    t:{
+      get TP(){ return TP; },
+      get TWS(){ return TWS; },
+      get TZ(){ return TZ; },
+      get tLoopId(){ return tLoopId; },
+      get TARGON_AREAS(){ return TARGON_AREAS; },
+      TARGON_AREA_LIST,
+      areaAt(x,y){ return targonAreaAt(Math.round(x), Math.round(y)); },
+      moveTo(x,y){ targonMoveTo(x,y); },
+      iso(tx,ty){ return tIso(tx,ty); },
+      proj(){ return { TW2:tTW*TZ/2, TH2:tTW*TZ/4, ox:tCanvasW/2-T_CAM.x, oy:tCanvasH/2-T_CAM.y-20 }; },
+      get playerDrawActive(){ return typeof tDrawPlayer === 'function' && tLoopId !== null; },
+    },
     api:{
       teleport(x,y){ P.x=x; P.y=y; },
       give(id,n){ addItem(id,n); },
@@ -207,6 +220,8 @@ if(/[?&]debug=1/.test(location.search)){
       equip(item){ const g=Object.values(GEAR).find(g=>g.item===item); if(g){ S.equip[g.slot]=item; save(); return true; } return false; },
       setOutfit(o){ if(S.outfits.includes(o)){ S.equip.outfit=o; save(); return true; } return false; },
       realm(id){ enterRealm(id); },
+      targon(){ show('screen-targon'); targonEnter(); },
+      tWallet(){ openSheet('#sheet-wallet'); targonWalletRefresh(); },
       setTime(phase){ timeOffsetMs = (phase*DAY_MS) - (Date.now()%DAY_MS); },
       night(){ return nightAlpha(); },
       farm(){ return farmState(); },
