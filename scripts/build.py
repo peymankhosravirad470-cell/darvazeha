@@ -42,6 +42,18 @@ def main():
     html = tpl.replace('{{CSS}}', css).replace('{{JS}}', wrapped)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding='utf-8')
+    # ── کپی دارایی‌های ارجاع‌شده (تصاویر قلمروها) کنار خروجی — ریشه‌کنی 404 ──
+    refs = sorted(set(re.findall(r'assets/domains/[A-Za-z0-9_./-]+\.(?:jpg|jpeg|png|webp)', js + '\n' + css)))
+    if not refs:
+        print('FATAL: no asset references found — unexpected'); sys.exit(1)
+    for rel in refs:
+        srcf = SRC / rel
+        if not srcf.exists():
+            print('FATAL: referenced asset missing in src/:', rel); sys.exit(1)
+        dstf = OUT.parent / rel
+        dstf.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(srcf, dstf)
+
     print(f'BUILT game/index.html ({len(html)} bytes) from {len(js_files)} JS modules (IIFE-wrapped)')
 
     # ── کنترل ۱: نشت placeholder ──
