@@ -13,7 +13,7 @@ GAME = ROOT / 'game'
 SHOTS = ROOT / 'download' / 'game-screens'
 SHOTS.mkdir(parents=True, exist_ok=True)
 PORT = 8133
-URL = f'http://127.0.0.1:{PORT}/index.html'
+URL = f'http://127.0.0.1:{PORT}/index.html?debug=1'
 
 results, console_errors, page_errors = [], [], []
 
@@ -89,8 +89,9 @@ def run():
 
         # ۴) دادهٔ ۱۱ ناحیه — نام‌های دقیق و بدون تغییر
         data = page.evaluate("""() => {
-          const ids = [...new Set(TARGON_AREAS.map(a => a.id))];
-          const names = TARGON_AREA_LIST.map(id => TARGON_AREAS.find(a => a.id === id).fa);
+          const T = window.HS77.t;
+          const ids = [...new Set(T.TARGON_AREAS.map(a => a.id))];
+          const names = T.TARGON_AREA_LIST.map(id => T.TARGON_AREAS.find(a => a.id === id).fa);
           return { count: ids.length, names };
         }""")
         record('دقیقاً ۱۱ ناحیهٔ یکتا ثبت شده', data['count'] == 11, f"n={data['count']}")
@@ -98,7 +99,7 @@ def run():
                sorted(data['names']) == sorted(EXPECT_AREAS), str(data['names']))
 
         # ۵) شروع در سپیده‌دم + نام ناحیهٔ فعلی در HUD
-        area0 = page.evaluate("() => targonAreaAt(Math.round(TP.x), Math.round(TP.y)).id")
+        area0 = page.evaluate("() => window.HS77.t.areaAt(window.HS77.t.TP.x, window.HS77.t.TP.y).id")
         chip0 = page.locator('#t-area-name').inner_text()
         record('شروع بازیکن در سپیده‌دم', area0 == 'sepideh-dam', area0)
         record('نام ناحیهٔ فعلی در HUD نمایش داده می‌شود', 'سپیده‌دم' in chip0, chip0)
@@ -107,37 +108,37 @@ def run():
         # ۶) حرکت: لمس واقعی روی نقشه (نقطهٔ صفحهٔ کاشی هدف)
         tx, ty = 38, 38   # چند کاشی آن‌طرف‌تر، همچنان سپیده‌دم
         pt = page.evaluate("""([tx,ty]) => {
-          const TW2=tTW*TZ/2, TH2=tTW*TZ/4;
-          const ox=tCanvasW/2-T_CAM.x, oy=tCanvasH/2-T_CAM.y-20;
-          const [ix,iy]=tIso(tx+0.45, ty+0.45);
-          return [ox+ix, oy+iy];
+          const T = window.HS77.t;
+          const pr = T.proj();
+          const [ix,iy]=T.iso(tx+0.45, ty+0.45);
+          return [pr.ox+ix, pr.oy+iy];
         }""", [tx, ty])
-        before = page.evaluate("() => [TP.x, TP.y]")
+        before = page.evaluate("() => [window.HS77.t.TP.x, window.HS77.t.TP.y]")
         page.mouse.click(pt[0], pt[1])
         page.wait_for_timeout(300)
-        moving = page.evaluate("() => TP.path.length > 0")
+        moving = page.evaluate("() => window.HS77.t.TP.path.length > 0")
         record('لمس نقشه مسیر حرکت ساخت', moving)
-        page.wait_for_function("() => Math.abs(TP.x-%d)<0.7 && Math.abs(TP.y-%d)<0.7" % (tx, ty), timeout=20000)
-        after = page.evaluate("() => [TP.x, TP.y]")
+        page.wait_for_function("() => Math.abs(window.HS77.t.TP.x-%d)<0.7 && Math.abs(window.HS77.t.TP.y-%d)<0.7" % (tx, ty), timeout=20000)
+        after = page.evaluate("() => [window.HS77.t.TP.x, window.HS77.t.TP.y]")
         record('بازیکن بین نقاط قابل دسترس حرکت کرد', before != after, f'{before} → {after}')
         page.screenshot(path=str(SHOTS / 'targon-02-walking-mobile.png'))
 
         # ۷) مسیر طولانی تا دهکده آذرین — تغییر نام ناحیه در HUD
-        page.evaluate("() => targonMoveTo(21, 35)")
+        page.evaluate("() => window.HS77.t.moveTo(21, 35)")
         page.wait_for_function(
             "() => document.getElementById('t-area-name').textContent.includes('دهکده آذرین')", timeout=30000)
         record('نام ناحیهٔ فعلی پس از عبور به‌روزرسانی شد (دهکده آذرین)',
                'دهکده آذرین' in page.locator('#t-area-name').inner_text())
-        vis = page.evaluate("() => TWS.visited")
+        vis = page.evaluate("() => window.HS77.t.TWS.visited")
         record('کشف ناحیه‌ها ثبت می‌شود', 'dehkade-azarin' in vis, str(vis))
         page.screenshot(path=str(SHOTS / 'targon-03-village-mobile.png'))
 
         # ۸) نشانگر موقعیت — تابع ترسیم با حلقهٔ تپنده فعال است
         record('نشانگر موقعیت (حلقهٔ تپنده) در کد ترسیم فعال است',
-               page.evaluate("() => typeof tDrawPlayer === 'function' && tLoopId !== null"))
+               page.evaluate("() => window.HS77.t.playerDrawActive"))
 
         # ۹) مأموریت‌های آغازین — قدم‌ها و کشف دهکده کامل شده‌اند
-        mdone = page.evaluate("() => TWS.done")
+        mdone = page.evaluate("() => window.HS77.t.TWS.done")
         record('مأموریت «گام‌های نخست» با قدم‌زدن کامل شد', 't_m1' in mdone, str(mdone))
         record('مأموریت «راه به دهکدهٔ آذرین» کامل شد', 't_m2' in mdone)
         page.locator('#btn-t-missions').tap(); page.wait_for_timeout(350)
@@ -155,7 +156,7 @@ def run():
         abody = page.locator('#wareas-body').inner_text()
         record('همهٔ نام‌های نواحی در برگه عیناً هست', all(a in abody for a in EXPECT_AREAS))
         page.locator('#wareas-body .wa-go').first.tap(); page.wait_for_timeout(300)
-        record('دکمهٔ «رفتن» مسیر حرکت ساخت', page.evaluate("() => TP.path.length > 0"))
+        record('دکمهٔ «رفتن» مسیر حرکت ساخت', page.evaluate("() => window.HS77.t.TP.path.length > 0"))
         page.wait_for_timeout(400)
 
         # ۱۱) کیف پول — آفلاین: صادقانه «در دسترس نیست»، بدون عدد آزمایشی
@@ -171,21 +172,21 @@ def run():
         page.locator('#sheet-wallet .sheet-close').tap(); page.wait_for_timeout(250)
 
         # ۱۲) بزرگ‌نمایی
-        z0 = page.evaluate("() => TZ")
+        z0 = page.evaluate("() => window.HS77.t.TZ")
         page.locator('#t-zoom-in').tap(); page.wait_for_timeout(200)
-        z1 = page.evaluate("() => TZ")
+        z1 = page.evaluate("() => window.HS77.t.TZ")
         record('بزرگ‌نمایی نقشه کار می‌کند', z1 > z0, f'{z0} → {z1}')
         page.locator('#t-zoom-out').tap(); page.wait_for_timeout(200)
 
         # ۱۳) ماندگاری جهان: بارگذاری مجدد — موقعیت حفظ می‌شود
-        page.wait_for_function("() => TP.path.length === 0", timeout=40000)  # پایان حرکت «رفتن»
-        pre = page.evaluate("() => [Math.round(TP.x), Math.round(TP.y)]")
+        page.wait_for_function("() => window.HS77.t.TP.path.length === 0", timeout=40000)  # پایان حرکت «رفتن»
+        pre = page.evaluate("() => [Math.round(window.HS77.t.TP.x), Math.round(window.HS77.t.TP.y)]")
         page.reload(); page.wait_for_timeout(600)
         page.locator('#btn-realms-open').tap(); page.wait_for_timeout(300)
         page.locator('#realms-grid .dom-card[data-domain="targon"]').tap(); page.wait_for_timeout(250)
         page.locator('#btn-play-domain').tap(); page.wait_for_timeout(250)
         cta.tap(); page.wait_for_timeout(800)
-        px, py = page.evaluate("() => [TP.x, TP.y]")
+        px, py = page.evaluate("() => [window.HS77.t.TP.x, window.HS77.t.TP.y]")
         record('موقعیت بازیکن پس از بارگذاری مجدد حفظ شد',
                abs(px - pre[0]) < 0.6 and abs(py - pre[1]) < 0.6, f'{pre} → [{px:.1f},{py:.1f}]')
         zlab = page.locator('#t-zoom-label').inner_text()
