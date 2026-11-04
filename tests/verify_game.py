@@ -549,9 +549,9 @@ with sync_playwright() as p:
     c3t = page.locator('.gate-card[data-gate="3"]').inner_text()
     c4n = page.locator('.gate-card[data-gate="4"]').get_attribute('class') or ''
     c4t = page.locator('.gate-card[data-gate="4"]').inner_text()
-    record('23 سرزمین ۳ «قابل بازی/مقصِر مسافر» شد؛ سرزمین ۴: شرط کامل + برچسب صادقانه A1',
+    record('23 سرزمین ۳ «قابل بازی/مقصِر مسافر» شد؛ سرزمین ۴: شرط کامل + برچسب صادقانهٔ محتوا',
            'open' in c3n and ('قابل بازی' in c3t or 'مسافر اینجاست' in c3t)
-           and 'open' in c4n and 'A1' in c4t)
+           and 'open' in c4n and 'شرط کامل شد' in c4t and 'به‌روزرسانی بعدی' in c4t)
     chain_built = page.locator('#map-chain .chain-node.built').count()
     record('23b زنجیرهٔ ۱۳ گره‌ای: سه سرزمینِ قابل بازی', chain_built == 3, f'built={chain_built}')
 
@@ -658,6 +658,6 @@ with sync_playwright() as p:
     browser.close()
 
 fails = [r for r in results if not r[1]]
-print(f"\n=== جمع‌بندی بازی نسخهٔ ۰٫۳: {len(results)-len(fails)}/{len(results)} PASS ===")
+print(f"\n=== جمع‌بندی بازی: {len(results)-len(fails)}/{len(results)} PASS ===")
 if console_errors: print(f"خطاهای کنسول: {console_errors[:3]}")
 sys.exit(1 if fails else 0)

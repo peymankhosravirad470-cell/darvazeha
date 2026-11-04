@@ -159,7 +159,7 @@ function tWalletRender(state, balance, note){
       '<p class="wt-src">' + (note || '') + '</p>';
   }
   const foot = $('#wallet-footnote');
-  if(foot) foot.textContent = 'هیچ خرید توکن، واریز یا افزایش دستی موجودی در این نسخه وجود ندارد. اعداد آزمایشی بازی محلی عمداً اینجا نمایش داده نمی‌شوند.';
+  if(foot) foot.textContent = 'هیچ خرید توکن، واریز یا افزایش دستی موجودی در این نسخه وجود ندارد؛ تا برقراری اتصال، عددی به‌عنوان موجودی رسمی نشان داده نمی‌شود.';
 }
 async function targonWalletRefresh(){
   if(tWalletBusy) return;
