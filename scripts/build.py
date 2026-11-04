@@ -34,6 +34,25 @@ def main():
         print('FATAL: no JS modules found in src/js'); sys.exit(1)
     js = '\n\n'.join(f.read_text(encoding='utf-8') for f in js_files)
 
+    # ── درون‌ریزی دارایی‌های ارجاع‌شده به data URI — «تک‌فایل آفلاین» واقعی ──
+    # (تصاویر قلمروها قبلاً فقط در خروجی ساخته‌شده جاسازی شده بودند و با هر بازساخت
+    #  یا به مسیر فایل ۴۰۴ می‌رفتند یا کلاً از دست می‌رفتند؛ اکنون در زمان ساخت از
+    #  src/assets خوانده و داخل خود خروجی جاسازی می‌شوند.)
+    import base64
+    refs = sorted(set(re.findall(r'assets/domains/[A-Za-z0-9_./-]+\.(?:jpg|jpeg|png|webp)', js + '\n' + css)))
+    if not refs:
+        print('FATAL: no asset references found — unexpected'); sys.exit(1)
+    for rel in refs:
+        if not (SRC / rel).exists():
+            print('FATAL: referenced asset missing in src/:', rel); sys.exit(1)
+    mime = {'.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp'}
+    def _embed(m):
+        rel = m.group(0)
+        f = SRC / rel
+        b64 = base64.b64encode(f.read_bytes()).decode('ascii')
+        return 'data:' + mime[f.suffix.lower()] + ';base64,' + b64
+    js = re.sub(r'assets/domains/[A-Za-z0-9_./-]+\.(?:jpg|jpeg|png|webp)', _embed, js)
+
     # ── عایق ریشه‌ای: همهٔ ماژول‌ها در یک IIFE واحد ──
     body = js if js.lstrip().startswith("'use strict';") else "'use strict';\n" + js
     wrapped = '(function(){\n' + body + '\n})();'
@@ -42,17 +61,6 @@ def main():
     html = tpl.replace('{{CSS}}', css).replace('{{JS}}', wrapped)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding='utf-8')
-    # ── کپی دارایی‌های ارجاع‌شده (تصاویر قلمروها) کنار خروجی — ریشه‌کنی 404 ──
-    refs = sorted(set(re.findall(r'assets/domains/[A-Za-z0-9_./-]+\.(?:jpg|jpeg|png|webp)', js + '\n' + css)))
-    if not refs:
-        print('FATAL: no asset references found — unexpected'); sys.exit(1)
-    for rel in refs:
-        srcf = SRC / rel
-        if not srcf.exists():
-            print('FATAL: referenced asset missing in src/:', rel); sys.exit(1)
-        dstf = OUT.parent / rel
-        dstf.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(srcf, dstf)
 
     print(f'BUILT game/index.html ({len(html)} bytes) from {len(js_files)} JS modules (IIFE-wrapped)')
 
