@@ -1,0 +1,77 @@
+{
+ "poster": {
+  "p": "src/assets/domains/orig/targon_poster.png",
+  "w": 1672,
+  "h": 941
+ },
+ "dom_targon_ref": {
+  "p": "src/assets/domains/orig/targon.png",
+  "w": 512,
+  "h": 512
+ },
+ "dom_targon_game": {
+  "p": "src/assets/domains/targon.jpg",
+  "w": 1000,
+  "h": 563
+ },
+ "ev_root": {
+  "p": "download/evidence-v7-live/01-root-targon-card.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_creation": {
+  "p": "download/evidence-v7-live/02-game-creation.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_realms": {
+  "p": "download/evidence-v7-live/03-realms-menu-reference-art.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_domain": {
+  "p": "download/evidence-v7-live/04-targon-domain-page.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_map": {
+  "p": "download/evidence-v7-live/05-targon-live-map.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_closeup": {
+  "p": "download/evidence-v7-live/06-targon-map-closeup.png",
+  "w": 900,
+  "h": 960
+ },
+ "ev_areas": {
+  "p": "download/evidence-v7-live/07-targon-11-areas-sheet.png",
+  "w": 1170,
+  "h": 2532
+ },
+ "ev_desktop": {
+  "p": "download/evidence-v7-live/08-root-desktop.png",
+  "w": 1280,
+  "h": 800
+ },
+ "s1": {
+  "p": "download/design-samples-targon/sample-1-targon-world-overview.png",
+  "w": 1344,
+  "h": 768
+ },
+ "s2": {
+  "p": "download/design-samples-targon/sample-2-azarin-village.png",
+  "w": 1344,
+  "h": 768
+ },
+ "s3": {
+  "p": "download/design-samples-targon/sample-3-guardian-fortress-red-gate.png",
+  "w": 1344,
+  "h": 768
+ },
+ "s4": {
+  "p": "download/design-samples-targon/sample-4-characters.png",
+  "w": 864,
+  "h": 1152
+ }
+}
