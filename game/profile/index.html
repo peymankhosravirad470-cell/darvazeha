@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05060c" />
+<title>۷۷ سرزمین — پروفایل و تنظیمات</title>
+<link rel="icon" href="data:," />
+<script src="https://tapi.bale.ai/miniapp.js"></script>
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../gates/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../gates/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #05060c; }
+body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #f2e8d5;
+  -webkit-tap-highlight-color: transparent; }
+
+.topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(3,4,10,0.95) 0%, rgba(3,4,10,0.7) 80%, transparent 100%); }
+.icon-btn { width: 42px; height: 42px; border-radius: 13px; border: 1px solid rgba(217,169,60,0.35);
+  background: rgba(10,12,22,0.6); color: #e8d9a8; font-size: 19px; cursor: pointer; display: grid; place-items: center;
+  text-decoration: none; backdrop-filter: blur(6px); font-family: inherit; }
+.tb-title b { font-size: 16px; font-weight: 900; color: #ffe9a8; display: block; }
+.tb-title span { font-size: 11px; color: #9a9178; }
+
+main { max-width: 560px; margin: 0 auto; padding: 6px 16px calc(30px + env(safe-area-inset-bottom)); display: grid; gap: 14px; }
+
+.card { background: linear-gradient(180deg, rgba(18,20,34,0.85), rgba(10,12,22,0.9));
+  border: 1px solid rgba(217,169,60,0.22); border-radius: 18px; padding: 16px; }
+.card h2 { font-size: 15px; font-weight: 900; color: #ffe9a8; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.card h2 .k { width: 26px; height: 26px; border-radius: 9px; display: grid; place-items: center;
+  background: rgba(217,169,60,0.14); border: 1px solid rgba(217,169,60,0.3); font-size: 13px; }
+
+/* identity */
+.id-row { display: flex; align-items: center; gap: 14px; }
+.avatar { width: 74px; height: 74px; border-radius: 22px; flex-shrink: 0;
+  background: radial-gradient(circle at 30% 25%, #2a2f52, #12142a 70%); border: 1px solid rgba(217,169,60,0.35);
+  display: grid; place-items: center; }
+.id-body b { font-size: 20px; font-weight: 900; color: #f5e6bd; display: block; }
+.id-body span { font-size: 12px; color: #9a9178; line-height: 1.9; display: block; }
+.realm-emblem { margin-top: 12px; display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #c8bd9a;
+  background: rgba(8,10,18,0.5); border: 1px dashed rgba(217,169,60,0.3); border-radius: 13px; padding: 10px 13px; }
+.realm-emblem i { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+/* wallet */
+.wallet-state { display: flex; align-items: center; gap: 10px; }
+.balance { font-size: 34px; font-weight: 900; color: #ffe9a8; letter-spacing: 0.5px; }
+.balance small { font-size: 13px; color: #b8a86a; font-weight: 700; margin-inline-start: 6px; }
+.w-off { font-size: 14.5px; font-weight: 800; color: #ffb391; }
+.w-wait { font-size: 14.5px; font-weight: 700; color: #9a9178; }
+.dot-off, .dot-wait { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-off { background: #ff6a3d; box-shadow: 0 0 9px rgba(255,106,61,0.8); animation: pulse 1.6s ease-in-out infinite; }
+.dot-wait { background: #9a9178; animation: pulse 1.6s ease-in-out infinite; }
+.coin { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle at 35% 30%, #ffe9a8, #d9a93c 60%, #8a5a1a); box-shadow: 0 0 14px rgba(217,169,60,0.5); }
+@keyframes pulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+.w-note { margin-top: 10px; font-size: 11.5px; color: #8f8468; line-height: 1.9; }
+.btn-retry { margin-top: 12px; width: 100%; padding: 12px; border-radius: 14px; font-family: inherit; font-weight: 800;
+  font-size: 14px; color: #ffe9a8; background: rgba(217,169,60,0.1); border: 1px solid rgba(217,169,60,0.4); cursor: pointer; }
+.btn-retry:active { background: rgba(217,169,60,0.22); }
+
+/* settings */
+.set-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(217,169,60,0.1); }
+.set-row:last-child { border-bottom: none; }
+.set-body { flex: 1; min-width: 0; }
+.set-body b { font-size: 14.5px; font-weight: 800; color: #f2e8d5; display: block; }
+.set-body small { font-size: 11.5px; color: #9a9178; line-height: 1.8; display: block; margin-top: 2px; }
+.seg { display: flex; background: rgba(8,10,18,0.6); border: 1px solid rgba(217,169,60,0.25); border-radius: 12px; padding: 3px; gap: 3px; flex-shrink: 0; }
+.seg button { border: none; background: none; color: #9a9178; font-family: inherit; font-weight: 700; font-size: 12px;
+  padding: 7px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+.seg button.on { background: linear-gradient(180deg, #ffe9a8, #d9a93c); color: #241505; }
+.switch { position: relative; width: 52px; height: 30px; border-radius: 999px; background: rgba(8,10,18,0.7);
+  border: 1px solid rgba(217,169,60,0.3); cursor: pointer; flex-shrink: 0; transition: background 0.2s ease; }
+.switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: #8f8468; transition: transform 0.2s ease, background 0.2s ease; }
+.switch.on { background: rgba(217,169,60,0.35); border-color: #ffe9a8; }
+.switch.on::after { transform: translateX(-21px); background: #ffe9a8; }
+
+/* achievements */
+.ach-empty { color: #8f8468; font-size: 12.5px; line-height: 2; border: 1px dashed rgba(217,169,60,0.25);
+  border-radius: 13px; padding: 12px 14px; text-align: center; }
+
+/* archive + about */
+.link-row { display: flex; align-items: center; gap: 11px; padding: 12px 4px; color: #f2e8d5; text-decoration: none;
+  border-bottom: 1px solid rgba(217,169,60,0.1); font-size: 14px; font-weight: 700; }
+.link-row:last-child { border-bottom: none; }
+.link-row small { display: block; color: #9a9178; font-weight: 400; font-size: 11.5px; margin-top: 2px; }
+.link-row .arr { margin-inline-start: auto; color: #d9a93c; }
+.about-line { font-size: 11.5px; color: #6a6350; text-align: center; line-height: 2; }
+
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: rgba(10,12,22,0.92);
+  border: 1px solid rgba(217,169,60,0.5); color: #ffe9a8; padding: 10px 20px; border-radius: 999px; font-size: 13px;
+  font-weight: 700; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; white-space: nowrap; }
+.toast.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="icon-btn" href="/" aria-label="بازگشت به منوی اصلی">→</a>
+  <div class="tb-title"><b>پروفایل و تنظیمات</b><span>مرکز هویت مسافر</span></div>
+</div>
+<main>
+  <!-- identity -->
+  <section class="card">
+    <h2><span class="k">🧭</span> هویت مسافر</h2>
+    <div class="id-row">
+      <div class="avatar">
+        <svg viewBox="0 0 62 88" width="46" height="60" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="avg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffe9a8"/><stop offset=".55" stop-color="#d9a93c"/><stop offset="1" stop-color="#8a5a1a"/>
+          </linearGradient></defs>
+          <rect x="6" y="4" width="50" height="80" rx="24" fill="url(#avg)" opacity="0.9"/>
+          <circle cx="31" cy="32" r="12" fill="#241505" opacity="0.85"/>
+          <path d="M12 84c3-16 10-24 19-24s16 8 19 24z" fill="#241505" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="id-body">
+        <b id="p-name">مسافر</b>
+        <span id="p-id">شناسه: —</span>
+        <span id="p-session">نشست: در حال بررسی…</span>
+      </div>
+    </div>
+    <div class="realm-emblem" id="p-realm">
+      <i style="background:#c8102e"></i>
+      <span>آخرین قلمرویی که از آن وارد بازی شده‌اید: <b id="p-realm-name">تارگون</b></span>
+    </div>
+  </section>
+
+  <!-- wallet -->
+  <section class="card">
+    <h2><span class="k">💰</span> کیف پول واقعی</h2>
+    <div class="wallet-state" id="wallet-state">
+      <span class="dot-wait"></span><span class="w-wait">در حال اتصال به سرور…</span>
+    </div>
+    <p class="w-note" id="wallet-note">موجودی فقط از Backend و دفترکل رسمی خوانده می‌شود؛ هیچ عدد ساختگی نمایش داده نمی‌شود.</p>
+    <button class="btn-retry" id="btn-retry">↻ تلاش دوباره برای اتصال</button>
+  </section>
+
+  <!-- settings -->
+  <section class="card">
+    <h2><span class="k">⚙</span> تنظیمات بازی</h2>
+    <div class="set-row">
+      <div class="set-body"><b>صدا و موسیقی</b><small>در جهان سه‌بعدی و صفحهٔ دروازه‌ها اعمال می‌شود</small></div>
+      <div class="switch" id="sw-sound" role="switch" aria-label="صدا"></div>
+    </div>
+    <div class="set-row">
+      <div class="set-body"><b>کیفیت گرافیک</b><small>خودکار با توان گوشی تنظیم می‌شود؛ انتخاب دستی برای گوشی‌های ضعیف</small></div>
+      <div class="seg" id="seg-quality">
+        <button data-v="auto">خودکار</button><button data-v="low">سبک</button>
+        <button data-v="mid">متعادل</button><button data-v="high">بالا</button>
+      </div>
+    </div>
+    <div class="set-row">
+      <div class="set-body"><b>طرف دستهٔ حرکت</b><small>جای دسته در جهان سه‌بعدی</small></div>
+      <div class="seg" id="seg-joy">
+        <button data-v="left">چپ</button><button data-v="right">راست</button>
+      </div>
+    </div>
+    <div class="set-row">
+      <div class="set-body"><b>اندازهٔ متن</b><small>برای خوانایی بهتر در گوشی‌های کوچک</small></div>
+      <div class="seg" id="seg-text">
+        <button data-v="normal">عادی</button><button data-v="big">بزرگ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- achievements -->
+  <section class="card">
+    <h2><span class="k">🏅</span> دستاوردها و سوابق</h2>
+    <div class="ach-empty">دستاوردها با فعالیت‌های درون‌بازی (مأموریت‌ها، آبادانی، رقابت‌ها) ساخته می‌شوند؛ این بخش در مراحل بعدی گیم‌پلی فعال می‌شود — هیچ دستاورد ساختگی نمایش داده نمی‌شود.</div>
+  </section>
+
+  <!-- archive / about -->
+  <section class="card">
+    <h2><span class="k">🗄</span> نسخه‌ها و درباره</h2>
+    <a class="link-row" href="/game/index.html" id="legacy-entry">
+      <span>🗺️</span>
+      <span>نسخهٔ پیشین بازی (جهان تارگون ایزومتریک)<small>برای مرور و مقایسه — حفظ‌شده طبق دستور پروژه</small></span>
+      <span class="arr">←</span>
+    </a>
+    <a class="link-row" href="/game/gates/index.html">
+      <span>🚩</span>
+      <span>هفت دروازهٔ رسمی — نسخهٔ سینمایی<small>هفت پرچم پارچه‌ای سه‌بعدی، انتخاب قلمرو، ۱۱ سرزمین</small></span>
+      <span class="arr">←</span>
+    </a>
+    <p class="about-line" id="about-line">۷۷ سرزمین · نسخهٔ سینمایی هفت دروازه</p>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* پروفایل و تنظیمات — مرکز هویت مسافر.
+   کیف پول: فقط زنجیرهٔ واقعی بله → auth/bale → players/me. بدون هیچ عدد ساختگی. */
+function $(s) { return document.querySelector(s); }
+var faDigits = '۰۱۲۳۴۵۶۷۸۹';
+function faNum(n) { return String(n).replace(/\d/g, function (d) { return faDigits[+d]; }); }
+var toastT = 0;
+function toast(m) { var t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, 2600); }
+
+/* ---------- stored preferences ---------- */
+function get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
+function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
+
+/* sound */
+var swSound = $('#sw-sound');
+function renderSound() { swSound.classList.toggle('on', get('lands.muted', '0') !== '1'); }
+swSound.addEventListener('click', function () {
+  var on = get('lands.muted', '0') !== '1';
+  set('lands.muted', on ? '0' : '1');
+  renderSound();
+  toast(on ? 'صدا روشن شد' : 'صدا خاموش شد — در اجرای بعدی بازی اعمال می‌شود');
+});
+renderSound();
+
+/* segmented controls */
+function bindSeg(id, key, def, onChange) {
+  var box = $(id);
+  function render() {
+    var cur = get(key, def);
+    box.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === cur); });
+  }
+  box.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    set(key, b.dataset.v); render();
+    if (onChange) onChange(b.dataset.v);
+  });
+  render();
+}
+bindSeg('#seg-quality', 'lands.quality', 'auto', function (v) { toast(v === 'auto' ? 'کیفیت: خودکار (بر اساس توان گوشی)' : 'کیفیت: ' + ({ low: 'سبک', mid: 'متعادل', high: 'بالا' })[v]); });
+bindSeg('#seg-joy', 'lands.joy', 'left', function (v) { toast('دسته: ' + (v === 'left' ? 'چپ' : 'راست') + ' — در اجرای بعدی جهان اعمال می‌شود'); });
+bindSeg('#seg-text', 'lands.text', 'normal', function (v) {
+  document.documentElement.classList.toggle('big-text', v === 'big');
+  toast(v === 'big' ? 'متن بزرگ فعال شد' : 'متن عادی فعال شد');
+});
+if (get('lands.text', 'normal') === 'big') document.documentElement.classList.add('big-text');
+
+/* ---------- identity + wallet: real backend chain ---------- */
+function renderWallet(st, bal, note, name) {
+  var box = $('#wallet-state');
+  if (st === 'online') {
+    box.innerHTML = '<span class="coin"></span><span class="balance">' + faNum(bal) + '<small>سکهٔ رسمی</small></span>';
+    $('#wallet-note').textContent = 'موجودی رسمی از Backend و دفترکل معتبر — آخرین به‌روزرسانی: همین حالا';
+    $('#p-session').textContent = 'نشست: متصل (احراز هویت بله)';
+    if (name) { $('#p-name').textContent = name; }
+  } else if (st === 'connecting') {
+    box.innerHTML = '<span class="dot-wait"></span><span class="w-wait">در حال اتصال به سرور…</span>';
+  } else {
+    box.innerHTML = '<span class="dot-off"></span><span class="w-off">کیف پول: قطع</span>';
+    $('#wallet-note').textContent = note || 'موجودی فقط داخل مینی‌اپ بله و با ورود معتبر خوانده می‌شود؛ هیچ عدد ساختگی نمایش داده نمی‌شود.';
+    $('#p-session').textContent = 'نشست: قطع — با ورود از داخل بله متصل می‌شود';
+  }
+}
+
+function connect() {
+  renderWallet('connecting');
+  var initData = '';
+  try {
+    var w = window;
+    try { w.Bale && w.Bale.WebApp && w.Bale.WebApp.ready && w.Bale.WebApp.ready(); } catch (e) { }
+    try { w.Bale && w.Bale.WebApp && w.Bale.WebApp.expand && w.Bale.WebApp.expand(); } catch (e) { }
+    initData = (w.Bale && w.Bale.WebApp && w.Bale.WebApp.initData) || '';
+  } catch (e) { initData = ''; }
+
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+    renderWallet('offline', null, 'اجرای آفلاین/محلی — موجودی رسمی فقط داخل مینی‌اپ بله خوانده می‌شود.');
+    return;
+  }
+  if (!initData) {
+    renderWallet('offline', null, 'دادهٔ ورود بله (initData) در دسترس نیست؛ برای دیدن موجودی رسمی، بازی را از داخل بله باز کنید.');
+    return;
+  }
+  fetch('/api/v1/auth/bale', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ init_data: initData }), cache: 'no-store',
+  }).then(function (r) { if (!r.ok) throw new Error('auth ' + r.status); return r.json(); })
+    .then(function (j) {
+      return fetch('/api/v1/players/me', { headers: { Authorization: 'Bearer ' + j.access_token }, cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('me ' + r.status); return r.json(); });
+    })
+    .then(function (me) {
+      var p = (me && me.player) || {};
+      var bal = Number(p.token_balance);
+      if (!Number.isFinite(bal)) throw new Error('bad balance');
+      renderWallet('online', bal, '', p.display_name || 'مسافر');
+      try {
+        var idRaw = String(p.id || p.player_id || '');
+        $('#p-id').textContent = 'شناسه: ' + (idRaw ? idRaw.slice(0, 4) + '•••' + idRaw.slice(-4) : '—');
+      } catch (e) { /* noop */ }
+    })
+    .catch(function () {
+      renderWallet('offline', null, 'دریافت موجودی از سرور ناموفق بود؛ هیچ عددی به‌جای موجودی واقعی نمایش داده نمی‌شود.');
+    });
+}
+$('#btn-retry').addEventListener('click', connect);
+
+/* selected realm badge — واقعی: آخرین قلمرویی که بازیکن از دروازه‌ها وارد آن شده */
+try {
+  var last = JSON.parse(localStorage.getItem('lands.lastLand') || 'null');
+  var realmNames = { targon: ['تارگون', '#c8102e'], dezhmaar: ['دژمار', '#1e3a6e'], argad: ['آرگاد', '#1f6e43'], mardak: ['مرداک', '#5b2a86'], vergad: ['ورگاد', '#1b4b9e'], zardak: ['زرداک', '#d4a017'], tarmad: ['تارماد', '#6b21a8'] };
+  if (last && realmNames[last.r]) {
+    $('#p-realm-name').textContent = realmNames[last.r][0];
+    $('#p-realm').querySelector('i').style.background = realmNames[last.r][1];
+  }
+} catch (e) { /* noop */ }
+
+connect();
+</script>
+</body>
+</html>

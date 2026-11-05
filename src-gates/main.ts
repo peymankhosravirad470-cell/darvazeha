@@ -94,6 +94,28 @@ function renderWallet(next?: WalletView): void {
   }
 }
 
+/* ---------------- user preferences (set in Profile & Settings) ---------------- */
+function resolveTier(): Tier {
+  try {
+    const q = localStorage.getItem("lands.quality");
+    if (q === "high" || q === "mid" || q === "low") return q;
+  } catch { /* private mode */ }
+  return detectTier();
+}
+
+function applyStoredPrefs(): void {
+  try {
+    if (localStorage.getItem("lands.muted") === "1") {
+      muted = true;
+      audio.setMuted(true);
+      $("#btn-mute").classList.add("muted");
+    }
+    if (localStorage.getItem("lands.text") === "big") {
+      document.documentElement.classList.add("big-text");
+    }
+  } catch { /* private mode */ }
+}
+
 /* ---------------- title ---------------- */
 function bindTitle(): void {
   $("#btn-enter-game").addEventListener("click", () => {
@@ -146,7 +168,7 @@ function startPreload(): void {
     ),
   ).then(() => {
     if (cancelled) return;
-    tier = detectTier();
+    tier = resolveTier();
     show("gates");
     mountGates();
   });
@@ -156,7 +178,7 @@ function startPreload(): void {
 /* ---------------- gates ---------------- */
 function mountGates(): void {
   const canvas = $<HTMLCanvasElement>("#gates-canvas");
-  const prof = profile(detectTier());
+  const prof = profile(resolveTier());
   const tex: Record<string, { cloth: THREE.Texture; normal: THREE.Texture }> = {};
   for (const r of REALMS) {
     const cloth = textures[r.id];
@@ -208,8 +230,13 @@ function renderFocus(): void {
     `<span class="realm-dot" style="background:${focused.color};color:${focused.color}"></span>` +
     `<b>${focused.fa}</b><i>${focused.motto}</i>`;
   const btn = $("#gates-enter");
-  btn.style.background = `linear-gradient(180deg, ${focused.accent}, ${focused.color})`;
-  btn.querySelector<HTMLElement>(".enter-label")!.textContent = `ورود به ${focused.fa}`;
+  // The button stays royal gold (readable on every realm); the realm identity
+  // shows as the glow ring + colored dot next to the realm name.
+  btn.style.removeProperty("background");
+  btn.style.setProperty("--rg", focused.color + "A6");
+  btn.querySelector<HTMLElement>(".enter-label")!.innerHTML =
+    `<span class="enter-dot" style="background:${focused.color};box-shadow:0 0 10px ${focused.color}"></span>` +
+    `ورود به ${focused.fa}`;
 }
 
 function bindGates(): void {
@@ -298,11 +325,15 @@ function bindLands(): void {
 function mountWorld(): void {
   const realm = focused;
   const land = selectedLand!;
-  const prof = profile(detectTier());
+  const prof = profile(resolveTier());
   $("#land-chip").innerHTML =
     `<span class="land-chip-realm" style="color:${realm.accent}">${realm.fa}</span>` +
     `<span class="land-chip-sep">·</span><span>${land.fa}</span>`;
   renderWallet();
+  // remember the player's actual position for the World Map «موقعیت شما» marker
+  try { localStorage.setItem("lands.lastLand", JSON.stringify({ r: realm.id, l: land.id })); } catch { /* private mode */ }
+  // joystick side preference (Profile → Controls)
+  try { document.body.classList.toggle("joy-right", localStorage.getItem("lands.joy") === "right"); } catch { /* private mode */ }
 
   const scene = new WorldScene(
     $<HTMLCanvasElement>("#world-canvas"),
@@ -479,6 +510,7 @@ function boot(): void {
   void serverWallet.init();
   renderWallet();
 
+  applyStoredPrefs();
   bindTitle();
   bindGates();
   bindLands();

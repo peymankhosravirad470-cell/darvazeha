@@ -7,7 +7,8 @@
    ۱) اسکریپت بازی در حضور SDK هیچ SyntaxError «already been declared» نمی‌دهد؛
    ۲) در بدترین حالت (همهٔ نام‌های احتمالی SDK از پیش اشغال‌شده) هم امن است؛
    ۳) بازی هیچ نامی از نام‌های SDK را در دامنهٔ سراسری نمی‌پوشاند (نشتی صفر)؛
-   ۴) صفحهٔ اصلی (index.html) هم در حضور SDK امن است و initBalanceGame سراسری می‌ماند. */
+   ۴) منوی اصلی (index.html) هم در حضور SDK امن است و تابع وضعیت سرور آن
+      (setBadge) سراسری می‌ماند و هر سه گزینهٔ اصلی در صفحه هست. */
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -102,16 +103,21 @@ else fail('اسکریپت بازی IIFE کامل نیست', gameJs.slice(0, 40))
   else fail('بازی نام‌های SDK را در دامنهٔ سراسری تعریف کرد', bad.join(','));
 }
 
-// ۵) صفحهٔ اصلی در حضور SDK: امن + initBalanceGame سراسری می‌ماند
+// ۵) منوی اصلی در حضور SDK: امن + تابع show وضعیت سرور سراسری می‌ماند
 {
   const ctx = freshCtx();
   run(sdkSrc, ctx, 'miniapp.js');
   const { err } = run(mainJs, ctx, 'index-bundle.js');
-  if (isDecl(err)) fail('صفحهٔ اصلی پس از SDK: خطای دامنه', err.message);
-  else pass('صفحهٔ اصلی پس از SDK: بدون خطای دامنه', err ? `runtime: ${err.constructor.name}` : 'اجرای کامل');
-  const ty = vm.runInContext('typeof initBalanceGame', ctx);
-  if (ty === 'function') pass('صفحهٔ اصلی: initBalanceGame سراسری سر جای خود است');
-  else fail('صفحهٔ اصلی: initBalanceGame سراسری از دست رفت', 'typeof=' + ty);
+  if (isDecl(err)) fail('منوی اصلی پس از SDK: خطای دامنه', err.message);
+  else pass('منوی اصلی پس از SDK: بدون خطای دامنه', err ? `runtime: ${err.constructor.name}` : 'اجرای کامل');
+  const ty = vm.runInContext('typeof setBadge', ctx);
+  if (ty === 'function') pass('منوی اصلی: setBadge سراسری سر جای خود است');
+  else fail('منوی اصلی: setBadge سراسری از دست رفت', 'typeof=' + ty);
+  const html = readFileSync(MAIN_PATH, 'utf8');
+  const three = ['id="menu-empires"', 'id="menu-map"', 'id="menu-profile"'].every(id => html.includes(id));
+  if (three && (html.match(/id="menu-/g) || []).length === 3)
+    pass('منوی اصلی: دقیقاً سه گزینهٔ اصلی (امپراتوری‌ها/نقشه/پروفایل)');
+  else fail('منوی اصلی: ساختار سه‌گزینه‌ای برقرار نیست');
 }
 
 // ۶) بازی بدون SDK هم بدون خطای نحو (سلامت پایه)
