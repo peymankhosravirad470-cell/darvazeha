@@ -299,10 +299,19 @@ function renderLands(): void {
         return;
       }
       audio.gateOpen();
-      selectedLand = land;
-      crystals = { got: 0, total: 5 };
-      show("world");
-      mountWorld();
+      try { localStorage.setItem("lands.lastLand", JSON.stringify({ r: realm.id, l: land.id })); } catch { /* private mode */ }
+      // Stage-2 strategy layer: an unlocked realm now leads to the player's
+      // own isometric village (Clash-of-Clans-like hub). The old exploration
+      // world stays reachable via ?world=1 for rollback.
+      const legacy = new URLSearchParams(location.search).get("world") === "1";
+      if (legacy) {
+        selectedLand = land;
+        crystals = { got: 0, total: 5 };
+        show("world");
+        mountWorld();
+        return;
+      }
+      location.href = `/game/village/index.html?realm=${encodeURIComponent(realm.id)}&land=${encodeURIComponent(land.id)}`;
     });
     scroll.appendChild(card);
   });
