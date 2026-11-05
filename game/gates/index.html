@@ -48,14 +48,24 @@ body {
   text-shadow: 0 8px 40px rgba(217,169,60,0.25); letter-spacing: 0.5px; }
 .game-title-en { font-size: 12px; letter-spacing: 8px; color: #8f8468; font-weight: 700; }
 .title-tag { color: #b8ab8a; font-size: 15px; margin: 6px 0 22px; }
-.btn-enter { position: relative; border: none; cursor: pointer; color: #241505;
-  font-family: inherit; font-weight: 900; font-size: 20px;
-  padding: 15px 54px; border-radius: 999px;
-  background: linear-gradient(180deg, #ffe9a8 0%, #d9a93c 55%, #a8761f 100%);
-  box-shadow: 0 10px 34px rgba(217,169,60,0.35), inset 0 1px 0 rgba(255,255,255,0.55);
-  transition: transform 0.16s ease, box-shadow 0.16s ease; min-height: 56px; }
-.btn-enter:active { transform: scale(0.96); }
-.btn-enter::after { content: ""; position: absolute; inset: -3px; border-radius: 999px; border: 1px solid rgba(217,169,60,0.5); animation: pulseRing 2.4s ease-out infinite; }
+.btn-enter { position: relative; border: 1.5px solid rgba(255,236,180,0.75); cursor: pointer; color: #241505;
+  font-family: inherit; font-weight: 900; font-size: clamp(18px, 4.8vw, 21px);
+  padding: 16px 42px; border-radius: 20px; letter-spacing: 0.2px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 44%),
+    linear-gradient(180deg, #ffe9a8 0%, #d9a93c 58%, #a8761f 100%);
+  box-shadow: 0 12px 38px var(--rg, rgba(217,169,60,0.4)), 0 3px 10px rgba(0,0,0,0.45),
+    inset 0 1.5px 0 rgba(255,255,255,0.6), inset 0 -2px 6px rgba(60,30,0,0.25);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+  min-height: 64px; min-width: min(86vw, 330px); }
+.btn-enter::before { content: ""; position: absolute; inset: 3px; border-radius: 15px;
+  border: 1px solid rgba(80,45,5,0.35); pointer-events: none; }
+.btn-enter:active { transform: scale(0.965); filter: brightness(1.08); }
+.btn-enter::after { content: ""; position: absolute; inset: -4px; border-radius: 24px;
+  border: 1px solid var(--rg, rgba(217,169,60,0.5)); animation: pulseRing 2.6s ease-out infinite; }
+.enter-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+  margin-inline-end: 9px; vertical-align: baseline; }
 @keyframes pulseRing { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.14); opacity: 0; } }
 .title-foot { position: absolute; bottom: 20px; color: #6a6350; font-size: 12px; }
 .title-wallet { margin-top: 14px; display: flex; align-items: center; gap: 8px; color: #9a9178; font-size: 12.5px; font-weight: 700; }
@@ -180,6 +190,18 @@ body {
 .interact-label { font-weight: 900; font-size: 14px; }
 .interact-hint { font-size: 11px; color: #b8a86a; border: 1px solid rgba(217,169,60,0.4); border-radius: 8px; padding: 2px 8px; }
 .world-tier { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); color: #55503e; font-size: 10px; z-index: 5; }
+
+/* control-side preference (Profile → Controls) */
+body.joy-right .joystick-zone { left: auto; right: 16px; }
+body.joy-right .world-actions { right: auto; left: 16px; }
+
+/* text-size preference (Profile → Accessibility) */
+html.big-text .land-name { font-size: 18.5px; }
+html.big-text .land-desc { font-size: 13.5px; }
+html.big-text .dialog-line { font-size: 16px; }
+html.big-text .gate-label-fa { font-size: 25px; }
+html.big-text .gates-title { font-size: 22px; }
+html.big-text .realm-chip b { font-size: 18px; }
 
 /* dialog */
 .dialog-backdrop { position: absolute; inset: 0; background: rgba(3,4,10,0.6); display: none; place-items: end center; padding: 20px; z-index: 20; }
@@ -336,6 +358,6 @@ body {
 
   <div class="toast" id="toast"></div>
 </div>
-<script defer type="module" src="./app.js?v=20261105140022"></script>
+<script defer type="module" src="./app.js?v=20261105202305"></script>
 </body>
 </html>

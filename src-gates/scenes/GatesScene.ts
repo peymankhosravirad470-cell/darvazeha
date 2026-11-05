@@ -3,6 +3,10 @@
  * Seven official flags as 3D cloth on golden spear-poles, arranged in a royal
  * arc: drifting camera, depth fog, ember particles, per-realm light identity,
  * focus light pillars, sound-reactive selection.
+ *
+ * Composition rule (official directive): the pole, crossbar and every fixture
+ * sit BEHIND the cloth; the fabric waves in front of them. The focused flag is
+ * center/larger, side flags recede deeper and slightly smaller.
  */
 import * as THREE from "three";
 import { REALMS, Realm } from "../data";
@@ -47,8 +51,8 @@ export class GatesScene {
   private pointerDown = { x: 0, y: 0, t: 0, moved: false };
   private focus = 0;
   private focusAnim = 0;          // 0..1 smooth
-  private camBase = new THREE.Vector3(0, 4.5, 12.9);
-  private camTarget = new THREE.Vector3(0, 3.4, 0);
+  private camBase = new THREE.Vector3(0, 4.25, 12.3);
+  private camTarget = new THREE.Vector3(0, 3.55, 0);
   private tier: QualityProfile["tier"];
   private labelContainer?: HTMLDivElement;
   private labelEls = new Map<string, HTMLDivElement>();
@@ -75,7 +79,7 @@ export class GatesScene {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.12;
 
-    this.camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 300);
+    this.camera = new THREE.PerspectiveCamera(42.5, window.innerWidth / window.innerHeight, 0.1, 300);
     this.camera.position.copy(this.camBase);
 
     this.scene.fog = null; // fog handled per-material
@@ -349,6 +353,10 @@ export class GatesScene {
       gA.rotation.z = Math.PI / 2; gA.position.set(-0.85, 5.62, 0);
       const gB = gA.clone(); gB.rotation.z = -Math.PI / 2; gB.position.set(0.85, 5.62, 0);
       pole.add(shaft, tip, collar, base, cross, gA, gB);
+      // Directive: pole + crossbar + all fixtures BEHIND the cloth. The cloth
+      // waves up to ~0.75 toward -z on gusty realms, so -0.85 keeps every
+      // fixture behind the fabric at all times.
+      pole.position.z = -0.85;
       if (this.profile.worldShadowMap > 0) {
         shaft.castShadow = true;
       }
@@ -368,8 +376,8 @@ export class GatesScene {
         seed: (i * 0.618 + 0.17) % 1,
       });
       const cloth = new THREE.Mesh(geo, mat);
-      // attach top edge just under the crossguard
-      cloth.position.set(0, 5.55 - H / 2 - 0.06, 0.02);
+      // hang the top edge just under the crossbar, in FRONT of the pole
+      cloth.position.set(0, 5.62 - H / 2 - 0.05, 0.1);
       group.add(cloth);
 
       // light beam behind (focus)
@@ -389,7 +397,7 @@ export class GatesScene {
           }`,
       });
       const beam = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 8.5), beamMat);
-      beam.position.set(0, 3.6, -0.55);
+      beam.position.set(0, 3.6, -1.35);
       group.add(beam);
 
       // glow sprite at emblem height
@@ -399,7 +407,7 @@ export class GatesScene {
         opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false,
       }));
       glow.scale.set(4.6, 4.6, 1);
-      glow.position.set(0, 3.9, -0.35);
+      glow.position.set(0, 3.9, -1.0);
       group.add(glow);
 
       this.scene.add(group);
@@ -492,7 +500,8 @@ export class GatesScene {
       const rel = ((i - this.focus) % 7 + 7 + 3) % 7 - 3;
       const a = rel * 0.26;
       const tx = Math.sin(a) * 9.2;
-      const tz = -Math.cos(a) * 9.2 + 4.6;
+      // side flags recede DEEPER behind the focused one (cinematic depth)
+      const tz = -Math.cos(a) * 9.2 + 4.6 + Math.abs(rel) * 0.9;
       const tr = -a * 0.55;
       g.group.position.x += (tx - g.group.position.x) * Math.min(1, 0.06);
       g.group.position.z += (tz - g.group.position.z) * Math.min(1, 0.06);
@@ -501,7 +510,7 @@ export class GatesScene {
       const target = focused ? 1 : 0;
       const u = g.mat.uniforms.uHighlight;
       u.value += (target - u.value) * 0.07;
-      g.mat.uniforms.uDim.value += ((focused ? 1 : 0.9) - g.mat.uniforms.uDim.value) * 0.06;
+      g.mat.uniforms.uDim.value += ((focused ? 1 : 0.78) - g.mat.uniforms.uDim.value) * 0.06;
       g.mat.uniforms.uPointColor.value.set(this.realmTint);
       g.mat.uniforms.uPointIntensity.value = focused ? 1.15 : 0.5;
       g.beamMat.uniforms.uA.value += ((focused ? 1 : 0) - g.beamMat.uniforms.uA.value) * 0.055;
@@ -511,8 +520,8 @@ export class GatesScene {
       gm.opacity += ((focused ? 0.34 : 0.08) - gm.opacity) * 0.06;
       gm.color.set(g.realm.color);
 
-      // focused flag steps forward slightly
-      const s = focused ? 1.06 : 0.98;
+      // focused flag steps forward, larger; sides smaller (royal hierarchy)
+      const s = focused ? 1.14 : 0.88;
       g.group.scale.x += (s - g.group.scale.x) * 0.06;
       g.group.scale.y = g.group.scale.x;
       g.group.scale.z = g.group.scale.x;
@@ -528,7 +537,9 @@ export class GatesScene {
       this.camBase.z,
     );
     this.camera.position.lerp(desired, 0.03);
-    this.camTarget.lerp(new THREE.Vector3(0, 3.4, -1.6), 0.05);
+    // camera gently follows the focused flag so it reads as the hero of the shot
+    const focusX = this.gates[this.focus].group.position.x;
+    this.camTarget.lerp(new THREE.Vector3(focusX * 0.35, 3.55, -1.6), 0.05);
     this.camera.lookAt(this.camTarget);
     // subtle roll for cinema feel
     this.camera.rotation.z = Math.sin(t * 0.07) * 0.006;

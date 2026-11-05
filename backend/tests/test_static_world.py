@@ -5,8 +5,9 @@
    مانع ورود .secrets/.git به context ساخت باشد.
 ۲) صفحهٔ بازی: SDK رسمی بله باید لود شود (منبع initData برای کیف پول
    فقط-خواندنی) و ۱۱ ناحیهٔ رسمی تارگون با نام‌های مصوب ثبت باشند.
-۳) مینی‌اپ: صفحهٔ اصلی باید کارت ورود «جهان تارگون» به /game/index.html
-   داشته باشد و هر دو صفحه واقعاً از StaticFiles سرو شوند.
+۳) مینی‌اپ: منوی اصلی باید دقیقاً سه گزینه داشته باشد (هفت امپراتوری /
+   نقشهٔ کل مناطق / پروفایل و تنظیمات)، دسترسی به نسخهٔ پیشین در پروفایل حفظ
+   شود و هر سه صفحه واقعاً از StaticFiles سرو شوند.
 """
 from pathlib import Path
 
@@ -82,9 +83,20 @@ def test_game_page_wallet_is_read_only_from_backend():
 
 # ── لایهٔ ۳: مینی‌اپ و سرو واقعی مسیرها ───────────────────────────────
 def test_root_index_links_to_targon_world():
+    """منوی اصلی جدید: دقیقاً سه گزینه — نسخهٔ پیشین از پروفایل در دسترس است."""
     text = (REPO_ROOT / "index.html").read_text(encoding="utf-8")
-    assert "/game/index.html" in text
-    assert "جهان تارگون" in text
+    assert text.count('id="menu-') == 3  # فقط سه گزینهٔ اصلی
+    assert 'id="menu-empires"' in text and "/game/gates/index.html" in text
+    assert "ورود به هفت امپراتوری" in text
+    assert 'id="menu-map"' in text and "/game/map/index.html" in text
+    assert 'id="menu-profile"' in text and "/game/profile/index.html" in text
+    # گزینهٔ اصلی اضافهٔ «اتصال سرور» ممنوع است — فقط نشان کوچک وضعیت
+    assert 'id="cloud-action"' not in text
+    assert 'id="status-badge"' in text
+    # حفظ نسخهٔ پیشین: دسترسی به جهان تارگون قدیمی حالا از پروفایل است
+    profile = (REPO_ROOT / "game" / "profile" / "index.html").read_text(encoding="utf-8")
+    assert "/game/index.html" in profile
+    assert "جهان تارگون" in profile
 
 
 @pytest.fixture()
@@ -112,8 +124,12 @@ def client():
 def test_static_root_serves_miniapp_with_targon_entry(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert "جهان تارگون" in response.text
-    assert "/game/index.html" in response.text
+    assert "ورود به هفت امپراتوری" in response.text
+    assert "/game/gates/index.html" in response.text
+    # نسخهٔ پیشین از پروفایل در دسترس است (هر دو واقعاً سرو می‌شوند)
+    profile = client.get("/game/profile/index.html")
+    assert profile.status_code == 200
+    assert "/game/index.html" in profile.text
 
 
 def test_static_serves_targon_world_at_game_index_html(client):

@@ -6,9 +6,10 @@
 - جهان تارگون باز می‌شود؛ کیف پول بدون initData صادقانه «در دسترس نیست»؛
 - با initData (شبیه‌سازی محیط بله) و بدون Backend: تلاش واقعی auth به
   /api/v1/auth/bale و سپس پیام صادقانه — هیچ عدد قلابی نمایش داده نمی‌شود؛
-- صفحهٔ اصلی بالا می‌آید و کارت «هفت دروازهٔ رسمی» واقعاً به /game/gates/index.html می‌رود
-  (نسخهٔ سینمایی جدید، بر پایهٔ commit 90d1e63) و کارت ثانویهٔ نسخهٔ پیشین همچنان
-  به /game/index.html می‌رود. """
+- منوی اصلی جدید: دقیقاً سه گزینه (هفت امپراتوری / نقشهٔ کل مناطق / پروفایل و تنظیمات)،
+  نشان کوچک وضعیت سرور (نه دکمهٔ «اتصال سرور»)، و هر سه مقصد واقعاً بوت می‌شوند؛
+- نقشهٔ کل مناطق: ۷ قلمرو و ۷۷ سرزمین رسمی از data.json رندر می‌شود؛
+- پروفایل: دسترسی به نسخهٔ پیشین حفظ شده و به /game/index.html می‌رود. """
 import http.server, socketserver, threading, pathlib, sys, time, re
 from playwright.sync_api import sync_playwright
 
@@ -99,31 +100,66 @@ with sync_playwright() as p:
     page2.screenshot(path=str(SHOTS / 'boot-wallet-stubinit.png'))
     ctx2.close()
 
-    # ── ۳) صفحهٔ اصلی + کارت ورود «🌍 جهان تارگون» ──
+    # ── ۳) منوی اصلی جدید: دقیقاً سه گزینه + نشان سرور ──
     ctx3 = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
     ctx3.route(SDK_RE, route)
-    page3 = ctx3.new_page()
     errs3 = []
     page3 = new_page(ctx3, errs3)
     page3.goto(f'{BASE}/index.html'); page3.wait_for_timeout(800)
-    record('صفحهٔ اصلی: بدون خطای «already been declared»', not any(BAD in e for e in errs3))
-    record('صفحهٔ اصلی: کارت «🌍 جهان تارگون» هست', page3.locator('#targon-entry').count() == 1)
-    href = page3.locator('#targon-entry').get_attribute('href')
-    record('صفحهٔ اصلی: کارت اصلی به نسخهٔ هفت دروازه می‌رود', href == '/game/gates/index.html', str(href))
-    page3.locator('#targon-entry').tap()
+    record('منوی اصلی: بدون خطای «already been declared»', not any(BAD in e for e in errs3))
+    record('منوی اصلی: دقیقاً سه گزینهٔ اصلی وجود دارد',
+           page3.locator('#menu-empires').count() == 1 and page3.locator('#menu-map').count() == 1
+           and page3.locator('#menu-profile').count() == 1)
+    record('منوی اصلی: گزینه‌های اضافی (اتصال سرور/دروازه‌ها/نقشهٔ ۱۳گانه) حذف شده‌اند',
+           page3.locator('#cloud-action').count() == 0 and page3.locator('#gates-grid').count() == 0)
+    record('منوی اصلی: وضعیت سرور به‌صورت نشان کوچک است', page3.locator('#status-badge').count() == 1)
+    href = page3.locator('#menu-empires').get_attribute('href')
+    record('منوی اصلی: گزینهٔ ۱ به نسخهٔ هفت دروازه می‌رود', href == '/game/gates/index.html', str(href))
+    page3.locator('#menu-empires').tap()
     page3.wait_for_url('**/game/gates/index.html**', timeout=5000)
     page3.wait_for_timeout(700)
-    record('کارت اصلی: نسخهٔ هفت دروازه واقعاً باز و بوت شد', page3.locator('#title-screen.active').count() == 1)
-    page3.screenshot(path=str(SHOTS / 'boot-root-entry-gates.png'))
-    page3.go_back(); page3.wait_for_timeout(500)
-    href_old = page3.locator('#targon-entry-legacy').get_attribute('href')
-    record('صفحهٔ اصلی: کارت نسخهٔ پیشین حفظ شده و به /game/index.html می‌رود',
-           href_old == '/game/index.html', str(href_old))
-    page3.locator('#targon-entry-legacy').tap()
-    page3.wait_for_url('**/game/index.html**', timeout=5000)
-    page3.wait_for_timeout(700)
-    record('کارت نسخهٔ پیشین: صفحهٔ بازی قدیمی واقعاً بوت شد', page3.locator('#screen-boot.active').count() == 1)
+    record('گزینهٔ ۱: نسخهٔ هفت دروازه واقعاً باز و بوت شد', page3.locator('#title-screen.active').count() == 1)
+    page3.screenshot(path=str(SHOTS / 'boot-menu-empires.png'))
     ctx3.close()
+
+    # ── ۴) نقشهٔ کل مناطق: ۷ قلمرو و ۷۷ سرزمین رسمی ──
+    ctx4 = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+    ctx4.route(SDK_RE, route)
+    errs4 = []
+    page4 = new_page(ctx4, errs4)
+    page4.goto(f'{BASE}/game/map/index.html'); page4.wait_for_timeout(1200)
+    record('نقشهٔ کل مناطق: بدون خطای جاوااسکریپت', not any(BAD in e for e in errs4), ' | '.join(errs4[:2]))
+    record('نقشهٔ کل مناطق: دادهٔ رسمی ۷×۱۱ بارگذاری شد',
+           page4.evaluate('() => window.__MAP77 && window.__MAP77.realms === 7 && window.__MAP77.lands === 77'))
+    record('نقشهٔ کل مناطق: هر ۷۷ گرهٔ سرزمین رندر شد', page4.locator('#map-svg g[data-land]').count() == 77)
+    record('نقشهٔ کل مناطق: نام رسمی «سپیده‌دم» روی نقشه هست',
+           'سپیده‌دم' in page4.evaluate("() => document.getElementById('map-svg').textContent"))
+    page4.locator('#map-svg g[data-land]').first.tap(); page4.wait_for_timeout(500)
+    record('نقشهٔ کل مناطق: پنل اطلاعات سرزمین باز می‌شود', page4.locator('#sheet.on').count() == 1)
+    page4.screenshot(path=str(SHOTS / 'boot-world-map.png'))
+    ctx4.close()
+
+    # ── ۵) پروفایل و تنظیمات + حفظ دسترسی به نسخهٔ پیشین ──
+    ctx5 = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+    ctx5.route(SDK_RE, route)
+    errs5 = []
+    page5 = new_page(ctx5, errs5)
+    page5.goto(f'{BASE}/game/profile/index.html'); page5.wait_for_timeout(900)
+    record('پروفایل: بدون خطای جاوااسکریپت', not any(BAD in e for e in errs5), ' | '.join(errs5[:2]))
+    record('پروفایل: بدون initData صادقانه «قطع» است و عددی نشان نمی‌دهد',
+           page5.locator('.w-off').count() == 1 and page5.locator('.balance').count() == 0)
+    record('پروفایل: تنظیمات صدا/گرافیک/کنترل/متن هست',
+           page5.locator('#sw-sound').count() == 1 and page5.locator('#seg-quality button').count() == 4
+           and page5.locator('#seg-joy button').count() == 2 and page5.locator('#seg-text button').count() == 2)
+    href_old = page5.locator('#legacy-entry').get_attribute('href')
+    record('پروفایل: دسترسی به نسخهٔ پیشین حفظ شده و به /game/index.html می‌رود',
+           href_old == '/game/index.html', str(href_old))
+    page5.locator('#legacy-entry').tap()
+    page5.wait_for_url('**/game/index.html**', timeout=5000)
+    page5.wait_for_timeout(700)
+    record('نسخهٔ پیشین: صفحهٔ بازی قدیمی واقعاً بوت شد', page5.locator('#screen-boot.active').count() == 1)
+    page5.screenshot(path=str(SHOTS / 'boot-profile-legacy.png'))
+    ctx5.close()
     browser.close()
 
 n_ok = sum(1 for r in results if r)
