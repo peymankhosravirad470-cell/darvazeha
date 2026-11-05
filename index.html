@@ -300,6 +300,9 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
 .targon-text b{font-size:1.02rem;font-weight:800}
 .targon-text small{font-size:.78rem;color:var(--muted);line-height:1.8}
 .targon-go{font-weight:800;color:#ffd86f;white-space:nowrap;font-size:.92rem}
+.targon-entry-old{padding:11px 15px;opacity:.88;border-style:dashed;border-color:rgba(255,216,111,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.10)}
+.targon-entry-old .targon-emoji{font-size:1.5rem}
+.targon-entry-old .targon-text b{font-size:.9rem}
 
 </style>
 </head>
@@ -340,13 +343,21 @@ main{position:relative;z-index:1;width:min(1040px,calc(100% - 24px));margin:26px
       <h1>دروازه‌ها</h1>
       <p>هر دروازه یک سرزمین تازه است — برای گشودن، به سفر ادامه بده</p>
     </div>
-    <a class="targon-entry" href="/game/index.html" id="targon-entry">
-      <span class="targon-emoji">🌍</span>
+    <a class="targon-entry" href="/game/gates/index.html" id="targon-entry">
+      <span class="targon-emoji">🚩</span>
       <span class="targon-text">
-        <b>جهان تارگون — نسخهٔ جدید</b>
-        <small>نقشهٔ ایزومتریک تعاملی با ۱۱ ناحیهٔ رسمی · حرکت شخصیت · کیف پول رسمی</small>
+        <b>هفت دروازهٔ رسمی — نسخهٔ جدید</b>
+        <small>پرچم‌های پارچه‌ای سه‌بعدیِ هفت قلمرو · انتخاب قلمرو و ۱۱ سرزمین رسمی · جهان سه‌بعدی · کیف پول رسمی از Backend</small>
       </span>
       <span class="targon-go">ورود ←</span>
+    </a>
+    <a class="targon-entry targon-entry-old" href="/game/index.html" id="targon-entry-legacy">
+      <span class="targon-emoji">🗺️</span>
+      <span class="targon-text">
+        <b>نقشهٔ ایزومتریک جهان تارگون (نسخهٔ پیشین)</b>
+        <small>۱۱ ناحیهٔ رسمی با حرکت شخصیت — برای مرور نسخهٔ قبلی</small>
+      </span>
+      <span class="targon-go">مشاهده ←</span>
     </a>
     <div class="gates-grid" id="gates-grid"></div>
   </section>
