@@ -6,8 +6,10 @@ Liara یا با `liara envs set` تنظیم شوند.
 
 ## ۱) فرمان استقرار (از ریشهٔ مخزن)
 
-`liara.json` در ریشه با پلتفرم docker، پورت ۸۰۰۰ و health-check روی `/health`
-آماده است. Dockerfile اصلی `backend/Dockerfile` است (context = ریشهٔ مخزن):
+`liara.json` در ریشه با پلتفرم docker، پورت ۸۰۰۰ و health-check از نوع exec
+(`command`) آماده است؛ CLI نسخه ۹ لایارا healthCheck را فقط به‌صورت `command`
+می‌پذیرد و همان دستور `/health` را داخل کانتینر اجرا می‌کند. Dockerfile اصلی
+`backend/Dockerfile` است (context = ریشهٔ مخزن):
 
 ```bash
 liara deploy --app <APP_ID> --dockerfile backend/Dockerfile
