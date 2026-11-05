@@ -1,0 +1,6 @@
+{
+  "platform": "docker",
+  "port": 8000,
+  "healthCheck": { "path": "/health", "initialDelaySeconds": 30 },
+  "disk": 1024
+}
