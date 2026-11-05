@@ -1,6 +1,8 @@
 {
   "platform": "docker",
   "port": 8000,
-  "healthCheck": { "path": "/health", "initialDelaySeconds": 30 },
+  "healthCheck": {
+    "command": ["python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+  },
   "disk": 1024
 }
