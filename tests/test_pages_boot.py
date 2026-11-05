@@ -6,7 +6,9 @@
 - جهان تارگون باز می‌شود؛ کیف پول بدون initData صادقانه «در دسترس نیست»؛
 - با initData (شبیه‌سازی محیط بله) و بدون Backend: تلاش واقعی auth به
   /api/v1/auth/bale و سپس پیام صادقانه — هیچ عدد قلابی نمایش داده نمی‌شود؛
-- صفحهٔ اصلی بالا می‌آید و کارت «🌍 جهان تارگون» واقعاً به /game/index.html می‌رود. """
+- صفحهٔ اصلی بالا می‌آید و کارت «هفت دروازهٔ رسمی» واقعاً به /game/gates/index.html می‌رود
+  (نسخهٔ سینمایی جدید، بر پایهٔ commit 90d1e63) و کارت ثانویهٔ نسخهٔ پیشین همچنان
+  به /game/index.html می‌رود. """
 import http.server, socketserver, threading, pathlib, sys, time, re
 from playwright.sync_api import sync_playwright
 
@@ -107,12 +109,20 @@ with sync_playwright() as p:
     record('صفحهٔ اصلی: بدون خطای «already been declared»', not any(BAD in e for e in errs3))
     record('صفحهٔ اصلی: کارت «🌍 جهان تارگون» هست', page3.locator('#targon-entry').count() == 1)
     href = page3.locator('#targon-entry').get_attribute('href')
-    record('صفحهٔ اصلی: کارت به /game/index.html می‌رود', href == '/game/index.html', str(href))
+    record('صفحهٔ اصلی: کارت اصلی به نسخهٔ هفت دروازه می‌رود', href == '/game/gates/index.html', str(href))
     page3.locator('#targon-entry').tap()
+    page3.wait_for_url('**/game/gates/index.html**', timeout=5000)
+    page3.wait_for_timeout(700)
+    record('کارت اصلی: نسخهٔ هفت دروازه واقعاً باز و بوت شد', page3.locator('#title-screen.active').count() == 1)
+    page3.screenshot(path=str(SHOTS / 'boot-root-entry-gates.png'))
+    page3.go_back(); page3.wait_for_timeout(500)
+    href_old = page3.locator('#targon-entry-legacy').get_attribute('href')
+    record('صفحهٔ اصلی: کارت نسخهٔ پیشین حفظ شده و به /game/index.html می‌رود',
+           href_old == '/game/index.html', str(href_old))
+    page3.locator('#targon-entry-legacy').tap()
     page3.wait_for_url('**/game/index.html**', timeout=5000)
     page3.wait_for_timeout(700)
-    record('کارت: صفحهٔ بازی واقعاً باز شد و بوت شد', page3.locator('#screen-boot.active').count() == 1)
-    page3.screenshot(path=str(SHOTS / 'boot-root-entry.png'))
+    record('کارت نسخهٔ پیشین: صفحهٔ بازی قدیمی واقعاً بوت شد', page3.locator('#screen-boot.active').count() == 1)
     ctx3.close()
     browser.close()
 
