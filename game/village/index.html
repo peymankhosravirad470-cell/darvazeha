@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#151a12">
+<title>دهکدهٔ من — 77 Lands</title>
+<link rel="icon" href="data:,">
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../gates/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../gates/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+:root{
+  --gold: #f2c545; --gold-dim: #c9a02e;
+  --panel: rgba(22, 18, 12, 0.92);
+  --panel-line: rgba(242, 197, 69, 0.35);
+  --txt: #f5ecd7; --txt-dim: #cbbfa4;
+  --ok: #6fd06f; --bad: #e06a5a;
+}
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; overflow:hidden; background:#0d120c; }
+body{ font-family:"Vazirmatn", sans-serif; color:var(--txt); user-select:none; -webkit-user-select:none; }
+#stage{ position:fixed; inset:0; }
+#stage canvas{ width:100%; height:100%; display:block; touch-action:none; }
+
+/* ───── HUD ───── */
+.hud{ position:fixed; inset:0; pointer-events:none; z-index:5; }
+.hud .clickable{ pointer-events:auto; }
+
+#topbar{
+  position:fixed; top:0; left:0; right:0;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:6px;
+  padding: calc(env(safe-area-inset-top, 0px) + 6px) 8px 0 8px;
+}
+.chip{
+  background:var(--panel); border:1px solid var(--panel-line); border-radius:12px;
+  padding:5px 9px; font-size:12px; line-height:1.4; box-shadow:0 2px 10px rgba(0,0,0,.4);
+}
+#resbar{ display:flex; flex-direction:column; gap:4px; align-items:center; }
+#resbar .row{ display:flex; gap:4px; }
+.res{
+  display:flex; align-items:center; gap:5px;
+  background:var(--panel); border:1px solid var(--panel-line); border-radius:11px;
+  padding:4px 8px; font-size:11.5px; font-weight:700; white-space:nowrap;
+}
+.res .dot{ width:9px; height:9px; border-radius:3px; display:inline-block; }
+.res .cap{ color:var(--txt-dim); font-weight:400; font-size:10px; }
+.res.full .cap{ color:var(--bad); }
+.r-wood .dot{ background:#a8703d; } .r-stone .dot{ background:#b3b8c2; }
+.r-iron .dot{ background:#7e8ea6; } .r-food .dot{ background:#e8c454; }
+.r-coin .dot{ background:#f2c545; border-radius:50%; }
+
+#leftgrp, #rightgrp{ display:flex; flex-direction:column; gap:5px; align-items:stretch; min-width:86px; }
+.icobtn{
+  display:flex; align-items:center; gap:6px; justify-content:flex-start;
+  background:var(--panel); border:1px solid var(--panel-line); border-radius:12px;
+  color:var(--txt); font-family:inherit; font-size:11.5px; padding:6px 8px; cursor:pointer;
+}
+.icobtn svg{ width:14px; height:14px; flex:0 0 auto; }
+.icobtn:active{ transform:scale(.96); }
+#serverchip{ display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--txt-dim); justify-content:flex-end; }
+#serverdot{ width:8px; height:8px; border-radius:50%; background:#888; box-shadow:0 0 6px rgba(0,0,0,.4); }
+#serverdot.on{ background:var(--ok); box-shadow:0 0 8px rgba(111,208,111,.8); }
+#serverdot.off{ background:var(--bad); }
+#fps{ font-size:9.5px; color:var(--txt-dim); text-align:left; direction:ltr; }
+
+/* ───── rotate / zoom ───── */
+#camctl{ position:fixed; right:8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); display:flex; flex-direction:column; gap:6px; }
+.cambtn{
+  width:42px; height:42px; border-radius:50%; border:1px solid var(--panel-line);
+  background:var(--panel); color:var(--txt); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.cambtn svg{ width:18px; height:18px; }
+.cambtn:active{ transform:scale(.93); }
+
+/* ───── bottom action bar ───── */
+#bottombar{
+  position:fixed; bottom:0; left:0; right:0;
+  display:flex; justify-content:center; gap:6px;
+  padding: 6px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
+}
+.barbtn{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  background:var(--panel); border:1px solid var(--panel-line); border-radius:13px;
+  color:var(--txt); font-family:inherit; font-size:10px; padding:7px 10px; min-width:58px; cursor:pointer;
+}
+.barbtn svg{ width:19px; height:19px; }
+.barbtn:active{ transform:scale(.94); border-color:var(--gold); }
+
+/* ───── panels ───── */
+.sheet{
+  position:fixed; left:50%; transform:translate(-50%, 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
+  width:min(430px, calc(100% - 16px));
+  background:var(--panel); border:1px solid var(--panel-line); border-radius:16px;
+  padding:12px 14px; z-index:8; display:none; box-shadow:0 10px 30px rgba(0,0,0,.5);
+  max-height:52vh; overflow:auto;
+  pointer-events:auto;
+}
+.sheet.on{ display:block; animation:rise .18s ease-out; }
+@keyframes rise{ from{ opacity:0; transform:translate(-50%, 16px);} to{ opacity:1; transform:translate(-50%, 12px);} }
+.sheet h3{ font-size:14.5px; color:var(--gold); margin-bottom:2px; display:flex; align-items:center; gap:8px; }
+.sheet .sub{ font-size:11px; color:var(--txt-dim); margin-bottom:8px; }
+.sheet p.desc{ font-size:12px; line-height:1.9; color:var(--txt); margin-bottom:9px; }
+.lvl-badge{ background:rgba(242,197,69,.15); border:1px solid var(--panel-line); color:var(--gold); font-size:11px; border-radius:8px; padding:1px 8px; font-weight:700; }
+.prodline{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; font-size:11.5px; }
+.prodline span{ background:rgba(255,255,255,.06); border-radius:8px; padding:3px 8px; display:inline-flex; gap:5px; align-items:center; }
+.btnrow{ display:flex; gap:7px; }
+.btn{
+  flex:1; border:none; border-radius:12px; padding:11px 8px; font-family:inherit; font-weight:700; font-size:13px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; line-height:1.5;
+}
+.btn:active{ transform:scale(.97); }
+.btn.primary{ background:linear-gradient(180deg, #f6d06a, #d9a427); color:#3a2c0d; box-shadow:0 3px 12px rgba(217,164,39,.35); }
+.btn.ghostb{ background:rgba(255,255,255,.08); color:var(--txt); border:1px solid var(--panel-line); }
+.btn.danger{ background:rgba(224,106,90,.18); color:#ffb3a6; border:1px solid rgba(224,106,90,.4); }
+.btn:disabled{ opacity:.45; pointer-events:none; }
+.costline{ display:flex; flex-wrap:wrap; gap:5px; font-size:11px; margin:7px 0 9px; }
+.costline .c{ display:inline-flex; gap:4px; align-items:center; background:rgba(255,255,255,.05); border-radius:8px; padding:2px 7px; }
+.costline .c.lack{ color:var(--bad); }
+.timerline{ font-size:11px; color:var(--txt-dim); margin-top:7px; }
+.mission{ border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:9px 10px; margin-bottom:7px; }
+.mission .mname{ font-size:12.5px; margin-bottom:5px; }
+.mbar{ height:7px; background:rgba(255,255,255,.09); border-radius:4px; overflow:hidden; }
+.mbar div{ height:100%; background:linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius:4px; }
+.mission .mmeta{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--txt-dim); margin-top:4px; }
+.buildele{ display:flex; align-items:center; gap:9px; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:9px 10px; margin-bottom:7px; cursor:pointer; }
+.buildele:active{ border-color:var(--gold); }
+.buildele .bic{ width:34px; height:34px; border-radius:10px; flex:0 0 auto; }
+.buildele .bname{ font-size:12.5px; font-weight:700; }
+.buildele .bdesc{ font-size:10.5px; color:var(--txt-dim); }
+.bi-house{ background:linear-gradient(160deg,#c8a06a,#8a5a33); }
+.bi-farm{ background:linear-gradient(160deg,#e8c454,#8a9a3f); }
+.bi-lumber{ background:linear-gradient(160deg,#b98a5a,#6e4a2b); }
+.bi-mine{ background:linear-gradient(160deg,#9aa2ad,#5a626e); }
+.bi-storage{ background:linear-gradient(160deg,#cbb489,#8a6b42); }
+.bi-barracks{ background:linear-gradient(160deg,#b06a4a,#6e3a2b); }
+.bi-tower{ background:linear-gradient(160deg,#b3b8c2,#7a6a5a); }
+
+/* confirm bar (move/build mode) */
+#confirmbar{
+  position:fixed; left:50%; transform:translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
+  display:none; gap:8px; z-index:9; width:min(360px, calc(100% - 20px));
+  pointer-events:auto;
+}
+#confirmbar.on{ display:flex; }
+#confirmbar .hint{ position:absolute; top:-24px; width:100%; text-align:center; font-size:11px; color:var(--txt-dim); text-shadow:0 1px 3px #000; }
+
+#toast{
+  position:fixed; top: calc(env(safe-area-inset-top, 0px) + 64px); left:50%; transform:translateX(-50%) translateY(-8px);
+  background:var(--panel); border:1px solid var(--panel-line); color:var(--txt);
+  padding:8px 14px; border-radius:12px; font-size:12px; opacity:0; transition:all .25s; z-index:20; pointer-events:none;
+  max-width:86%; text-align:center;
+}
+#toast.on{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+#boot{
+  position:fixed; inset:0; background:#0d120c; z-index:50; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px; transition:opacity .4s;
+}
+#boot.off{ opacity:0; pointer-events:none; }
+#boot .title{ font-size:19px; font-weight:700; color:var(--gold); }
+#boot .sub{ font-size:12px; color:var(--txt-dim); }
+#boot .spin{ width:34px; height:34px; border-radius:50%; border:3px solid rgba(242,197,69,.2); border-top-color:var(--gold); animation:sp 1s linear infinite; }
+@keyframes sp{ to{ transform:rotate(360deg); } }
+.big-text #topbar{ font-size:15px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div class="hud">
+  <div id="topbar">
+    <div id="leftgrp">
+      <a class="icobtn clickable" id="btn-back" href="/game/gates/index.html" style="text-decoration:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
+        <span id="realm-name">…</span>
+      </a>
+      <div class="chip" id="realmchip">سرزمین: …</div>
+    </div>
+    <div id="resbar">
+      <div class="row">
+        <div class="res r-wood"><span class="dot"></span><span id="r-wood">۰</span><span class="cap" id="c-wood">/۰</span></div>
+        <div class="res r-stone"><span class="dot"></span><span id="r-stone">۰</span><span class="cap" id="c-stone">/۰</span></div>
+        <div class="res r-food"><span class="dot"></span><span id="r-food">۰</span><span class="cap" id="c-food">/۰</span></div>
+      </div>
+      <div class="row">
+        <div class="res r-iron"><span class="dot"></span><span id="r-iron">۰</span><span class="cap" id="c-iron">/۰</span></div>
+        <div class="res r-coin"><span class="dot"></span><span id="r-coin">۰</span><span class="cap" id="c-coin">/۰</span></div>
+      </div>
+    </div>
+    <div id="rightgrp">
+      <div id="serverchip" class="chip clickable"><span id="serverdot"></span><span>سرور</span></div>
+      <div id="fps" class="chip">— fps</div>
+    </div>
+  </div>
+
+  <div id="camctl">
+    <button class="cambtn clickable" id="btn-rot-r" aria-label="چرخش راست">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>
+    </button>
+    <button class="cambtn clickable" id="btn-rot-l" aria-label="چرخش چپ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12a8 8 0 1 0 2.34-5.66"/><path d="M4 4v4h4"/></svg>
+    </button>
+  </div>
+
+  <div id="bottombar">
+    <button class="barbtn clickable" id="btn-build">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg>
+      ساخت
+    </button>
+    <button class="barbtn clickable" id="btn-missions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+      مأموریت‌ها
+    </button>
+    <button class="barbtn clickable" id="btn-alliance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M12 8v8M8.5 10.5h7"/></svg>
+      اتحاد
+    </button>
+    <button class="barbtn clickable" id="btn-map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l6 2 6-2v14l-6 2-6-2-6 2V6z"/><path d="M9 4v14M15 6v14"/></svg>
+      نقشه
+    </button>
+    <button class="barbtn clickable" id="btn-shop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 13H5z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>
+      فروشگاه
+    </button>
+    <button class="barbtn clickable" id="btn-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h0a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h0a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v0a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+      تنظیمات
+    </button>
+  </div>
+
+  <!-- selection panel -->
+  <div class="sheet" id="selpanel">
+    <h3><span id="sel-name">…</span><span class="lvl-badge" id="sel-lvl">سطح ۱</span></h3>
+    <div class="sub" id="sel-sub">…</div>
+    <p class="desc" id="sel-desc">…</p>
+    <div class="prodline" id="sel-prod"></div>
+    <div class="costline" id="sel-cost"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="btn-upgrade">ارتقا</button>
+      <button class="btn ghostb" id="btn-move">جابه‌جایی</button>
+      <button class="btn ghostb" id="btn-collect">برداشت</button>
+    </div>
+    <div class="timerline" id="sel-timer"></div>
+  </div>
+
+  <!-- build menu -->
+  <div class="sheet" id="buildmenu">
+    <h3>ساخت سازهٔ تازه</h3>
+    <div class="sub">نوع سازه را انتخاب کن؛ سپس جای آن را روی زمین لمس کن.</div>
+    <div id="buildlist"></div>
+  </div>
+
+  <!-- missions -->
+  <div class="sheet" id="missionsheet">
+    <h3>مأموریت‌های دهکده</h3>
+    <div class="sub">پاداش مأموریت‌ها فقط منابع درون‌بازی دهکده است.</div>
+    <div id="missionlist"></div>
+  </div>
+
+  <!-- settings -->
+  <div class="sheet" id="settingsheet">
+    <h3>تنظیمات</h3>
+    <div class="sub">کیفیت گرافیک و مدیریت دهکدهٔ محلی</div>
+    <div class="btnrow" style="margin-bottom:8px">
+      <button class="btn ghostb" data-q="auto">خودکار</button>
+      <button class="btn ghostb" data-q="high">بالا</button>
+      <button class="btn ghostb" data-q="mid">متعادل</button>
+      <button class="btn ghostb" data-q="low">سبک</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn danger" id="btn-reset">بازسازی دهکده</button>
+      <a class="btn ghostb" style="text-decoration:none" href="/game/profile/index.html">پروفایل بازیکن</a>
+    </div>
+    <div class="timerline">دهکده روی همین دستگاه ذخیره می‌شود. کیف پول رسمی و دفترکل، جدا و دست‌نخورده‌اند.</div>
+  </div>
+
+  <!-- confirm bar -->
+  <div id="confirmbar">
+    <div class="hint" id="confirmhint">جای سازه را لمس کن</div>
+    <button class="btn primary" id="btn-confirm">تأیید</button>
+    <button class="btn ghostb" id="btn-cancel">لغو</button>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<div id="boot">
+  <div class="title" id="boot-title">دهکدهٔ من</div>
+  <div class="spin"></div>
+  <div class="sub" id="boot-sub">در حال برپایی دهکده…</div>
+</div>
+
+<script src="./app.js?v=20261105215158"></script>
+</body>
+</html>
