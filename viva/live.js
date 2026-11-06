@@ -201,5 +201,6 @@
   window.Viva = {
     ensureLogin, api, on, connectRoom, disconnect, action, refresh, rooms: roomsApi,
     me: () => state.player,
+    token: () => state.token,  // دسترسی فقط-خواندنی برای بارگیری امن تصاویر (Bearer)
   };
 })();

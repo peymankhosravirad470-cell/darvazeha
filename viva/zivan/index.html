@@ -122,6 +122,31 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
 .board .st { color: #8fb695; font-size: 11px; }
 .board .empty { color: #86a98c; font-size: 11.5px; line-height: 2; }
 
+/* مأموریت‌ها */
+.pbar { display: block; height: 6px; border-radius: 999px; background: rgba(150,220,140,0.14); overflow: hidden; margin-top: 5px; }
+.pbar i { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #6fd06f, #b8f2a6); transition: width .6s ease; }
+.mission { display: flex; align-items: center; gap: 10px; padding: 10px 2px;
+  border-bottom: 1px dashed rgba(150,220,140,0.14); }
+.mission:last-child { border-bottom: 0; }
+.mission .mi { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center;
+  font-size: 18px; background: rgba(150,220,140,0.1); border: 1px solid rgba(150,220,140,0.22); flex: 0 0 auto; }
+.mission .mb { flex: 1; min-width: 0; }
+.mission .mb b { font-size: 12.5px; color: #d9f7c9; display: block; }
+.mission .mb .pbar { height: 6px; margin-top: 5px; }
+.mission .mb .pv { font-size: 10px; color: #8fb695; margin-top: 3px; display: flex; justify-content: space-between; }
+.mission .claim { border: 0; border-radius: 11px; padding: 8px 12px; font-family: inherit; font-size: 11px;
+  font-weight: 900; cursor: pointer; color: #08240f;
+  background: linear-gradient(180deg, #ffe9a8, #e8b84f); }
+.mission .claim:disabled { opacity: .4; cursor: default; }
+.mission .done-tag { font-size: 10px; color: #8fe08e; border: 1px solid rgba(140,230,140,0.4);
+  border-radius: 999px; padding: 4px 9px; flex: 0 0 auto; }
+.hist-line { display: flex; align-items: center; gap: 9px; padding: 7px 0; font-size: 12px;
+  border-bottom: 1px dashed rgba(150,220,140,0.14); color: #cde8c6; }
+.hist-line:last-child { border-bottom: 0; }
+.hist-line .hd { color: #b8f2a6; font-weight: 700; width: 84px; flex: 0 0 auto; }
+.hist-line .hv { flex: 1; color: #a8c9a6; font-size: 11px; }
+
 .conn { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:16px; font-size:11px; color:#9fbf9f; }
 .conn .d { width:8px; height:8px; border-radius:50%; background:#9fbf9f; }
 .conn.on .d { background:#8fe08e; box-shadow:0 0 8px rgba(143,224,142,0.8); }
@@ -175,12 +200,20 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
     <div class="stat"><b id="st-sessions">…</b><span>جلسهٔ فعال</span></div>
   </section>
 
+  <div class="path-note"><span class="live-dot"></span> مأموریت‌های زیوان — امروز و این هفته</div>
+  <section id="missions" aria-label="مأموریت‌های روزانه و هفتگی"></section>
+
   <div class="path-note"><span class="live-dot"></span> مسیر سبز زیوان — ده تالار</div>
   <nav id="halls" aria-label="تالارهای زیوان"></nav>
 
   <section class="board">
     <h3>🏆 نبرد قدم‌ها — برترین‌های ۷ روز (قدم معتبر سرور)</h3>
     <ol id="lb"><li class="empty">در حال دریافت رتبه‌بندی…</li></ol>
+  </section>
+
+  <section class="board">
+    <h3>📅 تاریخچهٔ ۷ روز من (حکم سرور)</h3>
+    <ol id="hist"><li class="empty">در حال دریافت تاریخچه…</li></ol>
   </section>
 
   <p class="privacy">حریم خصوصی: مسیر شما فقط با رضایت صریح و فقط برای نمایش خودتان ذخیره می‌شود؛
@@ -311,6 +344,51 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
     }).join("");
   }
 
+  function renderMissions(d) {
+    var box = document.getElementById("missions");
+    var all = (d.daily || []).concat(d.weekly || []);
+    if (!all.length) { box.innerHTML = ""; return; }
+    box.innerHTML = all.map(function (m) {
+      var pct = Math.min(100, Math.round(m.progress * 100 / m.target));
+      var right;
+      if (m.claimed) right = '<span class="done-tag">دعوا شده ✓</span>';
+      else if (m.done) right = '<button class="claim" data-code="' + m.code + '">دعوای پاداش</button>';
+      else right = '<span style="font-size:10px;color:#6f8a73">' + (m.period === "daily" ? "امروز" : "این هفته") + '</span>';
+      return '<div class="mission"><span class="mi">' + m.icon + '</span>' +
+        '<span class="mb"><b>' + m.name + '</b>' +
+        '<span class="pbar"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="pv"><span>' + fmt(m.progress) + ' / ' + fmt(m.target) + '</span><span>پاداش: ' + m.reward + ' VIVA' +
+        (m.rewards_enabled ? '' : ' (فعلاً خاموش)') + '</span></span></span>' + right + '</div>';
+    }).join("");
+    box.querySelectorAll(".claim").forEach(function (b) {
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        Viva.api("/zivan/missions/" + b.dataset.code + "/claim", { method: "POST" })
+          .then(function () { return Viva.api("/zivan/missions"); })
+          .then(renderMissions)
+          .catch(function () { return Viva.api("/zivan/missions").then(renderMissions); });
+      });
+    });
+  }
+
+  function renderHistory(d) {
+    var el = document.getElementById("hist");
+    if (!d.days.length) {
+      el.innerHTML = '<li class="empty">هنوز فعالیتی این هفته ثبت نشده — از تالار پیاده‌روی شروع کنید.</li>';
+      return;
+    }
+    el.innerHTML = d.days.slice(0, 7).map(function (day) {
+      var bits = [];
+      if (day.distance_m) bits.push((day.distance_m / 1000).toFixed(2) + " km");
+      if (day.steps) bits.push(fmt(day.steps) + " قدم");
+      if (day.balance_s) bits.push(day.balance_s + " ثانیه تمرین");
+      if (day.invalid_sessions) bits.push(day.invalid_sessions + " جلسهٔ ردشده");
+      return '<div class="hist-line"><span class="hd">' + day.date.slice(5) + '</span>' +
+        '<span class="hv">' + (bits.join(" · ") || "—") + '</span>' +
+        '<span class="st">' + day.valid_sessions + ' جلسهٔ معتبر</span></div>';
+    }).join("");
+  }
+
   Viva.on("status", function (s) {
     var el = document.getElementById("conn"), tx = document.getElementById("conn-t");
     el.className = "conn " + (s === "online" ? "on" : s === "offline" ? "off" : "");
@@ -333,6 +411,14 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
   Viva.ensureLogin().then(function () { return Viva.api("/zivan/leaderboard?period=7d"); })
     .then(function (d) { renderLeaderboard(d.leaderboard); })
     .catch(function () { renderLeaderboard([]); });
+
+  Viva.ensureLogin().then(function () { return Viva.api("/zivan/missions"); })
+    .then(renderMissions)
+    .catch(function () {});
+
+  Viva.ensureLogin().then(function () { return Viva.api("/zivan/history?days=7"); })
+    .then(renderHistory)
+    .catch(function () {});
 })();
 </script>
 </body>
