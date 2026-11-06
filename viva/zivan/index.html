@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a1a10" />
+<title>زیوان — پادشاهی هشتم VIVA</title>
+<link rel="icon" href="data:," />
+<script src="https://tapi.bale.ai/miniapp.js"></script>
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../../game/gates/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../../game/gates/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0a1a10; }
+body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #eef5e9;
+  -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+
+/* --- آسمان سپیده‌دم زیوان --- */
+.scene { position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+  background: linear-gradient(180deg, #14342a 0%, #1d4a33 30%, #2d6a42 55%, #3f8a55 78%, #56a568 100%); }
+.sun { position: absolute; top: 7%; left: 50%; width: 120px; height: 120px; margin-left: -60px;
+  border-radius: 50%; background: radial-gradient(circle, #fff7d6 0%, #ffe9a8 40%, rgba(255,220,120,0.25) 68%, transparent 72%);
+  animation: sunPulse 7s ease-in-out infinite; }
+@keyframes sunPulse { 0%,100% { transform: scale(1); opacity: .95; } 50% { transform: scale(1.06); opacity: 1; } }
+.ray { position: absolute; top: 7%; left: 50%; width: 2px; height: 46vh; transform-origin: top center;
+  background: linear-gradient(180deg, rgba(255,240,180,0.16), transparent 75%);
+  animation: raySway 9s ease-in-out infinite alternate; }
+.ray.r2 { animation-duration: 12s; animation-delay: -4s; }
+@keyframes raySway { from { transform: translateX(-60px) rotate(-24deg); } to { transform: translateX(60px) rotate(24deg); } }
+.cloud { position: absolute; background: rgba(240,250,235,0.13); border-radius: 50px; filter: blur(6px);
+  animation: drift linear infinite; }
+@keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(120vw); } }
+.mount { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; }
+.forest { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; }
+
+.bird { position: absolute; width: 22px; height: 10px; opacity: .8;
+  animation: fly 16s linear infinite; }
+.bird::before, .bird::after { content: ""; position: absolute; top: 0; width: 10px; height: 8px;
+  border-top: 2px solid rgba(20,40,28,0.85); border-radius: 60% 60% 0 0; }
+.bird::before { left: 0; transform: rotate(-14deg); animation: flap 0.5s ease-in-out infinite alternate; }
+.bird::after { right: 0; transform: rotate(14deg) scaleX(-1); animation: flap 0.5s ease-in-out infinite alternate; }
+@keyframes flap { from { border-top-width: 3px; } to { border-top-width: 1px; } }
+@keyframes fly { from { transform: translate(-12vw, 0); } to { transform: translate(115vw, -7vh); } }
+
+.leaf { position: absolute; width: 11px; height: 11px; opacity: .75;
+  background: linear-gradient(135deg, #9fe8b0, #4faa66); border-radius: 0 60% 0 60%;
+  animation: fall linear infinite; }
+@keyframes fall { 0% { transform: translate(0,-5vh) rotate(0); } 100% { transform: translate(7vw, 108vh) rotate(540deg); } }
+
+.firefly { position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: #d8ffb0; box-shadow: 0 0 8px 3px rgba(190,255,150,0.55);
+  animation: glow 5s ease-in-out infinite; }
+@keyframes glow { 0%,100% { opacity: .12; transform: translate(0,0); } 50% { opacity: .95; transform: translate(6px,-10px); } }
+
+/* --- محتوا --- */
+.wrap { position: relative; max-width: 560px; margin: 0 auto; padding: 0 16px calc(30px + env(safe-area-inset-bottom)); }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 14px 2px 6px; }
+.back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(160,220,150,0.4);
+  background: rgba(8,22,14,0.55); color: #cdeec2; font-size: 18px; display: grid; place-items: center;
+  text-decoration: none; }
+.tb-flag { width: 52px; height: 40px; border-radius: 9px; overflow: hidden; flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 14px rgba(0,0,0,0.45); }
+.tb-flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tb-title b { font-size: 16px; font-weight: 900; color: #b8f2a6; display: block; }
+.tb-title span { font-size: 10.5px; color: #86a98c; letter-spacing: 3px; }
+.sound { margin-inline-start: auto; width: 40px; height: 40px; border-radius: 12px; font-size: 17px;
+  border: 1px solid rgba(160,220,150,0.4); background: rgba(8,22,14,0.55); color: #cdeec2; }
+
+.hero { text-align: center; padding: 8px 0 2px; }
+.hero h1 { font-size: 40px; font-weight: 900; letter-spacing: 2px;
+  background: linear-gradient(180deg, #eaffdc 0%, #8fe08e 50%, #2e7d4f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .fa { font-size: 15px; font-weight: 700; color: #d5f5c8; margin-top: 2px; }
+.hero p { color: #b7d8b6; font-size: 12px; margin-top: 8px; line-height: 2; }
+
+.statbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.stat { background: rgba(8,22,14,0.55); border: 1px solid rgba(150,220,140,0.28);
+  border-radius: 14px; padding: 10px 6px; text-align: center; backdrop-filter: blur(3px); }
+.stat b { display: block; font-size: 15px; color: #c8f2b8; }
+.stat span { font-size: 10px; color: #8fb695; }
+
+.path-note { margin: 18px 2px 8px; display: flex; align-items: center; gap: 8px;
+  color: #9fd49b; font-size: 12px; font-weight: 700; }
+.path-note::after { content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(150,220,140,0.5), transparent); }
+
+/* تالارها — هر تالار یک ساختار مستقل روی مسیر سبز */
+.hall { position: relative; display: flex; align-items: center; gap: 12px; text-decoration: none;
+  color: inherit; border-radius: 20px; padding: 13px 14px; margin-top: 12px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(12,30,18,0.82), rgba(6,16,10,0.88));
+  border: 1px solid rgba(150,220,140,0.26); box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  transition: transform .15s ease, border-color .2s ease; }
+.hall:active { transform: scale(0.98); border-color: var(--hc); }
+.hall .arch { width: 54px; height: 54px; flex: 0 0 auto; border-radius: 16px 16px 6px 6px;
+  display: grid; place-items: center; font-size: 24px; position: relative;
+  background: linear-gradient(180deg, var(--ha), rgba(0,0,0,0.4)); border: 1px solid rgba(255,255,255,0.14); }
+.hall .arch::before { content: ""; position: absolute; top: -9px; left: 50%; width: 12px; height: 9px;
+  transform: translateX(-50%); background: var(--hc); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.hall .body { flex: 1; min-width: 0; }
+.hall .body b { font-size: 15px; font-weight: 900; color: var(--hc); display: block; }
+.hall .body small { display: block; color: #a8c9a6; font-size: 11px; margin-top: 3px; line-height: 1.8; }
+.hall .tag { flex: 0 0 auto; font-size: 10px; font-weight: 700; padding: 5px 9px; border-radius: 999px; }
+.hall .tag.live { color: #b8f2a6; border: 1px solid rgba(150,230,130,0.45); background: rgba(24,64,34,0.55); }
+.hall .tag.soon { color: #93a893; border: 1px solid rgba(160,200,150,0.22); background: rgba(12,20,14,0.6); }
+.hall.ghost { opacity: .68; filter: saturate(.6); }
+.hall .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#8fe08e;
+  box-shadow: 0 0 7px rgba(143,224,142,0.9); margin-inline-end:5px; animation: dot 1.6s ease-in-out infinite; }
+@keyframes dot { 50% { opacity: .35; } }
+
+.board { margin-top: 18px; background: rgba(8,22,14,0.6); border: 1px solid rgba(150,220,140,0.25);
+  border-radius: 18px; padding: 13px 14px; }
+.board h3 { font-size: 13px; color: #c8f2b8; margin-bottom: 9px; }
+.board ol { list-style: none; }
+.board li { display: flex; align-items: center; gap: 9px; padding: 7px 0; font-size: 12px;
+  border-bottom: 1px dashed rgba(150,220,140,0.14); color: #cde8c6; }
+.board li:last-child { border-bottom: 0; }
+.board .rk { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(150,220,140,0.12); color: #b8f2a6; font-weight: 900; font-size: 11px; }
+.board .nm { flex: 1; }
+.board .st { color: #8fb695; font-size: 11px; }
+.board .empty { color: #86a98c; font-size: 11.5px; line-height: 2; }
+
+.conn { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:16px; font-size:11px; color:#9fbf9f; }
+.conn .d { width:8px; height:8px; border-radius:50%; background:#9fbf9f; }
+.conn.on .d { background:#8fe08e; box-shadow:0 0 8px rgba(143,224,142,0.8); }
+.conn.off .d { background:#ff6a3d; }
+.privacy { margin-top: 14px; color: #7fa383; font-size: 10.5px; line-height: 2; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bird, .leaf, .firefly, .cloud, .ray, .sun, .live-dot { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="scene" id="scene">
+  <div class="sun"></div>
+  <div class="ray"></div><div class="ray r2"></div>
+  <svg class="mount" viewBox="0 0 800 300" preserveAspectRatio="none" style="height:44vh; opacity:.8;">
+    <path d="M0 300 L0 190 L90 110 L170 185 L260 90 L360 200 L440 120 L540 210 L640 130 L720 190 L800 150 L800 300 Z" fill="#1c4430"/>
+    <path d="M0 300 L0 230 L120 160 L230 235 L330 150 L450 245 L560 170 L680 245 L800 200 L800 300 Z" fill="#153524"/>
+  </svg>
+  <svg class="forest" viewBox="0 0 800 260" preserveAspectRatio="none" style="height:36vh;">
+    <path d="M0 260 L0 190 L80 205 L140 170 L220 210 L300 180 L380 215 L470 175 L560 212 L650 182 L740 214 L800 190 L800 260 Z" fill="#0f2a1b"/>
+    <g fill="#0b2115">
+      <path d="M60 260 L78 190 L96 260 Z"/><path d="M150 260 L172 175 L194 260 Z"/>
+      <path d="M250 260 L266 200 L282 260 Z"/><path d="M340 260 L362 180 L384 260 Z"/>
+      <path d="M430 260 L448 195 L466 260 Z"/><path d="M540 260 L560 185 L580 260 Z"/>
+      <path d="M640 260 L658 200 L676 260 Z"/><path d="M730 260 L752 178 L774 260 Z"/>
+    </g>
+    <path d="M0 260 L0 232 Q200 214 400 232 T800 232 L800 260 Z" fill="#0a1a10"/>
+    <path d="M0 260 L0 246 Q260 236 520 248 T800 244 L800 260 Z" fill="#123524" opacity=".85"/>
+  </svg>
+</div>
+
+<div class="wrap">
+  <header class="topbar">
+    <a class="back" href="/viva/" aria-label="بازگشت به VIVA">›</a>
+    <span class="tb-flag"><img src="../../game/gates/assets/flags/zivan_cloth.webp" alt="پرچم رسمی زیوان"></span>
+    <div class="tb-title"><b>زیوان</b><span>ZIVAN · KINGDOM VIII</span></div>
+    <button class="sound" id="sound" aria-label="صدای محیط">♪</button>
+  </header>
+
+  <section class="hero">
+    <h1>ZIVAN</h1>
+    <div class="fa">پادشاهی سلامت، تحرک و نشاط</div>
+    <p>مسیرهای سبز، کوهستان و جنگل — فعالیت واقعی با اعتبارسنجی سرور؛
+    قدم‌های شما اینجا با GPS و فقط با اجازهٔ خودتان شمرده می‌شود</p>
+  </section>
+
+  <section class="statbar" aria-label="آمار هفت روز من">
+    <div class="stat"><b id="st-steps">…</b><span>قدم معتبر · ۷ روز</span></div>
+    <div class="stat"><b id="st-dist">…</b><span>کیلومتر · ۷ روز</span></div>
+    <div class="stat"><b id="st-sessions">…</b><span>جلسهٔ فعال</span></div>
+  </section>
+
+  <div class="path-note"><span class="live-dot"></span> مسیر سبز زیوان — ده تالار</div>
+  <nav id="halls" aria-label="تالارهای زیوان"></nav>
+
+  <section class="board">
+    <h3>🏆 نبرد قدم‌ها — برترین‌های ۷ روز (قدم معتبر سرور)</h3>
+    <ol id="lb"><li class="empty">در حال دریافت رتبه‌بندی…</li></ol>
+  </section>
+
+  <p class="privacy">حریم خصوصی: مسیر شما فقط با رضایت صریح و فقط برای نمایش خودتان ذخیره می‌شود؛
+  رتبه‌بندی‌ها هیچ مختصاتی ندارند. فعالیت را هر زمان می‌توانید متوقف کنید.</p>
+
+  <div class="conn" id="conn"><span class="d"></span><span id="conn-t">اتصال به سرور زیوان…</span></div>
+</div>
+
+<script src="../live.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // --- عناصر زندهٔ صحنه (پرندگان، برگ‌ها، شب‌تاب‌ها، ابرها) ---
+  var scene = document.getElementById("scene");
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function add(cls, count, mk) {
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("i");
+      el.className = cls; mk(el); scene.appendChild(el);
+    }
+  }
+  add("bird", 3, function (el) {
+    el.style.top = rnd(6, 22) + "vh";
+    el.style.animationDuration = rnd(12, 22) + "s";
+    el.style.animationDelay = -rnd(0, 14) + "s";
+  });
+  add("leaf", 9, function (el) {
+    el.style.left = rnd(2, 96) + "vw";
+    el.style.animationDuration = rnd(9, 18) + "s";
+    el.style.animationDelay = -rnd(0, 16) + "s";
+  });
+  add("firefly", 12, function (el) {
+    el.style.left = rnd(4, 94) + "vw";
+    el.style.top = rnd(48, 88) + "vh";
+    el.style.animationDelay = -rnd(0, 5) + "s";
+  });
+  add("cloud", 4, function (el) {
+    el.style.top = rnd(3, 20) + "vh";
+    el.style.width = rnd(90, 190) + "px";
+    el.style.height = "22px";
+    el.style.animationDuration = rnd(45, 90) + "s";
+    el.style.animationDelay = -rnd(0, 60) + "s";
+  });
+
+  // --- صدای محیط (سنتز WebAudio — باد و پرنده، بدون فایل) ---
+  var audioCtx = null, soundOn = false, birdTimer = null;
+  function windNode(ctx) {
+    var len = ctx.sampleRate * 2;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
+    var src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    var flt = ctx.createBiquadFilter(); flt.type = "lowpass"; flt.frequency.value = 420;
+    var g = ctx.createGain(); g.gain.value = 0.045;
+    src.connect(flt); flt.connect(g); g.connect(ctx.destination); src.start();
+    // نوسان آرام باد
+    var lfo = ctx.createOscillator(), lg = ctx.createGain();
+    lfo.frequency.value = 0.09; lg.gain.value = 0.02;
+    lfo.connect(lg); lg.connect(g.gain); lfo.start();
+  }
+  function chirp(ctx) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine"; var t = ctx.currentTime;
+    o.frequency.setValueAtTime(rnd(2100, 3200), t);
+    o.frequency.exponentialRampToValueAtTime(rnd(1400, 2100), t + 0.16);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.035, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.25);
+  }
+  document.getElementById("sound").addEventListener("click", function () {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; } }
+    soundOn = !soundOn;
+    this.textContent = soundOn ? "♪" : "✕";
+    if (soundOn) {
+      audioCtx.resume && audioCtx.resume();
+      windNode(audioCtx);
+      birdTimer = setInterval(function () { if (Math.random() < 0.6) chirp(audioCtx); }, 2600);
+    } else {
+      audioCtx.close(); audioCtx = null;
+      if (birdTimer) clearInterval(birdTimer);
+    }
+  });
+
+  // --- اتصال و داده ---
+  var HALL_STYLE = {
+    walking:        { icon: "🥾", c: "#8fe08e", g: "rgba(90,180,90,0.35)" },
+    steps_battle:   { icon: "⚔️", c: "#ffd97a", g: "rgba(200,160,60,0.35)" },
+    running:        { icon: "🏃", c: "#9fd8ff", g: "rgba(80,150,220,0.35)" },
+    nature_trail:   { icon: "⛰️", c: "#d9b8ff", g: "rgba(150,110,220,0.32)" },
+    balance:        { icon: "🪶", c: "#ffe0b3", g: "rgba(210,160,90,0.3)" },
+    group_training: { icon: "🤝", c: "#ffb3c8", g: "rgba(210,90,130,0.3)" },
+    friendly_challenge: { icon: "🎏", c: "#a6f0dc", g: "rgba(70,190,160,0.3)" },
+    social_mission: { icon: "💚", c: "#c4f5a6", g: "rgba(120,200,80,0.3)" },
+    grand_cup:      { icon: "🏆", c: "#ffe9a8", g: "rgba(200,160,50,0.35)" },
+    moments:        { icon: "📷", c: "#cfe3ff", g: "rgba(120,160,220,0.3)" }
+  };
+
+  function fmt(n) {
+    n = Number(n) || 0;
+    return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
+  }
+
+  function renderHalls(halls) {
+    var nav = document.getElementById("halls");
+    nav.innerHTML = halls.map(function (h) {
+      var s = HALL_STYLE[h.id] || { icon: "🏛️", c: "#bfe8b8", g: "rgba(120,200,110,0.3)" };
+      var live = h.status === "live";
+      return '<a class="hall' + (live ? "" : " ghost") + '" href="hall.html?id=' + h.id + '" style="--hc:' + s.c + ';--ha:' + s.g + '">' +
+        '<span class="arch">' + s.icon + '</span>' +
+        '<span class="body"><b>' + h.name + '</b><small>' + h.tagline + '</small></span>' +
+        (live ? '<span class="tag live"><span class="live-dot"></span>فعال</span>'
+              : '<span class="tag soon">به‌زودی</span>') +
+        '</a>';
+    }).join("");
+  }
+
+  function renderLeaderboard(rows) {
+    var el = document.getElementById("lb");
+    if (!rows.length) {
+      el.innerHTML = '<li class="empty">هنوز قدم معتبری ثبت نشده — اولین همسفر باش! قدم‌ها فقط از مسیر معتبر سرور شمرده می‌شوند.</li>';
+      return;
+    }
+    el.innerHTML = rows.slice(0, 5).map(function (r, i) {
+      return '<li><span class="rk">' + (i + 1) + '</span><span class="nm">' + r.display_name +
+        '</span><span class="st">' + fmt(r.steps) + ' قدم · ' + (r.distance_m / 1000).toFixed(1) + ' km</span></li>';
+    }).join("");
+  }
+
+  Viva.on("status", function (s) {
+    var el = document.getElementById("conn"), tx = document.getElementById("conn-t");
+    el.className = "conn " + (s === "online" ? "on" : s === "offline" ? "off" : "");
+    tx.textContent = s === "online" ? "متصل به سرور زیوان"
+      : s === "offline" ? "قطع — تلاش برای اتصال مجدد…" : "اتصال به سرور زیوان…";
+  });
+
+  Viva.ensureLogin().then(function () {
+    return Viva.api("/zivan/halls").then(function (d) {
+      renderHalls(d.halls);
+      document.getElementById("st-steps").textContent = fmt(d.me.steps_7d);
+      document.getElementById("st-dist").textContent = (d.me.distance_m_7d / 1000).toFixed(1);
+      document.getElementById("st-sessions").textContent = d.me.sessions_7d;
+    });
+  }).catch(function (e) {
+    document.getElementById("conn-t").textContent = e.message === "outside_bale"
+      ? "ورود واقعی فقط داخل مینی‌اپ بله انجام می‌شود." : "ورود ناموفق — دوباره تلاش کنید.";
+  });
+
+  Viva.ensureLogin().then(function () { return Viva.api("/zivan/leaderboard?period=7d"); })
+    .then(function (d) { renderLeaderboard(d.leaderboard); })
+    .catch(function () { renderLeaderboard([]); });
+})();
+</script>
+</body>
+</html>

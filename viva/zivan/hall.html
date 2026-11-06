@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a1a10" />
+<title>تالار زیوان</title>
+<link rel="icon" href="data:," />
+<script src="https://tapi.bale.ai/miniapp.js"></script>
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../../game/gates/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../../game/gates/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0a1a10; }
+body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #eef5e9;
+  -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+.bg { position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 50% at 50% -8%, rgba(160,255,170,0.18) 0%, transparent 55%),
+    linear-gradient(180deg, #14342a 0%, #0d2418 55%, #0a1a10 100%); }
+.wrap { position: relative; max-width: 560px; margin: 0 auto; padding: 0 16px calc(30px + env(safe-area-inset-bottom)); }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 14px 2px 6px; }
+.back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(160,220,150,0.4);
+  background: rgba(8,22,14,0.55); color: #cdeec2; font-size: 18px; display: grid; place-items: center; text-decoration: none; }
+.tb-title b { font-size: 15px; font-weight: 900; color: #b8f2a6; display: block; }
+.tb-title span { font-size: 10px; color: #86a98c; letter-spacing: 2px; }
+
+.card { background: rgba(8,22,14,0.62); border: 1px solid rgba(150,220,140,0.28);
+  border-radius: 20px; padding: 16px 15px; margin-top: 14px; backdrop-filter: blur(3px); }
+.hall-head { display: flex; align-items: center; gap: 12px; }
+.hall-head .arch { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center;
+  font-size: 24px; background: linear-gradient(180deg, var(--hc, #8fe08e22), rgba(0,0,0,0.35));
+  border: 1px solid rgba(255,255,255,0.16); }
+.hall-head h1 { font-size: 18px; font-weight: 900; color: var(--hc, #b8f2a6); }
+.hall-head p { font-size: 11.5px; color: #a8c9a6; margin-top: 3px; line-height: 1.9; }
+
+.notice { margin-top: 12px; font-size: 11.5px; line-height: 2.1; color: #b7d8b6;
+  background: rgba(150,220,140,0.08); border: 1px dashed rgba(150,220,140,0.3);
+  border-radius: 14px; padding: 11px 12px; }
+.notice.warn { color: #ffd9a8; background: rgba(255,180,90,0.07); border-color: rgba(255,190,110,0.35); }
+.notice b { color: #e9ffe0; }
+
+.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 13px; font-size: 12px; line-height: 2;
+  color: #cde8c6; background: rgba(8,22,14,0.5); border: 1px solid rgba(150,220,140,0.3);
+  border-radius: 14px; padding: 12px; }
+.consent input { width: 20px; height: 20px; margin-top: 5px; accent-color: #6fd06f; flex: 0 0 auto; }
+
+.btn { width: 100%; border: 0; border-radius: 16px; padding: 14px; font-family: inherit; font-size: 14.5px;
+  font-weight: 900; margin-top: 13px; cursor: pointer; color: #08240f;
+  background: linear-gradient(180deg, #b8f2a6, #6fd06f); box-shadow: 0 8px 22px rgba(110,210,110,0.28); }
+.btn:disabled { opacity: .45; box-shadow: none; }
+.btn.ghost { background: rgba(150,220,140,0.1); color: #cde8c6; border: 1px solid rgba(150,220,140,0.4); box-shadow: none; }
+.btn.danger { background: linear-gradient(180deg, #ffb3a0, #e8734f); color: #2b0d05; }
+.btn.stop { background: linear-gradient(180deg, #ffe0a8, #e8a84f); color: #2b1d05; }
+.btn + .btn { margin-top: 9px; }
+
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.metric { background: rgba(8,22,14,0.6); border: 1px solid rgba(150,220,140,0.25);
+  border-radius: 15px; padding: 12px 6px; text-align: center; }
+.metric b { display: block; font-size: 19px; font-weight: 900; color: #d9f7c9;
+  font-variant-numeric: tabular-nums; }
+.metric span { font-size: 10px; color: #8fb695; }
+.metric.wide { grid-column: span 3; }
+
+.gpsline { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 11px; color: #9fbf9f; }
+.gpsdot { width: 9px; height: 9px; border-radius: 50%; background: #7d8a7d; }
+.gpsdot.ok { background: #8fe08e; box-shadow: 0 0 7px rgba(143,224,142,0.8); }
+.gpsdot.err { background: #ff6a3d; }
+
+.verdict { margin-top: 14px; border-radius: 16px; padding: 14px; font-size: 13px; line-height: 2.1; }
+.verdict.ok { background: rgba(110,220,120,0.1); border: 1px solid rgba(140,230,140,0.45); color: #d9f7c9; }
+.verdict.bad { background: rgba(255,140,90,0.09); border: 1px solid rgba(255,160,110,0.4); color: #ffd9c2; }
+.verdict b { font-size: 15px; }
+
+.lb { margin-top: 18px; }
+.lb h3 { font-size: 13px; color: #c8f2b8; margin-bottom: 9px; }
+.lb ol { list-style: none; }
+.lb li { display: flex; align-items: center; gap: 9px; padding: 7px 0; font-size: 12px;
+  border-bottom: 1px dashed rgba(150,220,140,0.14); color: #cde8c6; }
+.lb li:last-child { border-bottom: 0; }
+.lb .rk { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(150,220,140,0.12); color: #b8f2a6; font-weight: 900; font-size: 11px; }
+.lb .nm { flex: 1; }
+.lb .st { color: #8fb695; font-size: 11px; }
+.lb .empty { color: #86a98c; font-size: 11.5px; line-height: 2; border: 0; }
+
+.conn { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:16px; font-size:11px; color:#9fbf9f; }
+.conn .d { width:8px; height:8px; border-radius:50%; background:#9fbf9f; }
+.conn.on .d { background:#8fe08e; }
+.conn.off .d { background:#ff6a3d; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <header class="topbar">
+    <a class="back" href="index.html" aria-label="بازگشت به زیوان">›</a>
+    <div class="tb-title"><b id="tb-name">تالار زیوان</b><span>ZIVAN · پادشاهی هشتم VIVA</span></div>
+  </header>
+
+  <section class="card" style="background:transparent;border:0;padding:0;">
+    <div class="hall-head">
+      <span class="arch" id="h-icon">🏛️</span>
+      <div>
+        <h1 id="h-name">…</h1>
+        <p id="h-tag">…</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="auth-warn" class="notice warn" style="display:none">
+    <b>ورود لازم است.</b> فعالیت زیوان فقط داخل مینی‌اپ بله و با حساب واقعی شما ثبت می‌شود.
+  </div>
+
+  <!-- ردیاب فعالیت (تالارهای زنده) -->
+  <div id="tracker" style="display:none">
+    <div class="card" id="consent-card">
+      <div class="notice">
+        <b>GPS فقط با اجازهٔ شما:</b> مکان فقط در حین این فعالیت و فقط برای محاسبهٔ مسافت و قدم
+        استفاده می‌شود. مسیر با دقت پایین (~۱۱ متر) و حداکثر ۶۰ نقطه ذخیره می‌شود و فقط خودتان
+        می‌توانید آن را ببینید. هر لحظه می‌توانید متوقف کنید.
+      </div>
+      <label class="consent">
+        <input type="checkbox" id="consent" />
+        <span>می‌پذیرم: فعال‌سازی GPS برای این فعالیت، با رضایت صریح من است.</span>
+      </label>
+      <button class="btn" id="btn-start" disabled>شروع فعالیت</button>
+      <div class="gpsline"><span class="gpsdot" id="gpsdot"></span><span id="gpsmsg">وضعیت GPS: خاموش</span></div>
+    </div>
+
+    <div class="card" id="live-card" style="display:none">
+      <div class="metrics">
+        <div class="metric"><b id="m-time">۰۰:۰۰</b><span>مدت</span></div>
+        <div class="metric"><b id="m-dist">۰</b><span>متر (نمایشی)</span></div>
+        <div class="metric"><b id="m-steps">۰</b><span>قدم (نمایشی)</span></div>
+      </div>
+      <div class="gpsline"><span class="gpsdot" id="gpsdot2"></span><span id="gpsmsg2">در انتظار سیگنال GPS…</span></div>
+      <button class="btn stop" id="btn-pause">توقف موقت</button>
+      <button class="btn danger" id="btn-finish">پایان و ثبت سرور</button>
+      <p style="font-size:10.5px;color:#7fa383;margin-top:9px;line-height:2">
+        عدد نمایشی گوشی صرفاً راهنماست؛ «حکم رسمی» فقط پس از اعتبارسنجی کامل سرور صادر می‌شود.
+      </p>
+    </div>
+
+    <div class="card" id="result-card" style="display:none"></div>
+    <div class="card" id="path-card" style="display:none">
+      <svg id="path-svg" viewBox="0 0 320 150" style="width:100%;height:150px;display:block"></svg>
+      <p style="font-size:10.5px;color:#7fa383;margin-top:6px;line-height:2">مسیر شما — تقطیع‌شده و فقط برای خودتان.</p>
+    </div>
+  </div>
+
+  <!-- تالارهای ساختاری -->
+  <div id="structure" style="display:none">
+    <div class="card">
+      <div class="notice">
+        <b>این تالار ساخته شده و قابل ورود است؛</b> فعالیت اختصاصی آن در نسخهٔ بعدی زیوان فعال می‌شود.
+        فعلاً می‌توانید در تالارهای زندهٔ پیاده‌روی، دویدن و نبرد قدم‌ها فعالیت معتبر ثبت کنید.
+      </div>
+    </div>
+  </div>
+
+  <section class="card lb" id="lb-card" style="display:none">
+    <h3>🏆 برترین‌های ۷ روز (قدم معتبر سرور)</h3>
+    <ol id="lb"><li class="empty">…</li></ol>
+  </section>
+
+  <div class="conn" id="conn"><span class="d"></span><span id="conn-t">اتصال به سرور زیوان…</span></div>
+</div>
+
+<script src="../live.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var HALLS = {
+    walking:        { name: "تالار پیاده‌روی", icon: "🥾", c: "#8fe08e", live: true, activity: "walk", stride: 0.72, maxmps: 4 },
+    steps_battle:   { name: "تالار نبرد قدم‌ها", icon: "⚔️", c: "#ffd97a", live: true, activity: "walk", stride: 0.72, maxmps: 4, lb: true },
+    running:        { name: "تالار دویدن", icon: "🏃", c: "#9fd8ff", live: true, activity: "run", stride: 1.05, maxmps: 8.5 },
+    nature_trail:   { name: "تالار طبیعت‌گردی", icon: "⛰️", c: "#d9b8ff", live: true, activity: "walk", stride: 0.72, maxmps: 4, mission: true },
+    balance:        { name: "تالار تعادل و انعطاف", icon: "🪶", c: "#ffe0b3", live: false },
+    group_training: { name: "تالار تمرین گروهی", icon: "🤝", c: "#ffb3c8", live: false },
+    friendly_challenge: { name: "تالار چالش دوستانه", icon: "🎏", c: "#a6f0dc", live: false },
+    social_mission: { name: "تالار مأموریت اجتماعی", icon: "💚", c: "#c4f5a6", live: false },
+    grand_cup:      { name: "تالار جام بزرگ سلامت", icon: "🏆", c: "#ffe9a8", live: false, lb: true },
+    moments:        { name: "تالار ثبت لحظه‌ها", icon: "📷", c: "#cfe3ff", live: false }
+  };
+  var TAGLINES = {
+    walking: "ثبت مسیر، مسافت، مدت و قدم‌ها با GPS — فقط با اجازهٔ شما",
+    steps_battle: "رقابت فردی بر اساس قدم‌های معتبرِ تأییدشدهٔ سرور",
+    running: "ثبت فعالیت و مسابقه‌های دویدن با اعتبارسنجی سرور",
+    nature_trail: "مأموریت کشف مسیر: امروز ۲ کیلومتر پیاده در طبیعت",
+    balance: "چالش‌های تعادل، هماهنگی و انعطاف‌پذیری",
+    group_training: "مأموریت‌ها و تمرین‌های مشترک دوستان",
+    friendly_challenge: "مسابقات ورزشی و فعالیت‌های دوستانه",
+    social_mission: "فعالیت‌های جمعی و کمک‌رسانی",
+    grand_cup: "مسابقات دوره‌ای و رتبه‌بندی بازیکنان",
+    moments: "عکاسی از طبیعت و رویدادها با رعایت حریم خصوصی"
+  };
+
+  var q = new URLSearchParams(location.search);
+  var hallId = q.get("id") || "walking";
+  var hall = HALLS[hallId] || HALLS.walking;
+
+  document.documentElement.style.setProperty("--hc", hall.c + "33");
+  document.getElementById("h-icon").textContent = hall.icon;
+  document.getElementById("h-name").textContent = hall.name;
+  document.getElementById("h-tag").textContent = TAGLINES[hallId] || "";
+  document.getElementById("tb-name").textContent = hall.name;
+  document.title = hall.name + " — زیوان";
+
+  // --- وضعیت محلی ردیاب (فقط نمایش؛ حکم رسمی با سرور است) ---
+  var st = { sessionId: null, watching: false, paused: false,
+             points: [], lastFix: null, localDist: 0, startTs: 0, timer: null };
+
+  function fmt2(n) { return (n < 10 ? "0" : "") + n; }
+  function tickTimer() {
+    if (!st.startTs || st.paused) return;
+    var s = Math.floor((Date.now() - st.startTs) / 1000);
+    document.getElementById("m-time").textContent = fmt2(Math.floor(s / 60)) + ":" + fmt2(s % 60);
+  }
+
+  function haversine(a, b) {
+    function rad(x) { return x * Math.PI / 180; }
+    var R = 6371000, dp = rad(b.lat - a.lat), dl = rad(b.lon - a.lon);
+    var h = Math.sin(dp/2)**2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dl/2)**2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function setGps(cls, msg, id1, id2) {
+    document.getElementById(id1 || "gpsdot").className = "gpsdot " + cls;
+    document.getElementById(id2 || "gpsmsg").textContent = msg;
+  }
+
+  function onFix(pos) {
+    var c = pos.coords;
+    var p = { lat: c.latitude, lon: c.longitude, t: Date.now() / 1000, acc: c.accuracy || 0 };
+    var last = st.lastFix;
+    if (last) {
+      var dt = p.t - last.t, d = haversine(last, p);
+      // نمایش محلی: فقط حرکت ممکن (ضد جهش) — حکم نهایی باز هم با سرور است
+      if (dt > 0 && d / dt <= hall.maxmps) {
+        st.localDist += d;
+        document.getElementById("m-dist").textContent = Math.round(st.localDist);
+        document.getElementById("m-steps").textContent = Math.round(st.localDist / hall.stride);
+      }
+    }
+    st.lastFix = p;
+    if (!st.paused) st.points.push(p);
+    setGps("ok", "GPS فعال — دقت " + Math.round(c.accuracy || 0) + " متر · " + st.points.length + " نقطه", "gpsdot2", "gpsmsg2");
+    document.getElementById("gpsdot2").className = "gpsdot ok";
+  }
+
+  function onGpsError(e) {
+    setGps("err", "خطای GPS: " + (e.message || e.code), "gpsdot2", "gpsmsg2");
+  }
+
+  function startWatch() {
+    if (!navigator.geolocation) { setGps("err", "مرورگر شما GPS ندارد"); return; }
+    st.watching = true;
+    navigator.geolocation.watchPosition(onFix, onGpsError,
+      { enableHighAccuracy: true, maximumAge: 2000, timeout: 12000 });
+  }
+
+  // --- جریان اصلی ---
+  var authed = false;
+  Viva.on("status", function (s) {
+    var el = document.getElementById("conn");
+    el.className = "conn " + (s === "online" ? "on" : s === "offline" ? "off" : "");
+    document.getElementById("conn-t").textContent =
+      s === "online" ? "متصل به سرور زیوان" : s === "offline" ? "قطع — تلاش مجدد…" : "اتصال به سرور زیوان…";
+  });
+
+  Viva.ensureLogin().then(function () {
+    authed = true;
+    if (hall.live) {
+      document.getElementById("tracker").style.display = "block";
+    } else {
+      document.getElementById("structure").style.display = "block";
+    }
+    if (hall.lb) loadLeaderboard();
+  }).catch(function (e) {
+    document.getElementById("auth-warn").style.display = "block";
+    if (e.message !== "outside_bale") document.getElementById("auth-warn").innerHTML =
+      "<b>ورود ناموفق.</b> دوباره تلاش کنید.";
+    if (hall.lb) loadLeaderboard();
+  });
+
+  var consentEl = document.getElementById("consent");
+  var startBtn = document.getElementById("btn-start");
+  consentEl.addEventListener("change", function () { startBtn.disabled = !consentEl.checked || !authed; });
+
+  startBtn.addEventListener("click", function () {
+    if (!consentEl.checked) return;
+    startBtn.disabled = true;
+    Viva.api("/zivan/sessions", { method: "POST", body: { hall: hallId, consent: true } })
+      .then(function (d) {
+        st.sessionId = d.session.id;
+        st.startTs = Date.now();
+        document.getElementById("consent-card").style.display = "none";
+        document.getElementById("live-card").style.display = "block";
+        st.timer = setInterval(tickTimer, 1000);
+        startWatch();
+      })
+      .catch(function (e) {
+        startBtn.disabled = false;
+        setGps("err", "شروع ناموفق: " + e.message);
+      });
+  });
+
+  document.getElementById("btn-pause").addEventListener("click", function () {
+    st.paused = !st.paused;
+    this.textContent = st.paused ? "ادامهٔ فعالیت" : "توقف موقت";
+    if (st.paused) st.lastFix = null; // پس از ادامه، جهش تازه شمرده نشود
+  });
+
+  document.getElementById("btn-finish").addEventListener("click", function () {
+    var btn = this;
+    btn.disabled = true; btn.textContent = "در حال اعتبارسنجی سرور…";
+    if (st.watching && navigator.geolocation.clearWatch) { /* watch id نداریم؛ ادامه بی‌خطر است */ }
+    var done = function () {
+      Viva.api("/zivan/sessions/" + st.sessionId + "/finish",
+               { method: "POST", body: { points: st.points } })
+        .then(showVerdict)
+        .catch(function (e) {
+          btn.disabled = false; btn.textContent = "پایان و ثبت سرور";
+          alert("ثبت ناموفق: " + e.message);
+        });
+    };
+    done();
+  });
+
+  function showVerdict(d) {
+    clearInterval(st.timer);
+    document.getElementById("live-card").style.display = "none";
+    var s = d.session, el = document.getElementById("result-card");
+    el.style.display = "block";
+    if (s.valid) {
+      var km = (s.distance_m / 1000).toFixed(2);
+      el.className = "card verdict ok";
+      el.innerHTML = "<b>✅ حکم سرور: فعالیت معتبر</b><br>" +
+        "مسافت معتبر: <b>" + km + " کیلومتر</b> · قدم: <b>" + s.steps + "</b> · مدت: " +
+        Math.round(s.duration_s / 60) + " دقیقه" +
+        (d.reward > 0 ? "<br>پاداش توکن: <b>" + d.reward + " VIVA</b>" :
+         "<br><span style='font-size:11px;color:#9fbf9f'>پاداش توکن زیوان هنوز در محیط اصلی فعال نشده است (تصمیم مالک محصول).</span>");
+      loadPath(s.id);
+    } else {
+      el.className = "card verdict bad";
+      var why = {
+        below_minimum: "مسافت معتبر کمتر از حداقل (۳۰ متر) بود.",
+        impossible_speed: "حرکت غیرممکن (سرعت بیش از حد) شناسایی شد — بخش‌هایی از مسیر کنار گذاشته شد.",
+        gps_quality: "کیفیت سیگنال GPS کافی نبود.",
+        too_many_points: "حجم دادهٔ نقاط بیش از حد مجاز بود.",
+        session_too_long: "مدت جلسه بیش از سقف مجاز بود.",
+        impossible_average: "میانگین کل مسافت/زمان ممکن نبود."
+      }[s.reject_reason] || "فعالیت تأیید نشد.";
+      el.innerHTML = "<b>⛔ حکم سرور: ثبت نشد</b><br>" + why +
+        "<br><span style='font-size:11px;color:#c2a898'>مسافت نمایشی گوشی ملاک نیست؛ حکم رسمی فقط با اعتبارسنجی سرور صادر می‌شود.</span>";
+    }
+  }
+
+  function loadPath(sid) {
+    Viva.api("/zivan/sessions/" + sid + "/path").then(function (d) {
+      var pts = d.path || [];
+      if (pts.length < 2) return;
+      var lats = pts.map(function (p) { return p.lat; }), lons = pts.map(function (p) { return p.lon; });
+      var minLat = Math.min.apply(null, lats), maxLat = Math.max.apply(null, lats);
+      var minLon = Math.min.apply(null, lons), maxLon = Math.max.apply(null, lons);
+      var spanLat = (maxLat - minLat) || 1e-6, spanLon = (maxLon - minLon) || 1e-6;
+      var svg = document.getElementById("path-svg");
+      var dstr = pts.map(function (p, i) {
+        var x = 10 + 300 * (p.lon - minLon) / spanLon;
+        var y = 140 - 130 * (p.lat - minLat) / spanLat;
+        return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+      }).join(" ");
+      svg.innerHTML = '<path d="' + dstr + '" fill="none" stroke="#8fe08e" stroke-width="3" ' +
+        'stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>';
+      document.getElementById("path-card").style.display = "block";
+    }).catch(function () {});
+  }
+
+  function loadLeaderboard() {
+    var box = document.getElementById("lb-card");
+    box.style.display = "block";
+    Viva.api("/zivan/leaderboard?period=7d").then(function (d) {
+      var el = document.getElementById("lb");
+      if (!d.leaderboard.length) {
+        el.innerHTML = '<li class="empty">هنوز قدم معتبری ثبت نشده — اولین قهرمان باش!</li>';
+        return;
+      }
+      el.innerHTML = d.leaderboard.slice(0, 7).map(function (r, i) {
+        return "<li><span class='rk'>" + (i + 1) + "</span><span class='nm'>" + r.display_name +
+          "</span><span class='st'>" + r.steps + " قدم</span></li>";
+      }).join("");
+    }).catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
