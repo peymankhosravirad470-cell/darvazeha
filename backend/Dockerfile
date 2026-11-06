@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
 COPY index.html ./web/index.html
 COPY game/ ./web/game/
+COPY viva/ ./web/viva/
 COPY backend/migrations ./migrations
 COPY backend/alembic.ini ./alembic.ini
 
