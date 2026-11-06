@@ -101,3 +101,29 @@ class MatchResult(Base):
     result: Mapped[dict] = mapped_column(JSON, default=dict)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+class ActivitySession(Base):
+    """جلسهٔ فعالیت زیوان — فقط حاصلِ اعتبارسنجی سرور ذخیره می‌شود.
+
+    حریم خصوصی: مسیر (path) فقط با رضایت صریح و حداکثر ۶۰ نقطهٔ
+    تقطیع‌شده (~۱۱ متر دقت) نگه‌داری می‌شود و فقط برای خود کاربر
+    قابل دریافت است. مسافت/قدمِ عمومی فاقد مختصات است.
+    """
+    __tablename__ = "zivan_activity_sessions"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    hall: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    activity: Mapped[str] = mapped_column(String(20), nullable=False)
+    consent: Mapped[bool] = mapped_column(Boolean, default=False)
+    status: Mapped[str] = mapped_column(String(20), default="active", index=True)
+    distance_m: Mapped[int] = mapped_column(Integer, default=0)
+    steps: Mapped[int] = mapped_column(Integer, default=0)
+    duration_s: Mapped[int] = mapped_column(Integer, default=0)
+    valid: Mapped[bool] = mapped_column(Boolean, default=False)
+    reject_reason: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    validation_stats: Mapped[dict] = mapped_column(JSON, default=dict)
+    path: Mapped[list] = mapped_column(JSON, default=list)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
