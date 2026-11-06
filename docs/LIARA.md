@@ -15,6 +15,10 @@ Liara یا با `liara envs set` تنظیم شوند.
 liara deploy --app <APP_ID> --dockerfile backend/Dockerfile
 ```
 
+- **پرچم `--dockerfile backend/Dockerfile` الزامی است:** بدون آن، لایارا دنبال
+  `Dockerfile` در ریشهٔ مخزن می‌گردد و build با خطای
+  `the Dockerfile (Dockerfile) cannot be empty` شکست می‌خورد
+  (Dockerfile اصلی در `backend/` است و context ساخت، ریشهٔ مخزن).
 - اگر `liara.json` وجود داشته باشد، `--platform` و `--port` و health-check از
   آن خوانده می‌شود.
 - دستور ساخت ایمیج دقیقاً همان مسیری است که CI انجام می‌دهد
