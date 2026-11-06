@@ -89,3 +89,15 @@ class TokenLedger(Base):
     reason: Mapped[str] = mapped_column(String(80), nullable=False)
     reference_id: Mapped[str | None] = mapped_column(String(80), nullable=True, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+class MatchResult(Base):
+    """نتیجهٔ مسابقه‌های زندهٔ VIVA — ماندگاری سروری و مرجع حسابرسی پاداش."""
+    __tablename__ = "match_results"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    game: Mapped[str] = mapped_column(String(30), nullable=False, index=True)
+    room_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    player_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    config: Mapped[dict] = mapped_column(JSON, default=dict)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
