@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -52,9 +53,16 @@ def create_room(body: CreateRoomRequest, user: User = Depends(current_user), db:
         lo, hi = limits
         if not (lo <= body.capacity <= hi):
             raise HTTPException(status_code=422, detail=f"ظرفیت مجاز برای {body.game}: {lo} تا {hi}")
+    # ضد پیش‌بینی: «seed» هرگز از کلاینت پذیرفته نمی‌شود — تخصیص نقش‌ها باید
+    # غیرقابل حدس بماند (میزبان نباید بتواند نقش‌ها را از قبل محاسبه کند).
+    # سایر تنظیمات مجاز حفظ می‌شوند و حجم پیکربندی محدود است (ضد حافظهٔ سمی).
+    config = dict(body.config or {})
+    config.pop("seed", None)
+    if len(json.dumps(config, ensure_ascii=False)) > 2000:
+        raise HTTPException(status_code=422, detail="پیکربندی اتاق بیش از حد بزرگ است.")
     account = _account_for(db, user)
     # کلید هویتی هاب = شناسهٔ حساب بازیکن (هم‌راستا با کیف پول و دفترکل)
-    room = hub.create_room(body.game, account.id, account.display_name, body.capacity, body.config)
+    room = hub.create_room(body.game, account.id, account.display_name, body.capacity, config)
     return {"room": room.public_state(account.id)}
 
 

@@ -271,8 +271,13 @@ class LiveHub:
         return old
 
     def drop_connection(self, conn: Connection) -> None:
-        if self.connections.get(conn.account_id) is conn:
-            self.connections.pop(conn.account_id, None)
+        current = self.connections.get(conn.account_id)
+        if current is not None and current is not conn:
+            # اتصال تازه‌تری برای همین حساب جایگزین شده است؛ بستن اتصال کهنه
+            # نباید حضور را «قطع‌شده» اعلام کند (وگرنه تایمر باخت فنی شطرنج
+            # برای بازیکنی که وصل است روشن می‌شود).
+            return
+        self.connections.pop(conn.account_id, None)
         room = self.rooms.get(conn.room_id)
         if room is None:
             return
