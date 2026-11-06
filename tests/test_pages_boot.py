@@ -160,6 +160,40 @@ with sync_playwright() as p:
     record('نسخهٔ پیشین: صفحهٔ بازی قدیمی واقعاً بوت شد', page5.locator('#screen-boot.active').count() == 1)
     page5.screenshot(path=str(SHOTS / 'boot-profile-legacy.png'))
     ctx5.close()
+
+    # ── ۶) پایگاه خانگی: انتخاب یک‌بار ← ورود مستقیم ← سفر آگاهانه از نقشه ──
+    ctx6 = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+    ctx6.route(SDK_RE, route)
+    ctx6.add_init_script("try{localStorage.setItem('lands.home', JSON.stringify({r:'targon',l:'t1'}))}catch(e){}")
+    errs6 = []
+    page6 = new_page(ctx6, errs6)
+    page6.goto(f'{BASE}/index.html'); page6.wait_for_timeout(700)
+    href6 = page6.locator('#menu-empires').get_attribute('href')
+    record('پایگاه خانگی: گزینهٔ ۱ منو مستقیم به دهکدهٔ خود بازیکن می‌رود',
+           href6 == '/game/village/index.html?realm=targon&land=t1', str(href6))
+    page6.goto(f'{BASE}/game/gates/index.html')
+    page6.wait_for_url('**/game/village/index.html**', timeout=8000)
+    record('پایگاه خانگی: بازکردن صفحهٔ هفت دروازه مستقیم به پایگاه خانگی می‌رسد',
+           'realm=targon' in page6.url and 'land=t1' in page6.url, page6.url)
+    ctx6.close()
+
+    ctx7 = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+    ctx7.route(SDK_RE, route)
+    errs7 = []
+    page7 = new_page(ctx7, errs7)
+    page7.goto(f'{BASE}/game/gates/index.html?travel=dezhmaar'); page7.wait_for_timeout(900)
+    record('سفر آگاهانه: فهرست سرزمین‌های همان امپراتوری مستقیم باز می‌شود',
+           page7.locator('#lands-screen.active').count() == 1
+           and 'دژمار' in page7.locator('#lands-realm-name').inner_text())
+    record('سفر آگاهانه: پایگاه خانگی ساخته نمی‌شود',
+           page7.evaluate("() => localStorage.getItem('lands.home')") is None)
+    page7.goto(f'{BASE}/game/map/index.html'); page7.wait_for_timeout(1200)
+    page7.locator('#map-svg g[data-realm="targon"][data-land="t1"]').tap(); page7.wait_for_timeout(500)
+    go7 = page7.locator('#sh-go').get_attribute('href')
+    record('نقشهٔ کل: دکمهٔ ورود پنل، سفر آگاهانه به همان امپراتوری است',
+           go7 == '/game/gates/index.html?travel=targon', str(go7))
+    record('سفر/نقشه: بدون خطای جاوااسکریپت', not any(BAD in e for e in errs7), ' | '.join(errs7[:2]))
+    ctx7.close()
     browser.close()
 
 n_ok = sum(1 for r in results if r)

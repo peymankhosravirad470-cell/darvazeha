@@ -190,6 +190,17 @@ function checkServer() {
 }
 checkServer();
 setInterval(checkServer, 30000);
+/* پایگاه خانگی: اگر بازیکن یک‌بار امپراتوری‌اش را انتخاب کرده باشد، گزینهٔ ۱
+   مستقیم به پایگاه خانگی خودش داخل همان امپراتوری می‌رود (مثل ورود به ویلیج)؛
+   انتخاب امپراتوری فقط بار اول از صفحهٔ هفت دروازه انجام می‌شود. */
+try {
+  var home77 = JSON.parse(localStorage.getItem('lands.home') || 'null');
+  if (home77 && home77.r && home77.l) {
+    document.getElementById('menu-empires').href =
+      '/game/village/index.html?realm=' + encodeURIComponent(home77.r) +
+      '&land=' + encodeURIComponent(home77.l);
+  }
+} catch (e) { /* private mode */ }
 try {
   var w = window;
   try { w.Bale && w.Bale.WebApp && w.Bale.WebApp.ready && w.Bale.WebApp.ready(); } catch (e) { }

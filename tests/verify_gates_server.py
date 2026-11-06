@@ -130,7 +130,7 @@ def main():
                                       device_scale_factor=3, is_mobile=True, has_touch=True)
             ctx.add_init_script(init_js)
             page = ctx.new_page()
-            page.goto(base + "/game/gates/index.html", wait_until="networkidle")
+            page.goto(base + "/game/gates/index.html?world=1", wait_until="networkidle")
             time.sleep(2.5)
             tw = page.locator("#title-wallet").inner_text()
             record("B1. صفحهٔ بازی: کیف پول متصل به Backend واقعی", "متصل" in tw, tw.strip()[:46])

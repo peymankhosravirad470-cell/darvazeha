@@ -260,8 +260,10 @@ function showInfo(r, l, idx) {
   else { st.innerHTML = '<span class="state-chip locked">قفل — در سطح امپراتوری بسته است</span>'; }
   var go = document.getElementById('sh-go');
   go.style.display = r.unlocked ? 'block' : 'none';
+  /* سفر آگاهانه: ورود به سرزمین‌های همین امپراتوری از فهرست رسمی آن — نه ورود خودکار */
+  go.href = '/game/gates/index.html?travel=' + encodeURIComponent(r.id);
   document.getElementById('sh-note').textContent = r.unlocked
-    ? 'ورود به این سرزمین از صفحهٔ هفت دروازهٔ رسمی انجام می‌شود.'
+    ? 'ورود به این سرزمین از فهرست رسمی سرزمین‌های ' + r.fa + ' انجام می‌شود.'
     : 'نام و هویت این سرزمین رسمی است؛ گشودن دروازه در نسخهٔ بعد انجام می‌شود.';
   showSheet();
 }
@@ -274,8 +276,10 @@ function showRealm(r) {
   st.innerHTML = r.unlocked
     ? '<span class="state-chip open">آزاد — تارگون و دژمار در نسخهٔ اول بازند</span>'
     : '<span class="state-chip locked">قفل — روی نقشهٔ جهان شناخته‌شده است</span>';
-  document.getElementById('sh-go').style.display = r.unlocked ? 'block' : 'none';
-  document.getElementById('sh-note').textContent = 'انتخاب قلمرو و ورود به سرزمین‌ها از صفحهٔ هفت دروازه انجام می‌شود.';
+  var go = document.getElementById('sh-go');
+  go.style.display = r.unlocked ? 'block' : 'none';
+  go.href = '/game/gates/index.html?travel=' + encodeURIComponent(r.id);
+  document.getElementById('sh-note').textContent = 'انتخاب قلمرو و ورود به سرزمین‌ها از فهرست رسمی همان امپراتوری انجام می‌شود.';
   showSheet();
 }
 

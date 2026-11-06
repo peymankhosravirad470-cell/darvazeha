@@ -87,7 +87,7 @@ def test_root_index_links_to_targon_world():
     text = (REPO_ROOT / "index.html").read_text(encoding="utf-8")
     assert text.count('id="menu-') == 3  # فقط سه گزینهٔ اصلی
     assert 'id="menu-empires"' in text and "/game/gates/index.html" in text
-    assert "ورود به هفت امپراتوری" in text
+    assert "ورود به هفت پادشاهی" in text
     assert 'id="menu-map"' in text and "/game/map/index.html" in text
     assert 'id="menu-profile"' in text and "/game/profile/index.html" in text
     # گزینهٔ اصلی اضافهٔ «اتصال سرور» ممنوع است — فقط نشان کوچک وضعیت
@@ -124,7 +124,7 @@ def client():
 def test_static_root_serves_miniapp_with_targon_entry(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert "ورود به هفت امپراتوری" in response.text
+    assert "ورود به هفت پادشاهی" in response.text
     assert "/game/gates/index.html" in response.text
     # نسخهٔ پیشین از پروفایل در دسترس است (هر دو واقعاً سرو می‌شوند)
     profile = client.get("/game/profile/index.html")

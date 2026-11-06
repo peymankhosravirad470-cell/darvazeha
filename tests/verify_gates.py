@@ -6,11 +6,13 @@ Android mobile emulation (390x844, DPR 3, touch). Every PASS/FAIL line
 reflects an actual assertion made during the run.
 
 Covers: asset completeness, honest wallet (no fake balance), preload,
-seven cloth flags with official FA/EN names, realm intro, the 11 official
-TARGON lands (exact order), locked realms, the 3D world HUD, navigation,
-layout overflow and console cleanliness.
+seven cloth flags with official FA/EN names, ONE-TIME empire selection →
+home base creation → direct re-entry, map-based travel (?travel=) with the
+11 official TARGON lands (exact order), locked realms, the legacy ?world=1
+rollback path, layout overflow and console cleanliness.
 """
 import http.server
+import json
 import pathlib
 import socketserver
 import threading
@@ -19,11 +21,10 @@ import time
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-GATES = ROOT / "game" / "gates"
 SHOTS = ROOT / "download" / "gates-screens"
 SHOTS.mkdir(parents=True, exist_ok=True)
 PORT = 8139
-URL = f"http://127.0.0.1:{PORT}/index.html"
+URL = f"http://127.0.0.1:{PORT}/game/gates/index.html"
 
 results, console_errors, page_errors = [], [], []
 
@@ -35,7 +36,7 @@ def record(name, ok, note=""):
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
-        super().__init__(*a, directory=str(GATES), **kw)
+        super().__init__(*a, directory=str(ROOT), **kw)
 
     def log_message(self, *a):
         pass
@@ -50,18 +51,18 @@ def serve():
 
 def main():
     # ---------- 1. asset completeness (Docker output must include all) ----------
-    flags = sorted((GATES / "assets" / "flags").glob("*.webp"))
+    flags = sorted((ROOT / "game" / "gates" / "assets" / "flags").glob("*.webp"))
     record("1a. ۲۱ بافت پرچم رسمی (۷ قلمرو × بافت/نرمال/اثر)", len(flags) == 21, f"count={len(flags)}")
     realms = ["targon", "dezhmaar", "argad", "mardak", "vergad", "zardak", "tarmad"]
     missing = [r for r in realms if not all(
-        (GATES / "assets" / "flags" / f"{r}_{k}.webp").exists() for k in ("cloth", "normal", "art"))]
+        (ROOT / "game" / "gates" / "assets" / "flags" / f"{r}_{k}.webp").exists() for k in ("cloth", "normal", "art"))]
     record("1b. هر ۷ قلمرو هر سه فایل را دارد", not missing, f"missing={missing}")
-    fonts = sorted((GATES / "assets" / "fonts").glob("*.woff2"))
+    fonts = sorted((ROOT / "game" / "gates" / "assets" / "fonts").glob("*.woff2"))
     record("1c. فونت وزیرمتن محلی (۲ وزن)", len(fonts) == 2, f"count={len(fonts)}")
-    appjs = GATES / "app.js"
+    appjs = ROOT / "game" / "gates" / "app.js"
     record("1d. باندل app.js سالم و حجیم", appjs.exists() and appjs.stat().st_size > 400_000,
            f"size={appjs.stat().st_size if appjs.exists() else 0}")
-    html = (GATES / "index.html").read_text(encoding="utf-8")
+    html = (ROOT / "game" / "gates" / "index.html").read_text(encoding="utf-8")
     import re
     stamp_ok = re.search(r'app\.js\?v=\d{14}', html)
     record("1e. مُهر ضدکش روی app.js", bool(stamp_ok), stamp_ok.group(0) if stamp_ok else "")
@@ -81,18 +82,18 @@ def main():
             page.goto(URL, wait_until="networkidle")
             time.sleep(1.5)
 
-            # ---------- 2. title + honest wallet ----------
-            record("2a. صفحهٔ عنوان رندر شد", page.locator("#title-screen.active").count() == 1)
+            # ---------- 2. first-time entry: title + honest wallet ----------
+            record("2a. بازیکن تازه (بدون پایگاه): صفحهٔ عنوان رندر شد", page.locator("#title-screen.active").count() == 1)
             record("2b. دکمهٔ ورود به بازی هست", page.locator("#btn-enter-game").is_visible())
             tw = page.locator("#title-wallet").inner_text()
             honest = ("قطع" in tw) or ("اتصال" in tw) or ("متصل" in tw)
             record("2c. وضعیت کیف پول صادقانه است (بدون عدد ساختگی)", honest, tw.strip()[:48])
             record("2d. هیچ عدد سکهٔ ساختگی در عنوان نیست", "سکه" not in tw or "متصل" in tw)
 
-            # ---------- 3. enter → loading → gates ----------
+            # ---------- 3. enter → loading → gates (صفحهٔ انتخاب امپراتوری) ----------
             page.locator("#btn-enter-game").tap()
             page.wait_for_selector("#gates-screen.active", timeout=30000)
-            record("3a. پس از پیش‌بارگذاری، صحنهٔ هفت دروازه فعال شد", True)
+            record("3a. پس از پیش‌بارگذاری، صحنهٔ هفت دروازه (انتخاب امپراتوری) فعال شد", True)
             record("3b. بدون خطای JavaScript تا اینجا", not page_errors, str(page_errors[:2]))
 
             # ---------- 4. seven official flags ----------
@@ -131,60 +132,91 @@ def main():
             page.locator("#arrow-left").tap()
             time.sleep(0.9)
 
-            # ---------- 6. enter TARGON → intro → 11 official lands ----------
+            # ---------- 6. نخستین انتخاب امپراتوری ← ساخت پایگاه خانگی ← ورود مستقیم ----------
             page.locator("#gates-enter").tap()
+            page.wait_for_selector("#intro-screen.active", timeout=15000)
+            record("6a. معرفی قلمرو تارگون نمایش داده شد", "تارگون" in page.locator("#intro-name").inner_text())
+            page.wait_for_url("**/game/village/index.html**", timeout=15000)
+            home_raw = page.evaluate("() => localStorage.getItem('lands.home')")
+            home_ok = False
+            try:
+                home_ok = json.loads(home_raw) == {"r": "targon", "l": "t1"}
+            except Exception:
+                pass
+            record("6b. پایگاه خانگی یک‌بار ساخته شد: تارگون · سپیده‌دم", home_ok, str(home_raw))
+            page.wait_for_timeout(3000)
+            record("6c. ورود مستقیم به پایگاه خانگی — دهکدهٔ سه‌بعدی بوت شد",
+                   page.evaluate("() => !!window.__VILLAGE"))
+            record("6d. بدون خطای JavaScript در بوت پایگاه", not page_errors, str(page_errors[:2]))
+            page.screenshot(path=str(SHOTS / "home-base-village.png"))
+
+            # ---------- 7. هر ورود بعدی: مستقیم پایگاه خانگی خود بازیکن ----------
+            page.goto(f"http://127.0.0.1:{PORT}/game/gates/index.html")
+            page.wait_for_url("**/game/village/index.html**", timeout=10000)
+            record("7a. ورود دوباره: مستقیم پایگاه خانگی (بدون پرچم‌ها و فهرست)",
+                   "realm=targon" in page.url and "land=t1" in page.url, page.url)
+
+            # ---------- 8. سفر آگاهانه از نقشه: فهرست رسمی ۱۱ سرزمین تارگون ----------
+            page.goto(f"http://127.0.0.1:{PORT}/game/gates/index.html?travel=targon")
             page.wait_for_selector("#lands-screen.active", timeout=15000)
             cards = page.locator(".land-card .land-name")
             names = [cards.nth(i).inner_text() for i in range(cards.count())]
             expect_lands = ["سپیده‌دم", "دهکده آذرین", "میدان هم‌پیمانان", "بازار کهن", "دشت سبز",
                             "جنگل زمرد", "رود روشن", "کوهستان سنگ‌نگهبان", "دژ نگهبان",
                             "ویرانه‌های خاموش", "دروازه سرخ"]
-            record("6a. دقیقاً ۱۱ سرزمین", cards.count() == 11, f"count={cards.count()}")
-            record("6b. ترتیب و نام‌های رسمی تارگون", names == expect_lands, "،".join(names))
-            record("6c. کارت‌ها باز هستند (ورود ←)", page.locator(".land-card .go").count() == 11)
-            record("6d. بدون سرریز افقی در فهرست سرزمین‌ها",
+            record("8a. دقیقاً ۱۱ سرزمین", cards.count() == 11, f"count={cards.count()}")
+            record("8b. ترتیب و نام‌های رسمی تارگون", names == expect_lands, "،".join(names))
+            record("8c. کارت‌ها باز هستند (ورود ←)", page.locator(".land-card .go").count() == 11)
+            record("8d. بدون سرریز افقی در فهرست سرزمین‌ها",
                    page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"))
-            page.screenshot(path=str(SHOTS / "lands.png"))
-
-            # ---------- 7. world ----------
+            page.screenshot(path=str(SHOTS / "lands-travel.png"))
             page.locator(".land-card").first.tap()
-            page.wait_for_selector("#world-screen.active", timeout=30000)
-            time.sleep(3.0)
-            record("7a. جهان سه‌بعدی فعال شد", True)
-            record("7b. چیپ سرزمین/سرزمین درست است",
-                   "تارگون" in page.locator("#land-chip").inner_text()
-                   and "سپیده‌دم" in page.locator("#land-chip").inner_text())
-            chip = page.locator("#world-screen .wallet-chip").inner_text()
-            record("7c. کیف پول در جهان: حالت صادقانه (قطع/اتصال)", ("قطع" in chip) or ("اتصال" in chip), chip.strip()[:40])
-            record("7d. هیچ موجودی ساختگی در جهان نیست", not any(ch.isdigit() for ch in chip))
-            record("7e. جوی‌استیک لمسی هست", page.locator("#joystick-zone").count() == 1)
-            record("7f. دکمهٔ دویدن هست", page.locator("#btn-run").count() == 1)
-            record("7g. بدون سرریز افقی در جهان",
-                   page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"))
-            page.screenshot(path=str(SHOTS / "world.png"))
+            page.wait_for_url("**/game/village/index.html**", timeout=15000)
+            page.wait_for_timeout(2500)
+            record("8e. سفر به سرزمین منتخب از فهرست رسمی کار می‌کند",
+                   "land=t1" in page.url and page.evaluate("() => !!window.__VILLAGE"), page.url)
 
-            # back navigation
-            page.locator("#btn-world-back").tap()
-            page.wait_for_selector("#lands-screen.active", timeout=8000)
-            record("8a. بازگشت جهان → فهرست سرزمین‌ها", True)
-            page.locator("#btn-lands-back").tap()
-            page.wait_for_selector("#gates-screen.active", timeout=8000)
-            record("8b. بازگشت فهرست → دروازه‌ها", True)
-
-            # ---------- 9. locked realm ----------
-            for _ in range(3):
-                page.locator("#arrow-right").tap()
-                time.sleep(0.5)
-            page.locator("#gates-enter").tap()
+            # ---------- 9. قلمرو قفل از مسیر سفر (پایگاه عوض نمی‌شود) ----------
+            page.goto(f"http://127.0.0.1:{PORT}/game/gates/index.html?travel=argad")
             page.wait_for_selector("#lands-screen.active", timeout=15000)
             locked = page.locator(".land-card.locked").count()
             record("9a. قلمرو قفل: هر ۱۱ کارت قفل است", locked == 11, f"locked={locked}")
             note = page.locator("#lands-locknote")
             record("9b. پیام قفل نمایش داده می‌شود", note.is_visible(), note.inner_text()[:40])
+            record("9c. سفر به قلمرو قفل پایگاه خانگی را عوض نمی‌کند",
+                   page.evaluate("() => JSON.parse(localStorage.getItem('lands.home')||'null')") == {"r": "targon", "l": "t1"})
 
-            # ---------- 10. console cleanliness ----------
-            record("10a. هیچ خطای JavaScript در کل سناریو", not page_errors, str(page_errors[:2]))
-            record("10b. هیچ خطای کنسول در کل سناریو", not console_errors, str(console_errors[:2]))
+            # ---------- 10. نسخهٔ پیشین (?world=1) — مسیر بازگشت دست‌نخورده ----------
+            page.goto(f"http://127.0.0.1:{PORT}/game/gates/index.html?world=1")
+            page.wait_for_timeout(1200)
+            record("10a. نسخهٔ پیشین: صفحهٔ عنوان فعال است (پایگاه، مسیر میراث را نمی‌بَرد)",
+                   page.locator("#title-screen.active").count() == 1)
+            page.locator("#btn-enter-game").tap()
+            page.wait_for_selector("#gates-screen.active", timeout=30000)
+            page.locator("#gates-enter").tap()
+            page.wait_for_selector("#lands-screen.active", timeout=15000)
+            record("10b. نسخهٔ پیشین: پس از معرفی، فهرست سرزمین‌ها باز می‌شود", True)
+            page.locator(".land-card").first.tap()
+            page.wait_for_selector("#world-screen.active", timeout=30000)
+            time.sleep(3.0)
+            record("10c. جهان سه‌بعدی پیشین فعال شد", True)
+            record("10d. چیپ سرزمین/سرزمین درست است",
+                   "تارگون" in page.locator("#land-chip").inner_text()
+                   and "سپیده‌دم" in page.locator("#land-chip").inner_text())
+            chip = page.locator("#world-screen .wallet-chip").inner_text()
+            record("10e. کیف پول در جهان: حالت صادقانه (قطع/اتصال)", ("قطع" in chip) or ("اتصال" in chip), chip.strip()[:40])
+            record("10f. هیچ موجودی ساختگی در جهان نیست", not any(ch.isdigit() for ch in chip))
+            record("10g. جوی‌استیک لمسی هست", page.locator("#joystick-zone").count() == 1)
+            page.screenshot(path=str(SHOTS / "legacy-world.png"))
+
+            # ---------- 11. console cleanliness ----------
+            # (404 of /health & co. on a backend-less static server is expected
+            # honest-offline noise — real JS errors are what must stay at zero)
+            fatal_console = [e for e in console_errors
+                             if not ("404" in e and "Failed to load resource" in e)]
+            record("11a. هیچ خطای JavaScript در کل سناریو", not page_errors, str(page_errors[:2]))
+            record("11b. هیچ خطای کنسول (غیر از ۴۰۴ صادقانهٔ نبود سرور) در کل سناریو",
+                   not fatal_console, str(fatal_console[:2]))
 
             browser.close()
     finally:

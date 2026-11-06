@@ -33,6 +33,10 @@ let selectedLand: Land | null = null;
 let muted = false;
 let tier: Tier = "mid";
 let showEnter = false;
+/** نسخهٔ پیشین (?world=1) — مسیر بازگشت، بدون منطق پایگاه خانگی */
+let legacyMode = false;
+/** سفر آگاهانه از نقشهٔ کل (?travel=<امپراتوری>) — هرگز پایگاه نمی‌سازد */
+let travelRealm: Realm | null = null;
 
 const textures: Record<string, THREE.Texture> = {};
 let gatesScene: GatesScene | null = null;
@@ -62,6 +66,25 @@ function showToast(msg: string): void {
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => t.classList.remove("on"), 3400);
 }
+
+/* ---------------- home base (انتخاب یک‌بار امپراتوری ← پایگاه ثابت بازیکن) ----------------
+   ریشهٔ باگ «هر بار وسط یک منطقهٔ رندوم»: هیچ پایگاه ماندگاری وجود نداشت و ورود فقط از
+   پارامترهای URL ساخته می‌شد. این جا اندازهٔ حسابِ یک‌بارِ انتخاب + ورود مستقیم به آن است. */
+const HOME_KEY = "lands.home";
+interface HomeBase { r: string; l: string }
+function getHome(): HomeBase | null {
+  try {
+    const h = JSON.parse(localStorage.getItem(HOME_KEY) || "null") as HomeBase | null;
+    if (h && REALMS.some((r) => r.id === h.r && r.lands.some((l) => l.id === h.l))) return h;
+  } catch { /* private mode */ }
+  return null;
+}
+/** پایگاه خانگی = نخستین سرزمین رسمیِ امپراتوری انتخاب‌شده؛ یک‌بار ساخته می‌شود و ثابت می‌ماند. */
+function setHome(realm: Realm): void {
+  try { localStorage.setItem(HOME_KEY, JSON.stringify({ r: realm.id, l: realm.lands[0].id })); } catch { /* private mode */ }
+}
+const villageURL = (r: string, l: string): string =>
+  `/game/village/index.html?realm=${encodeURIComponent(r)}&land=${encodeURIComponent(l)}`;
 
 /* ---------------- wallet HUD ---------------- */
 function walletChipHTML(): string {
@@ -268,6 +291,13 @@ function openIntro(realm: Realm): void {
   show("intro");
   window.clearTimeout(introTimer);
   introTimer = window.setTimeout(() => {
+    /* نخستین انتخاب امپراتوری: پایگاه خانگی ساخته می‌شود و بازیکن مستقیم وارد آن می‌شود.
+       سفر آگاهانه (?travel)، نسخهٔ پیشین (?world=1) و قلمروهای قفل مثل قبل به فهرست سرزمین‌ها می‌روند. */
+    if (!legacyMode && !travelRealm && !getHome() && realm.unlocked) {
+      setHome(realm);
+      location.replace(villageURL(realm.id, realm.lands[0].id));
+      return;
+    }
     show("lands");
     renderLands();
   }, 2400);
@@ -324,6 +354,7 @@ function renderLands(): void {
 function bindLands(): void {
   $("#btn-lands-back").addEventListener("click", () => {
     audio.uiClick();
+    if (travelRealm) { location.href = "/game/map/index.html"; return; } // سفر از نقشه ← بازگشت به نقشه
     unmountGates();
     show("gates");
     mountGates();
@@ -524,6 +555,27 @@ function boot(): void {
   bindGates();
   bindLands();
   bindWorld();
+
+  /* ── مسیر ورود (رفع ورود رندوم به منطقه) ──
+     ۱) ‎?world=1 ← نسخهٔ پیشین، مثل قبل.
+     ۲) ‎?travel=<امپراتوری> ← سفر آگاهانه از نقشهٔ کل: مستقیم فهرست سرزمین‌های همان امپراتوری.
+     ۳) پایگاه خانگی موجود ← هر بار ورود، مستقیم پایگاه خود بازیکن (مثل ورود به ویلیج).
+     ۴) بدون پایگاه ← انتخاب یک‌بارِ امپراتوری از هفت پرچم. */
+  const params = new URLSearchParams(location.search);
+  legacyMode = params.get("world") === "1";
+  const travelId = params.get("travel");
+  travelRealm = travelId ? REALMS.find((r) => r.id === travelId) ?? null : null;
+  if (!legacyMode && travelRealm) {
+    introRealm = travelRealm;
+    show("lands");
+    renderLands();
+    return;
+  }
+  const home = getHome();
+  if (!legacyMode && home) {
+    location.replace(villageURL(home.r, home.l));
+    return;
+  }
   show("title");
 }
 
@@ -532,4 +584,4 @@ if (document.readyState === "loading") {
 } else {
   boot();
 }
-(window as unknown as { __GATES_BUILD: string }).__GATES_BUILD = "2026-11-05-c";
+(window as unknown as { __GATES_BUILD: string }).__GATES_BUILD = "2026-11-06-a";

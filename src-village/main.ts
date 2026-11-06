@@ -12,6 +12,7 @@ import {
 } from "./state";
 import { VillageScene } from "./scene";
 import { detectTier, profile as gatesProfile, Tier } from "../src-gates/quality";
+import { REALMS } from "../src-gates/data";
 
 const $ = <T extends HTMLElement = HTMLElement>(s: string): T => {
   const el = document.querySelector(s);
@@ -25,6 +26,20 @@ let realmId = qp.get("realm") ?? "targon";
 if (!REALM_VILLAGE[realmId]) realmId = "targon";
 const landId = qp.get("land") ?? "t1";
 const cfg = REALM_VILLAGE[realmId];
+
+/* ── پایگاه خانگی (رفع «هر بار وسط یک منطقهٔ رندوم») ──
+   پایگاه خانگی یک‌بار ثبت می‌شود و ثابت می‌ماند؛ این صفحه اگر بدون انتخابِ قبلی باز شود،
+   همان‌جا پایگاه را ثبت می‌کند — و هرگز پایگاهِ موجود را عوض نمی‌کند. */
+const HOME_KEY = "lands.home";
+function getHome77(): { r: string; l: string } | null {
+  try {
+    const h = JSON.parse(localStorage.getItem(HOME_KEY) || "null");
+    if (h && typeof h.r === "string" && typeof h.l === "string") return h;
+  } catch { /* private mode */ }
+  return null;
+}
+const landFa77 = (rid: string, lid: string): string =>
+  REALMS.find((r) => r.id === rid)?.lands.find((l) => l.id === lid)?.fa ?? lid;
 
 /* ── tier ── */
 function resolveTier(): Tier {
@@ -234,9 +249,19 @@ function renderMissions(): void {
 
 /* ── boot ── */
 async function boot(): Promise<void> {
-  $("#boot-title").textContent = `دهکدهٔ ${cfg.fa}`;
+  let home = getHome77();
+  if (!home) {
+    try { localStorage.setItem(HOME_KEY, JSON.stringify({ r: realmId, l: landId })); } catch { /* private mode */ }
+    home = { r: realmId, l: landId };
+  }
+  const atHome = home.r === realmId && home.l === landId;
+  $("#boot-title").textContent = atHome
+    ? `پایگاه خانگی تو — ${landFa77(realmId, landId)} · ${cfg.fa}`
+    : `سفر در ${cfg.fa} — ${landFa77(realmId, landId)}`;
   $("#realm-name").textContent = cfg.fa;
-  $("#realmchip").textContent = `سرزمین: ${cfg.fa} · دهکدهٔ تو`;
+  $("#realmchip").textContent = atHome
+    ? `سرزمین: ${cfg.fa} · پایگاه خانگی تو`
+    : `سرزمین: ${cfg.fa} · سفر به ${landFa77(realmId, landId)}`;
 
   const bannerTex = await new Promise<THREE.Texture | null>((res) => {
     new THREE.TextureLoader().load(
