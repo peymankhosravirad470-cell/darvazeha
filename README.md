@@ -7,6 +7,8 @@
 
 > نام مخزن `darvazeha` به‌دلایل تاریخی حفظ شده است؛ نام رسمی محصول «هفتاد و هفت سرزمین» است.
 
+- **🏆 VIVA — دنیای زندهٔ چندنفره (شاخهٔ `feat/viva-games`):** صفحهٔ `/viva/` با هشت پادشاهی؛ **مافیا در تالار دژمار** و **شطرنج در تالار آرگاد** — مسابقهٔ واقعی چندنفره روی WebSocket سرورمحور (بلیت یک‌مصرف، اتصال مجدد، ضدتقلب سمت سرور، نتیجه و پاداش یکتا در دیتابیس). جزئیات و شواهد ۴۱/۴۱: [`CHANGELOG.md`](CHANGELOG.md) · آزمون: `python3 scripts/viva_multiplayer_check.py`
+
 ## وضعیت انتشار — شفاف
 
 - **Backend + مینی‌اپ روی Liara زنده است:** https://darvazeh-ha.liara.run (Release v6 — platform docker از `backend/Dockerfile`، کامیت `30abb16`) · `/health` → `ok` با اتصال واقعی PostgreSQL (`lands-db`)
