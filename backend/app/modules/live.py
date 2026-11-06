@@ -224,13 +224,24 @@ class LiveHub:
         out.sort(key=lambda r: (r["status"] != "lobby", r["created_at"]))
         return out
 
+    async def _broadcast_room_state(self, room: Room) -> None:
+        """وضعیت شخصی‌سازی‌شدهٔ اتاق را به همهٔ اعضای متصل می‌فرستد (لابی زنده)."""
+        for account_id in list(room.presences):
+            await self.send_to(room, account_id, {"t": "state", "state": room.public_state(account_id)})
+
     def join_room(self, room: Room, account_id: str, display_name: str) -> dict:
         presence, fresh = room.add_member(account_id, display_name)
         presence.last_seen = self.now()
         if fresh and room.engine is not None:
             # عضویت در حین مسابقه → تماشاگر (موتور تصمیم می‌گیرد چه چیزی ببیند)
             room.engine.on_join_late(presence)
-        return room.public_state(account_id)
+        state = room.public_state(account_id)
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._broadcast_room_state(room))
+        except RuntimeError:
+            pass  # از مسیر sync REST — endpoint async خودش broadcast می‌کند
+        return state
 
     def leave_room(self, room: Room, account_id: str) -> None:
         presence = room.presences.get(account_id)
@@ -308,7 +319,9 @@ class LiveHub:
         room.status = "playing"
         room.started_at = self.now()
         await engine.start()
-        await self.broadcast(room, {"t": "state", "state": room.public_state()})
+        # snapshot شخصی‌سازی‌شده برای هر بازیکن (نقش محرمانه فقط برای صاحبش)
+        for account_id in list(room.presences):
+            await self.send_to(room, account_id, {"t": "state", "state": room.public_state(account_id)})
         return room.public_state()
 
     async def finish_match(self, room: Room, result: dict) -> None:

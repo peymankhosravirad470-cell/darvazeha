@@ -74,7 +74,7 @@ def room_state(room_id: str, user: User = Depends(current_user), db: Session = D
 
 
 @router.post("/rooms/{room_id}/join")
-def join_room(room_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+async def join_room(room_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     room = _require_room(room_id)
     account = _account_for(db, user)
     if account.id not in room.presences:
@@ -83,15 +83,17 @@ def join_room(room_id: str, user: User = Depends(current_user), db: Session = De
         if room.seated_count() >= room.capacity:
             raise HTTPException(status_code=409, detail="ظرفیت اتاق پر است.")
     state = hub.join_room(room, account.id, account.display_name)
+    await hub._broadcast_room_state(room)  # لابی زنده: همهٔ اعضا عضو تازه را ببینند
     return {"room": state}
 
 
 @router.post("/rooms/{room_id}/leave")
-def leave_room(room_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+async def leave_room(room_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     room = _require_room(room_id)
     account = _account_for(db, user)
     _member_or_403(room, account.id)
     hub.leave_room(room, account.id)
+    await hub._broadcast_room_state(room)
     return {"ok": True}
 
 

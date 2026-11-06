@@ -218,6 +218,7 @@ body { background: #070408; color: #e8ddc8; font-family: "Vazirmatn", ui-sans-se
         <button class="big-btn" id="leave-btn" style="background:linear-gradient(180deg,#5a2230,#3a141e)">خروج از اتاق</button>
       </div>
       <div id="room-make">
+        <div class="pill-row" id="speed-pills"></div>
         <div class="pill-row" id="cap-pills"></div>
         <button class="big-btn" id="make-btn">ساخت اتاق مخفی</button>
       </div>
@@ -349,6 +350,9 @@ body { background: #070408; color: #e8ddc8; font-family: "Vazirmatn", ui-sans-se
         else $("talk-box").classList.add("hidden");
         if (ev.phase === "day_vote") log("🗳️ رأی‌گیری آغاز شد؛ یک نفر را انتخاب کن.");
         if (ev.phase === "night_pick") log("🌙 شب " + ev.day + " فرا رسید.");
+        // صندلی‌ها باید با فاز تازه دوباره رندر شوند (هندلرهای رأی/هدف)
+        if (lastState) renderSeats(lastState);
+        Viva.refresh();
         break;
       case "night_request":
         targeting = { as: ev.as, targets: ev.targets };
@@ -558,6 +562,21 @@ body { background: #070408; color: #e8ddc8; font-family: "Vazirmatn", ui-sans-se
 
   // --- لابی ---
   var caps = [5, 6, 7, 8, 9, 10, 11, 12], capSel = 7;
+  var SPEEDS = [
+    { label: "عادی", night: 30, talk: 90, vote: 45 },
+    { label: "سریع", night: 12, talk: 35, vote: 20 },
+    { label: "برق‌آسا", night: 4, talk: 8, vote: 8 }
+  ], speedSel = 1;
+  function renderSpeeds() {
+    var box = $("speed-pills"); box.innerHTML = "";
+    SPEEDS.forEach(function (s, i) {
+      var b = document.createElement("button");
+      b.className = "pill" + (i === speedSel ? " sel" : "");
+      b.textContent = "⏱ " + s.label;
+      b.addEventListener("click", function () { speedSel = i; renderSpeeds(); });
+      box.appendChild(b);
+    });
+  }
   function renderCaps() {
     var box = $("cap-pills"); box.innerHTML = "";
     caps.forEach(function (c) {
@@ -597,7 +616,9 @@ body { background: #070408; color: #e8ddc8; font-family: "Vazirmatn", ui-sans-se
   }
 
   $("make-btn").addEventListener("click", function () {
-    Viva.rooms.create("mafia", capSel, {}).then(function (d) { joinRoom(d.room.room_id); })
+    var s = SPEEDS[speedSel];
+    Viva.rooms.create("mafia", capSel, { night_seconds: s.night, talk_seconds: s.talk, vote_seconds: s.vote })
+      .then(function (d) { joinRoom(d.room.room_id); })
       .catch(function (e) { toast(e.message || "ساخت اتاق ناموفق"); });
   });
   $("start-btn").addEventListener("click", function () {
@@ -642,7 +663,7 @@ body { background: #070408; color: #e8ddc8; font-family: "Vazirmatn", ui-sans-se
       if (d) serverOffset = new Date(d).getTime() / 1000 - Date.now() / 1000;
     });
   }).then(function () {
-    renderCaps(); refreshRooms();
+    renderSpeeds(); renderCaps(); refreshRooms();
     setInterval(refreshRooms, 5000);
   }).catch(function (e) {
     toast(e.message === "outside_bale" ? "ورود واقعی فقط داخل مینی‌اپ بله انجام می‌شود." : "ورود ناموفق");

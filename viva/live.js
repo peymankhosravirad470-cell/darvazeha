@@ -178,6 +178,13 @@
     return false;
   }
 
+  function refresh() {
+    // درخواست snapshot تازهٔ شخصی‌سازی‌شده از سرور (حرکت مجاز، نقش، فاز)
+    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+      state.ws.send(JSON.stringify({ t: "state" }));
+    }
+  }
+
   function setStatus(s) { emit("status", s); }
 
   // --- rooms REST ---------------------------------------------------------
@@ -192,7 +199,7 @@
   };
 
   window.Viva = {
-    ensureLogin, api, on, connectRoom, disconnect, action, rooms: roomsApi,
+    ensureLogin, api, on, connectRoom, disconnect, action, refresh, rooms: roomsApi,
     me: () => state.player,
   };
 })();

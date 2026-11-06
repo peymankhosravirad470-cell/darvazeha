@@ -244,9 +244,11 @@ body { background: #0b0906; color: #efe4cc; font-family: "Vazirmatn", ui-sans-se
         lastMoveUci = ev.uci;
         if (ev.check) toast("کیش!");
         if (lastState) renderBoard(lastState);
+        Viva.refresh(); // حرکات مجاز و ساعت باید تازه شود
         break;
       case "match_start":
         toast("مسابقه آغاز شد!");
+        Viva.refresh();
         break;
       case "draw_offer":
         if (confirm("حریف پیشنهاد تساوی داده. می‌پذیری؟")) Viva.action({ type: "accept_draw" });

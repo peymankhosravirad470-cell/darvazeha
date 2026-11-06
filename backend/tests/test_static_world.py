@@ -99,6 +99,41 @@ def test_root_index_links_to_targon_world():
     assert "جهان تارگون" in profile
 
 
+# ── لایهٔ ۴: VIVA (دنیای زندهٔ چندنفره) ───────────────────────────────
+def test_root_index_has_independent_viva_entry():
+    """ورودی VIVA مستقل است و سه گزینهٔ رسمی منو را دست نمی‌زند."""
+    text = (REPO_ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'id="viva-entry"' in text
+    assert "/viva/index.html" in text
+    assert "VIVA" in text
+
+
+def test_viva_home_lists_all_eight_kingdoms():
+    text = (REPO_ROOT / "viva" / "index.html").read_text(encoding="utf-8")
+    for name in ["دژمار", "آرگاد", "تارگون", "مرداک", "ورگاد", "زرداک", "تارماد", "زیوان"]:
+        assert name in text, f"پادشاهی {name} در خانهٔ VIVA نیست"
+    # هفت پرچم رسمی با مسیر دارایی رسمی
+    for flag in ["targon", "dezhmaar", "argad", "mardak", "vergad", "zardak", "tarmad"]:
+        assert f"flags/{flag}_cloth.webp" in text
+
+
+def test_viva_halls_and_live_layer_exist():
+    assert (REPO_ROOT / "viva" / "dezhmar" / "index.html").exists()
+    assert (REPO_ROOT / "viva" / "argad" / "index.html").exists()
+    assert (REPO_ROOT / "viva" / "live.js").exists()
+    mafia = (REPO_ROOT / "viva" / "dezhmar" / "index.html").read_text(encoding="utf-8")
+    assert "/ws/viva" not in mafia  # مسیر WS فقط در live.js است (یک‌مصرف‌بلیت مرکزی)
+    assert 'action' in mafia
+    chess = (REPO_ROOT / "viva" / "argad" / "index.html").read_text(encoding="utf-8")
+    assert "resign" in chess and "offer_draw" in chess
+
+
+def test_static_serves_viva_pages(client):
+    for path in ["/viva/", "/viva/dezhmar/", "/viva/argad/", "/viva/live.js"]:
+        response = client.get(path)
+        assert response.status_code == 200, path
+
+
 @pytest.fixture()
 def client():
     engine = create_engine(

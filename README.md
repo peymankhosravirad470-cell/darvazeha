@@ -48,7 +48,8 @@ Backend برای ۷۷ سرزمین رکورد ایجاد می‌کند. نام �
 | رابط v1 — ۱۶ بررسی | `python3 scripts/verify.py` |
 | هفت دروازهٔ سینمایی — ۳۵ بررسی | `python3 tests/verify_gates.py` |
 | هفت دروازه + Backend واقعی — ۵ بررسی | `python3 tests/verify_gates_server.py` |
-| Backend | CI: [backend.yml](https://github.com/peymankhosravirad470-cell/darvazeha/actions/workflows/backend.yml) |
+| VIVA چندنفره — ۴۱ بررسی زنده (۵ کلاینت مافیا + ۲ مرورگر شطرنج + ۵ مرورگر مافیا) | `python3 scripts/viva_multiplayer_check.py` |
+| Backend (شامل ۱۴ آزمون VIVA) | CI: [backend.yml](https://github.com/peymankhosravirad470-cell/darvazeha/actions/workflows/backend.yml) |
 | مینی‌گیم تعادل | CI: [balance-game.yml](https://github.com/peymankhosravirad470-cell/darvazeha/actions/workflows/balance-game.yml) |
 
 **امنیت:** هیچ توکن، رمز دیتابیس یا راز webhook نباید وارد مخزن شود (`.gitignore` پوشش داده است). پس از هر تغییر: کامیت کوچک معنادار → push → هش کامیت‌ها در گزارش‌ها ثبت می‌شود.
