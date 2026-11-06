@@ -275,6 +275,9 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
 
   Viva.ensureLogin().then(function () {
     authed = true;
+    var cel = document.getElementById("conn");
+    cel.className = "conn on";
+    document.getElementById("conn-t").textContent = "متصل به سرور زیوان";
     if (hall.live) {
       document.getElementById("tracker").style.display = "block";
     } else {
