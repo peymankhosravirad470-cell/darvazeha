@@ -67,12 +67,9 @@ def list_rooms(game: str, user: User = Depends(current_user), db: Session = Depe
 @router.get("/rooms/{room_id}")
 def room_state(room_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     room = _require_room(room_id)
-    account = _account_for(db, user)
-    viewer = account.id if account.id in room.presences else None
-    state = room.public_state(viewer)
-    if viewer is None and "match" in state:
-        # تماشاگر غیرعضو: فقط بخش عمومی مسابقه
-        state["match"] = {k: v for k, v in state["match"].items() if not v.get("private")}
+    _account_for(db, user)
+    # وضعیت REST فقط نمای عمومی است؛ snapshot شخصی‌سازی‌شده (نقش‌ها و…) فقط از WS می‌رود.
+    state = room.public_state(None)
     return {"room": state}
 
 
