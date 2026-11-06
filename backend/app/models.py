@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base
 
@@ -127,3 +127,152 @@ class ActivitySession(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    # پیوند اختیاری جلسه به موجودیت دیگر (مثلاً حلقهٔ تمرین) — برای شمارش
+    # پیشرفت گروهی فقط از جلسه‌های معتبرِ همین ستون استفاده می‌شود.
+    link_id: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
+
+
+# ---------------------------------------------------------------------------
+# زیوان — فاز ۲: رقابت گروهی، چالش دوستانه، مأموریت‌ها، جام، لحظه‌ها
+# ---------------------------------------------------------------------------
+
+class ZivanGroup(Base):
+    """گروه زیوان — برای مسابقهٔ قدم گروهی و تمرین مشترک."""
+    __tablename__ = "zivan_groups"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    owner_account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    invite_code: Mapped[str] = mapped_column(String(12), unique=True, index=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanGroupMember(Base):
+    __tablename__ = "zivan_group_members"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("zivan_groups.id"), nullable=False, index=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("group_id", "account_id", name="uq_group_member"),)
+
+
+class ZivanRace(Base):
+    """مسابقهٔ قدم گروهی — تجمیع فقط از جلسه‌های معتبرِ بازهٔ مسابقه."""
+    __tablename__ = "zivan_races"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("zivan_groups.id"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(80), nullable=False)
+    metric: Mapped[str] = mapped_column(String(20), nullable=False, default="steps")
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="active", index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanChallenge(Base):
+    """چالش دوستانه — دو حساب، یک متریک، حکم فقط از جلسه‌های معتبر بازه."""
+    __tablename__ = "zivan_challenges"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    metric: Mapped[str] = mapped_column(String(20), nullable=False)
+    target: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    creator_account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    opponent_account_id: Mapped[str | None] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="open", index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    settled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    winner_account_id: Mapped[str | None] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=True)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanSocialMission(Base):
+    """مأموریت اجتماعی جمعی — هدف مشترک، سهم هر حساب از جلسه‌های معتبر."""
+    __tablename__ = "zivan_social_missions"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(String(300), nullable=False, default="")
+    metric: Mapped[str] = mapped_column(String(20), nullable=False)
+    goal: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="active", index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanSocialContribution(Base):
+    """سهم ثبت‌شده در مأموریت جمعی — هر جلسه حداکثر یک‌بار (قید یکتا)."""
+    __tablename__ = "zivan_social_contributions"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    mission_id: Mapped[str] = mapped_column(
+        ForeignKey("zivan_social_missions.id"), nullable=False, index=True)
+    session_id: Mapped[str] = mapped_column(
+        ForeignKey("zivan_activity_sessions.id"), nullable=False)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    value: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("mission_id", "session_id", name="uq_mission_session"),)
+
+
+class ZivanMissionProgress(Base):
+    """پیشرفت/دعوای مأموریت روزانه و هفتگی — دعوا یکتا (قید یکتا)."""
+    __tablename__ = "zivan_mission_progress"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    mission_code: Mapped[str] = mapped_column(String(40), nullable=False)
+    period_key: Mapped[str] = mapped_column(String(20), nullable=False)
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("account_id", "mission_code", "period_key",
+                                       name="uq_mission_period"),)
+
+
+class ZivanMoment(Base):
+    """لحظهٔ خصوصی — عکس فقط برای صاحبش؛ مختصات و EXIF هرگز ذخیره نمی‌شود."""
+    __tablename__ = "zivan_moments"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    caption: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    content_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    image: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanWorkout(Base):
+    """حلقهٔ تمرین گروهی — کد دعوت، اعضا، پایان خودکار پس از سقف زمان."""
+    __tablename__ = "zivan_workouts"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    title: Mapped[str] = mapped_column(String(80), nullable=False)
+    protocol: Mapped[str] = mapped_column(String(40), nullable=False)
+    owner_account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    invite_code: Mapped[str] = mapped_column(String(12), unique=True, index=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="open", index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ZivanWorkoutMember(Base):
+    __tablename__ = "zivan_workout_members"
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    workout_id: Mapped[str] = mapped_column(
+        ForeignKey("zivan_workouts.id"), nullable=False, index=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("player_accounts.id"), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("workout_id", "account_id", name="uq_workout_member"),)

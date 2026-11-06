@@ -20,15 +20,15 @@ from __future__ import annotations
 import math
 
 # --- تالارهای ده‌گانهٔ زیوان ------------------------------------------------
-# وضعیت‌ها: live (فعالیت واقعی کار می‌کند) | structure (تالار ساخته شده؛
-# فعالیت اختصاصی آن در نسخهٔ بعد — صادقانه برچسب می‌خورد)
+# همهٔ تالارها «live» هستند؛ هر تالار فعالیت اختصاصی واقعی خودش را دارد و
+# برچسب‌های صادقانه (مثل «خوداظهاری تأییدشده با تایمر») داخل محصول دیده می‌شود.
 
 HALLS: list[dict] = [
     {"id": "walking", "name": "تالار پیاده‌روی", "activity": "walk",
      "tagline": "ثبت مسیر، مسافت، مدت و قدم‌ها با GPS و اجازهٔ کاربر",
      "status": "live", "icon": "footprints"},
     {"id": "steps_battle", "name": "تالار نبرد قدم‌ها", "activity": "walk",
-     "tagline": "رقابت فردی بر اساس قدم‌های معتبر سمت‌سرور",
+     "tagline": "رقابت فردی و گروهی (مسابقهٔ قدم گروه) بر اساس قدم معتبر سرور",
      "status": "live", "icon": "swords"},
     {"id": "running", "name": "تالار دویدن", "activity": "run",
      "tagline": "ثبت فعالیت و مسابقه‌های دویدن",
@@ -37,23 +37,23 @@ HALLS: list[dict] = [
      "tagline": "مأموریت کشف مسیر و ثبت برداشت از طبیعت",
      "status": "live", "icon": "mountain"},
     {"id": "balance", "name": "تالار تعادل و انعطاف", "activity": "balance",
-     "tagline": "چالش‌های تعادل، هماهنگی و انعطاف‌پذیری",
-     "status": "structure", "icon": "feather"},
-    {"id": "group_training", "name": "تالار تمرین گروهی", "activity": "group",
-     "tagline": "مأموریت‌ها و تمرین‌های مشترک دوستان",
-     "status": "structure", "icon": "users"},
+     "tagline": "پروتکل‌های تایمری تعادل و انعطاف — پلانک، تک‌پا، کشش‌ها",
+     "status": "live", "icon": "feather"},
+    {"id": "group_training", "name": "تالار تمرین گروهی", "activity": "balance",
+     "tagline": "حلقهٔ تمرین با کد دعوت — تمرین هم‌زمان دوستان با پیشرفت زنده",
+     "status": "live", "icon": "users"},
     {"id": "friendly_challenge", "name": "تالار چالش دوستانه", "activity": "duel",
-     "tagline": "مسابقات ورزشی و فعالیت‌های دوستانه",
-     "status": "structure", "icon": "flag"},
+     "tagline": "دوئل قدم و مسافت با دوست — برنده فقط از فعالیت معتبر سرور",
+     "status": "live", "icon": "flag"},
     {"id": "social_mission", "name": "تالار مأموریت اجتماعی", "activity": "social",
-     "tagline": "فعالیت‌های جمعی و کمک‌رسانی",
-     "status": "structure", "icon": "heart"},
+     "tagline": "مأموریت جمعی شهر سبز — سهم هر همسفر از فعالیت معتبرش",
+     "status": "live", "icon": "heart"},
     {"id": "grand_cup", "name": "تالار جام بزرگ سلامت", "activity": "cup",
-     "tagline": "مسابقات دوره‌ای و رتبه‌بندی بازیکنان",
-     "status": "structure", "icon": "trophy"},
+     "tagline": "جام هفتگی سلامت — قدم معتبر + ثانیه‌های تمرین معتبر",
+     "status": "live", "icon": "trophy"},
     {"id": "moments", "name": "تالار ثبت لحظه‌ها", "activity": "moments",
-     "tagline": "عکاسی از طبیعت با رعایت حریم خصوصی",
-     "status": "structure", "icon": "camera"},
+     "tagline": "گالری خصوصی عکس‌های طبیعت — فقط خودتان می‌بینید",
+     "status": "live", "icon": "camera"},
 ]
 
 HALL_IDS = {h["id"] for h in HALLS}
@@ -61,6 +61,31 @@ LIVE_HALL_IDS = {h["id"] for h in HALLS if h["status"] == "live"}
 
 # فعالیت‌های GPS-محورِ قابل اعتبارسنجی فعلی
 VALID_ACTIVITIES = {"walk", "run"}
+
+# فعالیت‌های بدون GPS (پروتکل تایمری — حکم بر اساس ساعت سرور)
+TIMED_ACTIVITIES = {"balance"}
+
+# --- پروتکل‌های تمرین تایمری (تعادل/انعطاف/تمرین گروهی) -----------------------
+# هر پروتکل یک تمرین واقعی با بازهٔ زمانی معقول است؛ حکم فقط بر اساس
+# «ساعت سرور» بین شروع و پایان جلسه صادر می‌شود — عدد کلاینت ملاک نیست.
+# honest: این ثبت «خوداظهاری تأییدشده با تایمر سرور» است (نه GPS) و داخل
+# محصول هم با همین عبارت برچسب می‌خورد.
+PROTOCOLS: dict[str, dict] = {
+    "plank":             {"name": "پلانک", "min_s": 15, "max_s": 180, "icon": "🧘"},
+    "side_plank":        {"name": "پلانک پهلو", "min_s": 10, "max_s": 120, "icon": "🧘"},
+    "wall_sit":          {"name": "نشست به دیوار", "min_s": 20, "max_s": 240, "icon": "🪑"},
+    "single_leg":        {"name": "ایستادن تک‌پا", "min_s": 10, "max_s": 120, "icon": "🦩"},
+    "tree_pose":         {"name": "حالت درخت", "min_s": 10, "max_s": 120, "icon": "🌳"},
+    "glute_bridge":      {"name": "پل باسن (۱۰ تکرار)", "min_s": 20, "max_s": 180, "icon": "🌉"},
+    "stretch_hamstring": {"name": "کشش پشت پا", "min_s": 20, "max_s": 150, "icon": "🤸"},
+    "stretch_shoulder":  {"name": "کشش شانه و گردن", "min_s": 20, "max_s": 150, "icon": "🤲"},
+    "stretch_back":      {"name": "کشش کمر", "min_s": 20, "max_s": 150, "icon": "🙆"},
+    "breathing":         {"name": "تنفس عمیق آرام‌سازی", "min_s": 30, "max_s": 300, "icon": "🌬️"},
+}
+PROTOCOL_TOLERANCE_RATIO = 1.6   # فراموشی توقف — تا ۶۰٪ بیش از سقف مجاز
+MAX_PROTOCOL_SESSIONS_PER_DAY = 24
+WORKOUT_MAX_MEMBERS = 12
+WORKOUT_MAX_OPEN_HOURS = 2       # حلقهٔ تمرین پس از این مدت خودش بسته می‌شود
 
 # --- پارامترهای ضدتقلب (مستند در گزارش بازبینی) ------------------------------
 MAX_POINT_ACCURACY_M = 50.0        # نقاط با دقت بدتر از این رد می‌شوند
@@ -245,3 +270,113 @@ def reward_for(distance_m: float, steps: int) -> int:
     if distance_m <= 0:
         return 0
     return min(50, int(distance_m // 1000))
+
+
+# --- مأموریت‌های روزانه/هفتگی (کد-محور؛ پیشرفت فقط از جلسه‌های معتبر) --------
+# metric: distance_m | steps | balance_s | sessions
+# دامنهٔ فعالیت هر مأموریت در TEMPLATE مشخص است (hall=null یعنی همهٔ تالارها).
+MISSION_TEMPLATES: dict[str, dict] = {
+    "daily_walk_3k":      {"name": "پیاده‌روی ۳ کیلومتر", "period": "daily",
+                           "metric": "distance_m", "target": 3000, "hall": None,
+                           "icon": "🥾", "reward": 2},
+    "daily_steps_8k":     {"name": "۸٬۰۰۰ قدم امروز", "period": "daily",
+                           "metric": "steps", "target": 8000, "hall": None,
+                           "icon": "👟", "reward": 3},
+    "daily_balance_120s": {"name": "۱۲۰ ثانیه تمرین تعادل", "period": "daily",
+                           "metric": "balance_s", "target": 120, "hall": "balance",
+                           "icon": "🧘", "reward": 2},
+    "daily_run_2k":       {"name": "دویدن ۲ کیلومتر", "period": "daily",
+                           "metric": "distance_m", "target": 2000, "hall": "running",
+                           "icon": "🏃", "reward": 2},
+    "weekly_walk_15k":    {"name": "۱۵ کیلومتر در هفته", "period": "weekly",
+                           "metric": "distance_m", "target": 15_000, "hall": None,
+                           "icon": "🗺️", "reward": 6},
+    "weekly_sessions_5":  {"name": "۵ جلسهٔ معتبر در هفته", "period": "weekly",
+                           "metric": "sessions", "target": 5, "hall": None,
+                           "icon": "📅", "reward": 5},
+    "weekly_balance_600s": {"name": "۱۰ دقیقه تمرین تعادل در هفته", "period": "weekly",
+                            "metric": "balance_s", "target": 600, "hall": None,
+                            "icon": "🪶", "reward": 6},
+    "weekly_run_8k":      {"name": "۸ کیلومتر دویدن در هفته", "period": "weekly",
+                           "metric": "distance_m", "target": 8000, "hall": "running",
+                           "icon": "💨", "reward": 6},
+}
+
+MISSION_MAX_CLAIMS_PER_DAY = 10   # سقف ضد اسپمِ دعوای پاداش
+
+# --- چالش دوستانه -------------------------------------------------------------
+CHALLENGE_METRICS = {"steps": "قدم معتبر", "distance_m": "مسافت معتبر (متر)"}
+CHALLENGE_MIN_HOURS = 1
+CHALLENGE_MAX_HOURS = 7 * 24
+CHALLENGE_MIN_TARGET = {"steps": 500, "distance_m": 500}
+CHALLENGE_MAX_TARGET = {"steps": 200_000, "distance_m": 100_000}
+CHALLENGE_MAX_OPEN_PER_ACCOUNT = 5
+
+# --- رقابت گروهی ---------------------------------------------------------------
+GROUP_MAX_MEMBERS = 20
+GROUP_MAX_PER_ACCOUNT = 5
+GROUP_NAME_MAX = 40
+RACE_DURATION_CHOICES = {"1d": 86400, "3d": 3 * 86400, "7d": 7 * 86400}
+RACE_MAX_ACTIVE_PER_GROUP = 1
+
+# --- لحظه‌ها (عکس طبیعت — گالری خصوصی) ---------------------------------------
+MOMENT_MAX_BYTES = 1_500_000      # سقف حجم عکس خام
+MOMENT_MAX_PER_ACCOUNT = 30       # سقف گالری هر حساب (ضد اسپم/حافظه)
+MOMENT_CAPTION_MAX = 200
+MOMENT_MAGIC = {                  # فقط امضای واقعی فایل ملاک است، نه نوع ادعایی
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+}
+
+
+def moment_image_type(head: bytes) -> str | None:
+    """تشخیص نوع واقعی عکس با امضای بایت‌ها — تشخیص ادعای کلاینت ملاک نیست."""
+    for magic, ctype in MOMENT_MAGIC.items():
+        if head.startswith(magic):
+            return ctype
+    return None
+
+
+# --- مأموریت اجتماعی جمعی (سهم از فعالیت معتبر) ------------------------------
+SOCIAL_CONTRIBUTION_METRICS = {"distance_m": "کیلومتر جمعی", "steps": "قدم جمعی"}
+SOCIAL_MAX_MISSIONS_ACTIVE = 5
+
+# --- امتیاز جام هفتگی ---------------------------------------------------------
+def cup_score(steps: int, balance_s: int) -> int:
+    """امتیاز شفاف جام: قدم معتبر + ثانیهٔ تمرین تعادلی معتبر.
+
+    فرمول عمداً ساده و قابل توضیح داخل محصول است؛ هیچ عددی از کلاینت
+    وارد این محاسبه نمی‌شود.
+    """
+    return int(steps or 0) + int(balance_s or 0)
+
+
+def make_invite_code(rng) -> str:
+    """کد دعوت ۸ نویسه‌ای از الفبای بی‌ابهام (بدون 0/O/1/I)."""
+    alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    return "".join(alphabet[rng.randrange(len(alphabet))] for _ in range(8))
+
+
+def validate_protocol_session(
+    protocol_id: str,
+    started_at_ts: float,
+    finished_at_ts: float,
+) -> dict:
+    """حکم سرور برای جلسهٔ پروتکل تایمری — مدت فقط از ساعت سرور.
+
+    خروجی: valid / reject_reason / duration_s / protocol. سقف با
+    حاشیهٔ ۱٫۶ برابر (فراموشی توقف) و کف بدون حاشیه بررسی می‌شود.
+    """
+    p = PROTOCOLS.get(protocol_id)
+    if p is None:
+        return {"valid": False, "reject_reason": "unknown_protocol",
+                "duration_s": 0, "protocol": None}
+    duration = max(0.0, finished_at_ts - started_at_ts)
+    if duration < p["min_s"]:
+        return {"valid": False, "reject_reason": "too_short",
+                "duration_s": round(duration, 1), "protocol": p}
+    if duration > p["max_s"] * PROTOCOL_TOLERANCE_RATIO:
+        return {"valid": False, "reject_reason": "too_long",
+                "duration_s": round(duration, 1), "protocol": p}
+    return {"valid": True, "reject_reason": None,
+            "duration_s": round(duration, 1), "protocol": p}

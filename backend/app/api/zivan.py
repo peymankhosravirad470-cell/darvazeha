@@ -24,7 +24,7 @@ from app.models import AccountBalance, ActivitySession, TokenLedger, User
 from app.modules.players import ensure_player_account
 from app.modules.zivan import (
     HALLS, LIVE_HALL_IDS, VALID_ACTIVITIES, privacy_path, reward_for,
-    validate_session_points,
+    validate_protocol_session, validate_session_points,
 )
 
 router = APIRouter(prefix="/zivan", tags=["VIVA Zivan"])
@@ -136,6 +136,30 @@ def finish_session(session_id: str, body: FinishSessionRequest,
 
     started_ts = _dt_to_ts(s.started_at)
     finished_ts = _now()
+
+    if s.activity == "balance":
+        # پروتکل تایمری — مدت فقط از ساعت سرور؛ نقاط کلاینت هرگز ملاک نیست
+        stats = s.validation_stats or {}
+        verdict = validate_protocol_session(
+            stats.get("protocol"), started_ts, finished_ts)
+        s.status = "finished"
+        s.valid = bool(verdict["valid"])
+        s.reject_reason = verdict["reject_reason"]
+        s.distance_m = 0
+        s.steps = 0
+        s.duration_s = int(verdict["duration_s"])
+        s.validation_stats = {
+            "protocol": stats.get("protocol"),
+            "protocol_name": verdict["protocol"]["name"] if verdict["protocol"] else None,
+            "workout_id": stats.get("workout_id"),
+            "min_s": verdict["protocol"]["min_s"] if verdict["protocol"] else None,
+            "max_s": verdict["protocol"]["max_s"] if verdict["protocol"] else None,
+        }
+        s.finished_at = _ts_to_dt(finished_ts)
+        db.commit()
+        return {"session": _public(s), "already": False, "reward": 0,
+                "rewards_enabled": bool(settings.zivan_rewards_enabled)}
+
     verdict = validate_session_points(
         s.activity, body.points, started_at_ts=started_ts, finished_at_ts=finished_ts)
 
@@ -233,11 +257,15 @@ def _pay_reward(db: Session, account_id: str, session_id: str, amount: int) -> i
 
 
 def _public(s: ActivitySession) -> dict:
+    stats = s.validation_stats or {}
     return {
         "id": s.id, "hall": s.hall, "activity": s.activity, "status": s.status,
         "valid": s.valid, "reject_reason": s.reject_reason,
         "distance_m": s.distance_m, "steps": s.steps, "duration_s": s.duration_s,
         "consent": s.consent,
+        "protocol": stats.get("protocol"),
+        "protocol_name": stats.get("protocol_name"),
+        "link_id": s.link_id,
         "started_at": _dt_to_ts(s.started_at),
         "finished_at": _dt_to_ts(s.finished_at) if s.finished_at else None,
         # عمداً بدون path — مسیر فقط از /path برای صاحبش

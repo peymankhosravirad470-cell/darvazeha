@@ -10,6 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.api import auth, players, progress, world
 from app.api.live import persist_match_result
 from app.api import zivan as zivan_api
+from app.api import zivan_phase2 as zivan_phase2_api
 from app.core.config import settings
 from app.core.database import get_engine, get_session_factory
 from app.integrations.bale.webhook import router as bale_webhook_router
@@ -50,6 +51,9 @@ async def lifespan(app: FastAPI):
     db = get_session_factory()()
     try:
         seed_world(db)
+        from app.api.zivan_phase2 import seed_social_missions
+        seed_social_missions(db)
+        db.commit()   # بذر مأموریت‌های جمعی باید از بوتِ سرور پنجره‌اش شروع شود
     finally:
         db.close()
     hub.persist_result = persist_match_result
@@ -69,6 +73,7 @@ app.include_router(bale_webhook_router, prefix="/api/v1")
 from app.api.live import router as live_router
 app.include_router(live_router, prefix="/api/v1")
 app.include_router(zivan_api.router, prefix="/api/v1")
+app.include_router(zivan_phase2_api.router, prefix="/api/v1")
 
 
 @app.get("/health")
