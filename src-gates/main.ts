@@ -8,6 +8,7 @@ import { REALMS, Realm, Land, faNum } from "./data";
 import { detectTier, profile, Tier } from "./quality";
 import { audio } from "./audio";
 import { serverWallet, WalletView } from "./serverWallet";
+import { fetchServerHome, registerServerHome, syncLocalHome } from "./serverHome";
 import { createJoystick } from "./joystick";
 import { GatesScene } from "./scenes/GatesScene";
 import { WorldScene, NearTarget, WorldInput } from "./scenes/WorldScene";
@@ -85,6 +86,47 @@ function setHome(realm: Realm): void {
 }
 const villageURL = (r: string, l: string): string =>
   `/game/village/index.html?realm=${encodeURIComponent(r)}&land=${encodeURIComponent(l)}`;
+
+/* ── پایگاه خانگی سروری (لایهٔ دوم ماندگاری) ──
+   سرور مرجع است؛ localStorage فقط هماهنگ‌کننده/fallback موقت. اولویت دقیق:
+   ۱) سرور پایگاه دارد → همان مقدار استفاده و localStorage با آن هماهنگ می‌شود.
+   ۲) سرور خالی + محلی معتبر → مهاجرت یک‌بارهٔ محلی به سرور، ورود به همان پایگاه.
+   ۳) سرور در دسترس نیست + محلی معتبر → fallback موقت محلی (هیچ داده‌ای از دست نمی‌رود).
+   ۴) هر دو خالی → انتخاب اولیهٔ امپراتوری.
+   هیچ مقدار محلی پایگاهِ ثبت‌شدهٔ سرور را جایگزین نمی‌کند (سمت سرور هم اتمیک محافظت می‌شود).
+   ثبت/مهاجرت قبل از ریدایرکت await می‌شود (با سقف زمانی)؛ وگرنه ناوبری، فچ را قطع می‌کرد. */
+const SERVER_STEP_CAP_MS = 4000;
+const delay = (ms: number): Promise<void> => new Promise((res) => window.setTimeout(res, ms));
+
+async function resolveHomeOnBoot(): Promise<void> {
+  const local = getHome();
+  const server = await fetchServerHome();
+  if (server.kind === "home") {
+    syncLocalHome(server.home);
+    location.replace(villageURL(server.home.r, server.home.l));
+    return;
+  }
+  if (local && server.kind === "empty") {
+    // مهاجرت یک‌بارهٔ محلی → سرور (باند‌شده در زمان؛ نتیجهٔ سرور مرجع است)
+    const result = await Promise.race([registerServerHome(local), delay(SERVER_STEP_CAP_MS)]);
+    if (result === "kept-existing") {
+      // بین خواندن و ثبت، همان حساب در تب/دستگاه دیگری ثبت کرده — مقدار سرور می‌برد
+      const again = await fetchServerHome();
+      if (again.kind === "home") {
+        syncLocalHome(again.home);
+        location.replace(villageURL(again.home.r, again.home.l));
+        return;
+      }
+    }
+    location.replace(villageURL(local.r, local.l));
+    return;
+  }
+  if (local && server.kind === "unreachable") {
+    location.replace(villageURL(local.r, local.l)); // fallback موقت؛ همگام‌سازی پس از بازگشت اتصال
+    return;
+  }
+  show("title");
+}
 
 /* ---------------- wallet HUD ---------------- */
 function walletChipHTML(): string {
@@ -295,7 +337,12 @@ function openIntro(realm: Realm): void {
        سفر آگاهانه (?travel)، نسخهٔ پیشین (?world=1) و قلمروهای قفل مثل قبل به فهرست سرزمین‌ها می‌روند. */
     if (!legacyMode && !travelRealm && !getHome() && realm.unlocked) {
       setHome(realm);
-      location.replace(villageURL(realm.id, realm.lands[0].id));
+      const fresh = getHome();
+      // ثبت سروری اولین انتخاب قبل از ورود به دهکده (سقف‌دار؛ در قطعی، بوت بعدی مهاجرت می‌کند)
+      void (async () => {
+        if (fresh) await Promise.race([registerServerHome(fresh), delay(SERVER_STEP_CAP_MS)]);
+        location.replace(villageURL(realm.id, realm.lands[0].id));
+      })();
       return;
     }
     show("lands");
@@ -571,12 +618,13 @@ function boot(): void {
     renderLands();
     return;
   }
-  const home = getHome();
-  if (!legacyMode && home) {
-    location.replace(villageURL(home.r, home.l));
+  if (legacyMode) {
+    show("title");
     return;
   }
-  show("title");
+  /* مسیر پایگاه خانگی اکنون سرورمحور است (اول سرور، بعد محلی) — resolveHomeOnBoot
+     یا مستقیم به پایگاه می‌برد یا صفحهٔ انتخاب اولیه را نشان می‌دهد. */
+  void resolveHomeOnBoot();
 }
 
 if (document.readyState === "loading") {

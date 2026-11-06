@@ -18,3 +18,8 @@ class GameEventRequest(BaseModel):
 class LegacyMigrationRequest(BaseModel):
     event_id: str = Field(min_length=8, max_length=80)
     legacy_state: dict
+
+class HomeBaseRequest(BaseModel):
+    """اولین ثبت پایگاه خانگی — مالکیت همیشه از توکن احراز‌شده تعیین می‌شود."""
+    realm: str = Field(min_length=2, max_length=40, pattern=r"^[a-z0-9_]+$")
+    land: str = Field(min_length=1, max_length=40, pattern=r"^[a-z0-9_]+$")
