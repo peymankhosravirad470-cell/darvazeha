@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api import auth, players, progress, world
 from app.api.live import persist_match_result
+from app.api import zivan as zivan_api
 from app.core.config import settings
 from app.core.database import get_engine, get_session_factory
 from app.integrations.bale.webhook import router as bale_webhook_router
@@ -67,6 +68,7 @@ app.include_router(world.router, prefix="/api/v1")
 app.include_router(bale_webhook_router, prefix="/api/v1")
 from app.api.live import router as live_router
 app.include_router(live_router, prefix="/api/v1")
+app.include_router(zivan_api.router, prefix="/api/v1")
 
 
 @app.get("/health")
