@@ -23,6 +23,10 @@ class PlayerAccount(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(80), default="مسافر")
     status: Mapped[str] = mapped_column(String(20), default="active")
+    # Home base (پایگاه خانگی) — انتخاب یک‌بارِ امپراتوری/سرزمین، مالکیت با حساب.
+    # هرگز از کلاینت بازنویسی نمی‌شود؛ فقط وقتی NULL است ثبت می‌شود (اتمیک، سرورمحور).
+    home_realm: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    home_land: Mapped[str | None] = mapped_column(String(40), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 class PlayerProgress(Base):
