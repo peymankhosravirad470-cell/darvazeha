@@ -1,0 +1,211 @@
+/* VIVA — پوستهٔ سلطنتی مشترک تالارها
+ * قواعد: هیچ باکس تختِ مشکی ممنوع؛ هر سطح لایه‌های گرادینت، حاشیهٔ طلاکاری،
+ * سایهٔ عمیق و بافت دارد. لهجهٔ رنگی هر تالار با --accent تعیین می‌شود. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  color: #f2e8d5;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  background:
+    radial-gradient(130% 60% at 50% -12%, rgba(140,32,52,0.32) 0%, transparent 55%),
+    radial-gradient(120% 55% at 50% 112%, rgba(64,40,10,0.40) 0%, transparent 60%),
+    radial-gradient(80% 50% at 50% 46%, rgba(52,36,16,0.28) 0%, transparent 70%),
+    linear-gradient(180deg, #120a08 0%, #0b0705 55%, #140c06 100%);
+  background-attachment: fixed;
+}
+
+.wrap { position: relative; max-width: 560px; margin: 0 auto;
+  padding: 0 14px calc(24px + env(safe-area-inset-bottom)); }
+
+/* ---------- نوار بالا ---------- */
+.topbar { display: flex; align-items: center; gap: 10px; padding: 12px 2px 8px; }
+.back {
+  width: 40px; height: 40px; border-radius: 13px; font-size: 19px;
+  display: grid; place-items: center; text-decoration: none; color: #ffe9b8;
+  background: linear-gradient(160deg, rgba(80,52,16,0.85), rgba(38,24,8,0.9));
+  border: 1px solid rgba(226,178,84,0.55);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,224,150,0.35);
+}
+.back:active { transform: scale(0.94); }
+.tb-title b { font-size: 15.5px; font-weight: 900; display: block;
+  background: linear-gradient(180deg, #ffe9a8 0%, #e8b74a 60%, #c98f2e 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tb-title span { font-size: 10px; color: #a2946e; letter-spacing: 2.5px; }
+.net {
+  margin-inline-start: auto; display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; color: #b3a67f; border-radius: 999px; padding: 6px 11px;
+  background: linear-gradient(180deg, rgba(58,42,16,0.55), rgba(26,18,8,0.65));
+  border: 1px solid rgba(226,178,84,0.4);
+  box-shadow: inset 0 1px 0 rgba(255,224,150,0.15);
+}
+.net .d { width: 7px; height: 7px; border-radius: 50%; background: #9a8f6f; box-shadow: 0 0 6px rgba(255,255,255,0.25); }
+.net.on { color: #b9f0c4; border-color: rgba(122,232,138,0.5); } .net.on .d { background: #7ae88a; box-shadow: 0 0 8px rgba(122,232,138,0.9); }
+.net.off { color: #ffb391; border-color: rgba(255,106,61,0.5); } .net.off .d { background: #ff6a3d; box-shadow: 0 0 8px rgba(255,106,61,0.9); }
+.sound {
+  margin-inline-start: 4px; width: 36px; height: 36px; border-radius: 12px;
+  font-size: 15px; font-family: inherit; color: #ffe9b8;
+  background: linear-gradient(160deg, rgba(80,52,16,0.85), rgba(38,24,8,0.9));
+  border: 1px solid rgba(226,178,84,0.55);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,224,150,0.3);
+}
+
+/* ---------- صحنهٔ بوم تالار ---------- */
+.hall-stage {
+  position: relative; height: 318px; border-radius: 22px; overflow: hidden;
+  margin: 10px 0 14px;
+  border: 1px solid rgba(226,178,84,0.55);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.72),
+    0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,224,150,0.10),
+    inset 0 0 90px rgba(0,0,0,0.55);
+  background: linear-gradient(180deg, #100a06, #0a0604);
+}
+.hall-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.hall-stage .frame-glow { position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 0 22px rgba(255,190,90,0.10), inset 0 1px 0 rgba(255,230,170,0.18); }
+
+/* صندلی‌های بازیکن روی صحنه (لایهٔ DOM روی بوم) */
+.seats { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.seat { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px;
+  width: 64px; text-align: center; pointer-events: auto; }
+.seat .ava {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 15px; font-weight: 900; color: #f7ecd2;
+  background:
+    radial-gradient(60% 55% at 50% 30%, rgba(255,220,150,0.28) 0%, transparent 60%),
+    linear-gradient(180deg, #43301c 0%, #221508 100%);
+  border: 2px solid rgba(226,178,84,0.75);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.65), inset 0 2px 6px rgba(255,220,150,0.2);
+}
+.seat.dead .ava { border-color: #565048; filter: grayscale(1) brightness(0.55); }
+.seat.me .ava { border-color: #ffd98a; box-shadow: 0 0 18px rgba(255,200,110,0.65), 0 6px 14px rgba(0,0,0,0.65); }
+.seat.targeting .ava { border-color: #ff9e9e; box-shadow: 0 0 20px rgba(255,70,70,0.8); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.1); } }
+.seat b { font-size: 10px; color: #ecdcba; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+.seat i { font-size: 9px; font-style: normal; color: #b3a67f; }
+.seat.dead b { color: #6f6a60; text-decoration: line-through; }
+.seat .votes { position: absolute; top: -14px; right: 2px; font-size: 10px; font-weight: 900; color: #fff;
+  min-width: 18px; height: 18px; display: grid; place-items: center; padding: 0 4px; border-radius: 999px;
+  background: linear-gradient(180deg, #e0304a, #a00d24);
+  border: 1px solid rgba(255,190,190,0.5); box-shadow: 0 3px 10px rgba(200,16,46,0.7); }
+.seat .crown { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); font-size: 12px;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8)); }
+
+/* ---------- پنل سلطنتی ---------- */
+.panel {
+  position: relative;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(96,66,24,0.30) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(48,34,18,0.94) 0%, rgba(24,16,8,0.96) 100%);
+  border: 1px solid rgba(226,178,84,0.5);
+  border-radius: 18px; padding: 14px; margin-bottom: 12px;
+  box-shadow: 0 18px 42px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,228,160,0.16), inset 0 0 40px rgba(0,0,0,0.35);
+}
+.panel::before {
+  content: ""; position: absolute; inset: 5px; border-radius: 13px; pointer-events: none;
+  border: 1px solid rgba(226,178,84,0.22);
+}
+.panel::after {
+  content: "❖"; position: absolute; top: -9px; right: 16px; font-size: 12px; color: #e8b74a;
+  background: linear-gradient(180deg, #1c1208, #120b04); padding: 0 7px;
+  text-shadow: 0 0 8px rgba(232,183,74,0.6);
+}
+.phase-row { display: flex; align-items: center; gap: 10px; position: relative; }
+.phase-badge {
+  font-size: 12px; font-weight: 900; padding: 7px 13px; border-radius: 999px; color: #ffe9b8;
+  background: linear-gradient(180deg, rgba(120,84,30,0.5), rgba(60,40,14,0.6));
+  border: 1px solid rgba(226,178,84,0.65);
+  box-shadow: inset 0 1px 0 rgba(255,230,170,0.25), 0 4px 12px rgba(0,0,0,0.4);
+}
+.phase-badge.day { color: #ffe9a8; border-color: rgba(255,200,100,0.7); }
+.phase-badge.vote { color: #c8d4ff; border-color: rgba(130,155,255,0.6);
+  background: linear-gradient(180deg, rgba(60,70,130,0.5), rgba(28,32,64,0.6)); }
+.timer { margin-inline-start: auto; font-size: 15px; font-weight: 900; color: #ffd98a; font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 12px rgba(255,200,110,0.35); }
+.phase-msg { margin-top: 10px; font-size: 12.5px; color: #d3c5a2; line-height: 2; }
+
+/* ---------- دکمه‌ها ---------- */
+.big-btn {
+  width: 100%; margin-top: 12px; border: 0; border-radius: 14px; padding: 14px;
+  font-family: inherit; font-weight: 900; font-size: 15px; color: #fff;
+  background: linear-gradient(180deg, #e0304a 0%, #a00d24 100%);
+  box-shadow: 0 12px 26px rgba(200,16,46,0.35), inset 0 1px 0 rgba(255,200,200,0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.big-btn:active { transform: scale(0.98); }
+.big-btn:disabled { opacity: 0.45; }
+.big-btn.gold {
+  background: linear-gradient(180deg, #ffe9a8 0%, #e8b74a 55%, #c98f2e 100%);
+  color: #241505; text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow: 0 12px 28px rgba(217,169,60,0.4), inset 0 1px 0 rgba(255,255,240,0.6);
+}
+.big-btn.danger { background: linear-gradient(180deg, #b0673a, #7a3a1e); color: #ffe4d0; }
+.pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; position: relative; }
+.pill {
+  border: 1px solid rgba(226,178,84,0.45); color: #ecdcb0;
+  background: linear-gradient(180deg, rgba(90,64,26,0.35), rgba(40,28,12,0.5));
+  border-radius: 999px; padding: 8px 14px; font-size: 12px; font-weight: 700; font-family: inherit;
+  box-shadow: inset 0 1px 0 rgba(255,224,150,0.15);
+}
+.pill.sel {
+  background: linear-gradient(180deg, #ffe9a8, #d9a93c); color: #241505;
+  box-shadow: 0 6px 16px rgba(217,169,60,0.45), inset 0 1px 0 rgba(255,255,240,0.6);
+}
+
+/* ---------- لیست اتاق‌ها ---------- */
+.rooms-list { display: grid; gap: 9px; margin-top: 10px; position: relative; }
+.room-card {
+  display: flex; align-items: center; gap: 10px; font-size: 12.5px; border-radius: 14px; padding: 11px 13px;
+  background: linear-gradient(180deg, rgba(58,42,20,0.8), rgba(30,20,10,0.9));
+  border: 1px solid rgba(226,178,84,0.4);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,160,0.12);
+}
+.room-card b { color: #ffd98a; }
+.room-card .join {
+  margin-inline-start: auto; border: 0; border-radius: 10px; padding: 8px 14px;
+  font-family: inherit; font-weight: 900; font-size: 12px; color: #241505;
+  background: linear-gradient(180deg, #ffe9a8, #d9a93c);
+  box-shadow: 0 6px 14px rgba(217,169,60,0.4), inset 0 1px 0 rgba(255,255,240,0.55);
+}
+
+/* ---------- رویدادها / نتایج / توست ---------- */
+.log { margin-top: 10px; font-size: 11.5px; color: #b3a67f; line-height: 2.1; position: relative; }
+.log b { color: #ffd98a; }
+.overlay { position: fixed; inset: 0; display: grid; place-items: center; z-index: 50; padding: 20px;
+  background: radial-gradient(80% 60% at 50% 40%, rgba(30,18,6,0.86) 0%, rgba(6,4,2,0.95) 100%);
+  backdrop-filter: blur(3px); }
+.overlay .card {
+  max-width: 420px; width: 100%; text-align: center; position: relative;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(120,84,30,0.35) 0%, transparent 55%),
+    linear-gradient(180deg, #2a1d0e 0%, #16100a 100%);
+  border: 1px solid rgba(226,178,84,0.6); border-radius: 22px; padding: 22px;
+  box-shadow: 0 34px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,232,170,0.2);
+}
+.overlay h2 { font-size: 22px; font-weight: 900; margin: 8px 0 4px; color: #ffe9a8; }
+.overlay h2.town { color: #9fe8b0; } .overlay h2.mafia { color: #ff6b6b; }
+.overlay .roles { margin-top: 12px; display: grid; gap: 6px; text-align: right; font-size: 12.5px; }
+.overlay .roles div { display: flex; justify-content: space-between;
+  border-bottom: 1px dashed rgba(255,228,170,0.14); padding-bottom: 5px; }
+.overlay .rw { margin-top: 12px; font-size: 12px; color: #ffd98a; }
+.overlay .back-btn {
+  margin-top: 16px; width: 100%; border: 0; border-radius: 14px; padding: 13px;
+  font-family: inherit; font-weight: 900; color: #241505;
+  background: linear-gradient(180deg, #ffe9a8, #d9a93c);
+  box-shadow: 0 10px 24px rgba(217,169,60,0.4), inset 0 1px 0 rgba(255,255,240,0.6);
+}
+.toast {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 60;
+  font-size: 12px; color: #ffe9c9; padding: 10px 16px; border-radius: 12px;
+  background: linear-gradient(180deg, rgba(70,48,18,0.96), rgba(38,26,10,0.96));
+  border: 1px solid rgba(226,178,84,0.6);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,232,170,0.2);
+  animation: tin 0.25s ease;
+}
+@keyframes tin { from { opacity: 0; transform: translate(-50%, 8px); } }
+.hidden { display: none !important; }

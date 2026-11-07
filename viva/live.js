@@ -25,7 +25,6 @@
   }
 
   async function readInitData() {
-    if (window.__VIVA_DEV_INITDATA__) return window.__VIVA_DEV_INITDATA__;
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg && typeof tg.initData === "string" && tg.initData.length > 0) return tg.initData;
     return null;
@@ -35,7 +34,8 @@
     if (state.token) return state;
     const initData = await readInitData();
     if (!initData) {
-      throw new Error("outside_bale");
+      // کد خطای رسمی: ورود فقط از داخل مینی‌اپ رسمی VIVA در بله انجام می‌شود
+      throw new Error("VIVA_LOGIN_REQUIRES_BALE");
     }
     const res = await fetch(apiBase() + "/auth/bale", {
       method: "POST",

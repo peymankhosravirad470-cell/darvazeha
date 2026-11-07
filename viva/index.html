@@ -161,7 +161,7 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #f
       : "اتصال به سرور VIVA…";
   });
   Viva.ensureLogin().catch(function (e) {
-    tx.textContent = e.message === "outside_bale"
+    tx.textContent = e.message === "VIVA_LOGIN_REQUIRES_BALE"
       ? "ورود واقعی فقط داخل مینی‌اپ بله انجام می‌شود."
       : "ورود ناموفق — دوباره تلاش کنید.";
   });

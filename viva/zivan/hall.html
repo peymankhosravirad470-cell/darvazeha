@@ -969,7 +969,7 @@ body { font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif; color: #e
     (builders[hall.view] || viewGps)(view);
   }).catch(function (e) {
     document.getElementById("auth-warn").style.display = "block";
-    if (e.message !== "outside_bale") document.getElementById("auth-warn").innerHTML =
+    if (e.message !== "VIVA_LOGIN_REQUIRES_BALE") document.getElementById("auth-warn").innerHTML =
       "<b>ورود ناموفق.</b> دوباره تلاش کنید.";
   });
 })();
